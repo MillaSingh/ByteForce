@@ -1,0 +1,103 @@
+/* Basic Reset */
+* {
+    box-sizing: border-box; /* adds padding and makes an element wider*/
+    margin: 0; /* different browers use different default spacing*/
+    padding: 0; /* removes default spacing around elements */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body { /* th=is handles overall background and postioning*/
+    background-color: #f0f2f5;
+    display: flex; /* this turns the body into a flexbox container horizontally left to right*/
+    flex-direction: column; /* this stacks the child elements vertically*/
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /*tells the body to be as tall as the entire screen*/
+}
+
+main {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    flex-grow : 1; /* this allows the main content to grow and fill available space, pushing the footer to the bottom */
+    align-items: center;
+}
+
+#login-card {
+    background: rgb(239, 233, 233);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    width: 100%;
+    padding : 40px 20px ;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    background-color:  #4A90E2;
+}
+
+header h1 {
+    color: #ffffff;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #a0bed5;
+    font-size: 14px;
+}
+
+form {
+    display: flex;
+    flex-direction: column; /*this stacks the form elements vertically*/
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+input {
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+input:focus {
+    outline: none;
+    border-color: #4A90E2; /*this changes the border color when the input is focused (clicked on)*/
+}
+
+button {
+    background-color: #4A90E2;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer; /*changes the cursor to a pointer when hovering over the button*/
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #357ABD; /*this darkens the button when hovered over*/
+}
+
+footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 14px;
+}
+
+footer a {
+    color: #4A90E2;
+    text-decoration: none;
+}

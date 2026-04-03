@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - MediCure</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #dobField {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #4A90E2;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        #dobLabel {
+            font-weight: 600 !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MediCure</h1>
+        <p>A South African Community Clinic Appointment and Queue Management System</p>
+    </header>
+    <main>
+        <section id="register-card" style="background: rgb(239, 233, 233); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto;">
+            <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Create Account</h2>
+            <form id="registerForm">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" required>
+
+                <label for="surname">Surname</label>
+                <input type="text" id="surname" required>
+
+                <label for="idNumber">ID Number</label>
+                <input type="text" id="idNumber" required maxlength="13">
+
+                <label id="dobLabel" for="dobField">Date Of Birth</label>
+                <input type="text" id="dobField" readonly>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" required>
+
+                <label style="font-weight: normal;">
+                    <input type="checkbox" id="detailsConfirmation" required> I confirm that all details provided are true and valid. Providing false information may lead to legal consequences.
+                </label>
+
+                <button type="submit">Register</button>
+            </form>
+            <p style="text-align: center; margin-top: 20px;">
+                Already have an account? <a href="Login.html">Login</a>
+            </p>
+            <div id="errorMsg" style="color: red; text-align: center; margin-top: 10px; display: none;"></div>
+        </section>
+    </main>
+
+    <script>
+        const idInput = document.getElementById('idNumber');
+        const dobField = document.getElementById('dobField');
+        idInput.addEventListener('input', function() {
+            const idNumber = this.value.replace(/\D/g, '').slice(0,13);
+            this.value = idNumber;
+            if (idNumber.length === 13) {
+                const yy = idNumber.slice(0,2);
+                const mm = idNumber.slice(2,4);
+                const dd = idNumber.slice(4,6);
+                const fullYear = 2000 + parseInt(yy);
+                dobField.value = `${fullYear}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+            } else {
+                dobField.value = '';
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const surname = document.getElementById('surname').value.trim();
+            const idNumber = idInput.value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const detailsConfirmed = document.getElementById('detailsConfirmation').checked;
+
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!firstName || !surname || !idNumber || !password || !detailsConfirmed) {
+                errorMsg.textContent = 'Please fill all fields and confirm details.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (!/^\d{13}$/.test(idNumber)) {
+                errorMsg.textContent = 'ID must be exactly 13 digits.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                errorMsg.textContent = 'Password must be at least 6 characters.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorMsg.textContent = 'Passwords do not match.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const newUser = { firstName, surname, idNumber, password, role: 'patient' };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            alert('Registration successful!');
+            window.location.href = 'Login.html';
+        });
+    </script>
+</body>
+</html>

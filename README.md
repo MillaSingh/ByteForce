@@ -1,4 +1,4 @@
-# ByteForce - MediCure
+# ByteForce - MediQueue
 South African Community Clinic Appointment and Queue Management System (SD group project).
 
 ## Features

@@ -43,15 +43,6 @@
           <legend>Province</legend>
           <select name="province" id="filterProvince">
             <option value="">All Provinces</option>
-            <option value="Gauteng">Gauteng</option>
-            <option value="Western Cape">Western Cape</option>
-            <option value="KwaZulu-Natal">KwaZulu-Natal</option>
-            <option value="Eastern Cape">Eastern Cape</option>
-            <option value="Limpopo">Limpopo</option>
-            <option value="Mpumalanga">Mpumalanga</option>
-            <option value="North West">North West</option>
-            <option value="Free State">Free State</option>
-            <option value="Northern Cape">Northern Cape</option>
           </select>
         </fieldset>
 
@@ -59,10 +50,6 @@
           <legend>District</legend>
           <select name="district" id="filterDistrict">
             <option value="">All Districts</option>
-            <option value="City of Johannesburg">City of Johannesburg</option>
-            <option value="City of Cape Town">City of Cape Town</option>
-            <option value="eThekwini">eThekwini</option>
-            <option value="Tshwane">Tshwane</option>
           </select>
         </fieldset>
 
@@ -70,10 +57,6 @@
           <legend>Facility Type</legend>
           <select name="facilityType" id="filterType">
             <option value="">All Types</option>
-            <option value="Clinic">Clinic</option>
-            <option value="Community Health Centre">Community Health Centre</option>
-            <option value="District Hospital">District Hospital</option>
-            <option value="Regional Hospital">Regional Hospital</option>
           </select>
         </fieldset>
 
@@ -83,118 +66,9 @@
     </section>
 
     <section class="results" aria-label="Clinic listings" aria-live="polite">
-      <h2>Available Clinics <span id="resultCount">(6 found)</span></h2>
+      <h2>Available Clinics <span id="resultCount"></span></h2>
 
       <ul class="clinic-list" id="clinicList" role="list">
-
-        <li>
-          <article class="clinic-card">
-            <header class="clinic-card__header">
-              <h3>Diepsloot Clinic</h3>
-              <span class="badge badge--clinic">Clinic</span>
-            </header>
-            <dl class="clinic-card__details">
-              <dt>Province</dt><dd>Gauteng</dd>
-              <dt>District</dt><dd>City of Johannesburg</dd>
-              <dt>Municipality</dt><dd>Johannesburg</dd>
-              <dt>Service Type</dt><dd>PHC Service</dd>
-            </dl>
-            <footer class="clinic-card__footer">
-              <a href="#" class="btn-primary">View &amp; Book</a>
-            </footer>
-          </article>
-        </li>
-
-        <li>
-          <article class="clinic-card">
-            <header class="clinic-card__header">
-              <h3>Mitchells Plain Community Health Centre</h3>
-              <span class="badge badge--chc">Community Health Centre</span>
-            </header>
-            <dl class="clinic-card__details">
-              <dt>Province</dt><dd>Western Cape</dd>
-              <dt>District</dt><dd>City of Cape Town</dd>
-              <dt>Municipality</dt><dd>Cape Town</dd>
-              <dt>Service Type</dt><dd>PHC Service</dd>
-            </dl>
-            <footer class="clinic-card__footer">
-              <a href="#" class="btn-primary">View &amp; Book</a>
-            </footer>
-          </article>
-        </li>
-
-        <li>
-          <article class="clinic-card">
-            <header class="clinic-card__header">
-              <h3>Umlazi Clinic F</h3>
-              <span class="badge badge--clinic">Clinic</span>
-            </header>
-            <dl class="clinic-card__details">
-              <dt>Province</dt><dd>KwaZulu-Natal</dd>
-              <dt>District</dt><dd>eThekwini</dd>
-              <dt>Municipality</dt><dd>eThekwini</dd>
-              <dt>Service Type</dt><dd>PHC Service</dd>
-            </dl>
-            <footer class="clinic-card__footer">
-              <a href="#" class="btn-primary">View &amp; Book</a>
-            </footer>
-          </article>
-        </li>
-
-        <li>
-          <article class="clinic-card">
-            <header class="clinic-card__header">
-              <h3>Mamelodi Hospital</h3>
-              <span class="badge badge--hospital">District Hospital</span>
-            </header>
-            <dl class="clinic-card__details">
-              <dt>Province</dt><dd>Gauteng</dd>
-              <dt>District</dt><dd>Tshwane</dd>
-              <dt>Municipality</dt><dd>Tshwane</dd>
-              <dt>Service Type</dt><dd>MOU Service</dd>
-            </dl>
-            <footer class="clinic-card__footer">
-              <a href="#" class="btn-primary">View &amp; Book</a>
-            </footer>
-          </article>
-        </li>
-
-        <li>
-          <article class="clinic-card">
-            <header class="clinic-card__header">
-              <h3>Soshanguve Clinic</h3>
-              <span class="badge badge--clinic">Clinic</span>
-            </header>
-            <dl class="clinic-card__details">
-              <dt>Province</dt><dd>Gauteng</dd>
-              <dt>District</dt><dd>Tshwane</dd>
-              <dt>Municipality</dt><dd>Tshwane</dd>
-              <dt>Service Type</dt><dd>PHC Service</dd>
-            </dl>
-            <footer class="clinic-card__footer">
-              <a href="#" class="btn-primary">View &amp; Book</a>
-            </footer>
-          </article>
-        </li>
-
-        <li>
-          <article class="clinic-card">
-            <header class="clinic-card__header">
-              <h3>Khayelitsha Community Health Centre</h3>
-              <span class="badge badge--chc">Community Health Centre</span>
-            </header>
-            <dl class="clinic-card__details">
-              <dt>Province</dt><dd>Western Cape</dd>
-              <dt>District</dt><dd>City of Cape Town</dd>
-              <dt>Municipality</dt><dd>Cape Town</dd>
-              <dt>Service Type</dt><dd>PHC Service</dd>
-            </dl>
-            <footer class="clinic-card__footer">
-              <a href="#" class="btn-primary">View &amp; Book</a>
-            </footer>
-          </article>
-        </li>
-
       </ul>
 
       <p class="no-results" id="noResults" hidden="">No clinics match your search. Please try different filters.</p>

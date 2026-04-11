@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest --coverage"
+    "test": "node_modules/.bin/jest --coverage"
   },
   "jest": {
     "testEnvironment": "node",

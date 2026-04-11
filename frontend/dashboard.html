@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Dashboard | MEDIQUEUE</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+
+<nav>
+  <section class="nav-brand">
+    <img src="logo.jpeg" width="60" height="60">
+    <span class="nav-logo">MEDI<span>QUEUE</span></span>
+  </section>
+
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">Clinics</a></li>
+    <li><a href="#" class="active">Dashboard</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+
+  <!-- UPDATED BUTTON -->
+  <button class="nav-cta account-btn">Account</button>
+</nav>
+
+<header class="hero">
+  <span class="hero-badge">Clinic Staff</span>
+  <h1>Patient Queue Dashboard</h1>
+  <p>Manage patient flow and update consultation status in real-time</p>
+</header>
+
+<main>
+  <section class="card">
+
+    <h2 class="section-title">Active Patient Queue</h2>
+    <p class="section-sub">Search and manage patients</p>
+
+    <section class="controls">
+      <input type="text" id="searchInput" placeholder="Search patient...">
+      
+      <select id="filterStatus">
+        <option value="All">All Status</option>
+        <option value="Waiting">Waiting</option>
+        <option value="In Consultation">In Consultation</option>
+        <option value="Complete">Complete</option>
+      </select>
+    </section>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Position</th>
+          <th>Name</th>
+          <th>ID</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="patientTable"></tbody>
+    </table>
+
+  </section>
+</main>
+
+<footer>
+  © 2026 MediQueue · All rights reserved
+</footer>
+
+<script>
+let patients = [
+  { id: "P001", name: "John Doe", status: "Waiting" },
+  { id: "P002", name: "Mary Smith", status: "Waiting" },
+  { id: "P003", name: "David Lee", status: "In Consultation" }
+];
+
+function renderPatients() {
+  const table = document.getElementById("patientTable");
+  table.innerHTML = "";
+
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const filter = document.getElementById("filterStatus").value;
+
+  patients.forEach((patient, index) => {
+    if (
+      patient.name.toLowerCase().includes(search) &&
+      (filter === "All" || patient.status === filter)
+    ) {
+      let row = `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${patient.name}</td>
+          <td>${patient.id}</td>
+          <td>
+            <select onchange="updateStatus(${index}, this.value)">
+              <option ${patient.status==="Waiting"?"selected":""}>Waiting</option>
+              <option ${patient.status==="In Consultation"?"selected":""}>In Consultation</option>
+              <option ${patient.status==="Complete"?"selected":""}>Complete</option>
+            </select>
+          </td>
+        </tr>
+      `;
+      table.innerHTML += row;
+    }
+  });
+}
+
+function updateStatus(index, value) {
+  patients[index].status = value;
+
+  if (value === "Complete") {
+    patients.splice(index, 1);
+  }
+
+  renderPatients();
+}
+
+document.getElementById("searchInput").addEventListener("input", renderPatients);
+document.getElementById("filterStatus").addEventListener("change", renderPatients);
+
+renderPatients();
+</script>
+
+</body>
+</html>

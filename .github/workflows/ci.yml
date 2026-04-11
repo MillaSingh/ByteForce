@@ -22,6 +22,10 @@ jobs:
       - name: Install dependencies
         working-directory: backend
         run: npm install
+        
+      - name: Set permissions
+        working-directory: backend
+        run: chmod +x node_modules/.bin/jest
 
       - name: Run tests with coverage
         working-directory: backend

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node_modules/.bin/jest --coverage"
+    "test": "npx jest --coverage"
   },
   "jest": {
     "testEnvironment": "node",

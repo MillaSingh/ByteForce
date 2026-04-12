@@ -72,11 +72,17 @@
 </footer>
 
 <script>
-let patients = [
-  { id: "P001", name: "John Doe", status: "Waiting" },
-  { id: "P002", name: "Mary Smith", status: "Waiting" },
-  { id: "P003", name: "David Lee", status: "In Consultation" }
-];
+let patients = [];
+
+async function loadPatients() {
+  try {
+    const response = await fetch('/api/patients');
+    patients = await response.json();
+    renderPatients();
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 function renderPatients() {
   const table = document.getElementById("patientTable");
@@ -85,21 +91,23 @@ function renderPatients() {
   const search = document.getElementById("searchInput").value.toLowerCase();
   const filter = document.getElementById("filterStatus").value;
 
-  patients.forEach((patient, index) => {
+  patients.forEach((patient) => {
+    const fullName = patient.first_name + " " + patient.last_name;
+
     if (
-      patient.name.toLowerCase().includes(search) &&
-      (filter === "All" || patient.status === filter)
+      fullName.toLowerCase().includes(search) &&
+      (filter === "All" || formatStatus(patient.status) === filter)
     ) {
       let row = `
         <tr>
-          <td>${index + 1}</td>
-          <td>${patient.name}</td>
-          <td>${patient.id}</td>
+          <td>${patient.queue_position}</td>
+          <td>${fullName}</td>
+          <td>${patient.queue_id}</td>
           <td>
-            <select onchange="updateStatus(${index}, this.value)">
-              <option ${patient.status==="Waiting"?"selected":""}>Waiting</option>
-              <option ${patient.status==="In Consultation"?"selected":""}>In Consultation</option>
-              <option ${patient.status==="Complete"?"selected":""}>Complete</option>
+            <select onchange="updateStatus(${patient.queue_id}, this.value)">
+              <option ${patient.status==="waiting"?"selected":""}>Waiting</option>
+              <option ${patient.status==="in_consultation"?"selected":""}>In Consultation</option>
+              <option ${patient.status==="complete"?"selected":""}>Complete</option>
             </select>
           </td>
         </tr>
@@ -109,20 +117,32 @@ function renderPatients() {
   });
 }
 
-function updateStatus(index, value) {
-  patients[index].status = value;
+// Convert DB format → UI format
+function formatStatus(status) {
+  if (status === "waiting") return "Waiting";
+  if (status === "in_consultation") return "In Consultation";
+  if (status === "complete") return "Complete";
+}
 
-  if (value === "Complete") {
-    patients.splice(index, 1);
-  }
+// Update status in DB
+async function updateStatus(id, value) {
+  let dbStatus = value.toLowerCase().replace(" ", "_");
 
-  renderPatients();
+  await fetch(`/api/patients/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ status: dbStatus })
+  });
+
+  loadPatients();
 }
 
 document.getElementById("searchInput").addEventListener("input", renderPatients);
 document.getElementById("filterStatus").addEventListener("change", renderPatients);
 
-renderPatients();
+loadPatients();
 </script>
 
 </body>

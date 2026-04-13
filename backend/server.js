@@ -5,16 +5,15 @@ require('dotenv').config({ path: '../.env' });
 // Import route files
 const clinicsRouter = require('./src/routes/clinics');
 const patientsRouter = require('./src/routes/patients');
-const appointmentRouter = require('.src/routes/appointments');
+const appointmentRouter = require('./src/routes/appointments');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.use(express.json());
 
-// Serve frontend as static files — no CORS needed
+// Serve frontend as static files
 app.use(express.static(path.join(__dirname, '../frontend')));
-
 
 // Register the routers
 app.use('/api/clinics', clinicsRouter);

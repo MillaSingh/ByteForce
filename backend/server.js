@@ -1,10 +1,11 @@
 const express = require('express');
 const path = require('path');
-const patientsRouter = require('./src/routes/patients');
 require('dotenv').config({ path: '../.env' });
 
-// Define endpoints here
+// Import route files
 const clinicsRouter = require('./src/routes/clinics');
+const patientsRouter = require('./src/routes/patients');
+const appointmentRouter = require('.src/routes/appointments');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,9 +16,10 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 
-// Add API routes here
+// Register the routers
 app.use('/api/clinics', clinicsRouter);
 app.use('/api/patients', patientsRouter);
+app.use('/api/appointments', appointmentRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

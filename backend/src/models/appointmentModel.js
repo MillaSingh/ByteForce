@@ -1,6 +1,5 @@
 const db = require('../db');
 
-// check if slot exists
 const checkSlot = async (clinic_id, appointment_date, appointment_time) => {
   const result = await db.query(
     `SELECT * FROM appointment
@@ -12,7 +11,6 @@ const checkSlot = async (clinic_id, appointment_date, appointment_time) => {
   return result.rows;
 };
 
-// create appointment
 const createAppointment = async (data) => {
   const {
     clinic_id,

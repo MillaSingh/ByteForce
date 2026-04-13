@@ -1,11 +1,9 @@
 const appointmentModel = require('../models/appointmentModel');
 
-// CREATE BOOKING
 const createBooking = async (req, res) => {
   try {
     const data = req.body;
 
-    // 1. check if slot exists
     const existing = await appointmentModel.checkSlot(
       data.clinic_id,
       data.appointment_date,
@@ -18,13 +16,10 @@ const createBooking = async (req, res) => {
       });
     }
 
-    // 2. create booking
     const appointment = await appointmentModel.createAppointment(data);
 
-    // 3. generate reference
     const ref = "CC-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    // 4. response
     return res.json({
       success: true,
       appointment,

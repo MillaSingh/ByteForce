@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"> <!-- Sets character encoding -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes it responsive -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clinic Dashboard | MEDIQUEUE</title>
 
-  <!-- Importing fonts from Google -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <!-- Link to external CSS file -->
+  <!-- External CSS -->
   <link rel="stylesheet" href="dashboard.css">
 </head>
 
@@ -17,19 +17,18 @@
 <!-- Navigation bar -->
 <nav>
   <section class="nav-brand">
-    <img src="logo.jpeg" width="60" height="60"> <!-- Logo -->
-    <span class="nav-logo">MEDI<span>QUEUE</span></span> <!-- App name -->
+    <img src="logo.jpeg" width="60" height="60">
+    <span class="nav-logo">MEDI<span>QUEUE</span></span>
   </section>
 
-  <!-- Navigation links -->
   <ul class="nav-links">
     <li><a href="#" class="active">Dashboard</a></li>
   </ul>
 
-  Account <!-- Placeholder for account section -->
+  Account
 </nav>
 
-<!-- Header section -->
+<!-- Header -->
 <header class="hero">
   <span class="hero-badge">Clinic Staff</span>
   <h1>Patient Queue Dashboard</h1>
@@ -42,11 +41,11 @@
     <h2 class="section-title">Active Patient Queue</h2>
     <p class="section-sub">Search and manage patients</p>
 
-    <!-- Search and filter controls -->
+    <!-- Controls -->
     <section class="controls">
-      <input type="text" id="searchInput" placeholder="Search patient..."> <!-- Search box -->
+      <input type="text" id="searchInput" placeholder="Search patient...">
       
-      <select id="filterStatus"> <!-- Dropdown filter -->
+      <select id="filterStatus">
         <option value="All">All Status</option>
         <option value="Waiting">Waiting</option>
         <option value="In Consultation">In Consultation</option>
@@ -54,7 +53,7 @@
       </select>
     </section>
 
-    <!-- Table to display patients -->
+    <!-- Table -->
     <table>
       <thead>
         <tr>
@@ -64,7 +63,7 @@
           <th>Status</th>
         </tr>
       </thead>
-      <tbody id="patientTable"></tbody> <!-- Filled dynamically -->
+      <tbody id="patientTable"></tbody>
     </table>
 
   </section>
@@ -76,43 +75,42 @@
 </footer>
 
 <script>
-let patients = []; // Stores patient data
+let patients = [];
 
-// Fetch patient data from backend
-async function loadPatients() {
-  try {
-    const response = await fetch('/api/patients'); // API call
-    patients = await response.json(); // Convert to JSON
-    renderPatients(); // Display patients
-  } catch (error) {
-    console.error(error); // Log errors
-  }
+// Load HARD-CODED data
+function loadPatients() {
+  patients = [
+    { queue_position: 1, first_name: "John", last_name: "Doe", queue_id: 101, status: "waiting" },
+    { queue_position: 2, first_name: "Sarah", last_name: "Smith", queue_id: 102, status: "in_consultation" },
+    { queue_position: 3, first_name: "Michael", last_name: "Brown", queue_id: 103, status: "complete" },
+    { queue_position: 4, first_name: "Aisha", last_name: "Khan", queue_id: 104, status: "waiting" },
+    { queue_position: 5, first_name: "David", last_name: "Moyo", queue_id: 105, status: "in_consultation" }
+  ];
+
+  renderPatients();
 }
 
-// Display patients in the table
+// Render table
 function renderPatients() {
   const table = document.getElementById("patientTable");
-  table.innerHTML = ""; // Clear table
+  table.innerHTML = "";
 
-  const search = document.getElementById("searchInput").value.toLowerCase(); // Get search input
-  const filter = document.getElementById("filterStatus").value; // Get selected filter
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const filter = document.getElementById("filterStatus").value;
 
   patients.forEach((patient) => {
-    const fullName = patient.first_name + " " + patient.last_name; // Combine names
+    const fullName = patient.first_name + " " + patient.last_name;
 
-    // Check if patient matches search and filter
     if (
       fullName.toLowerCase().includes(search) &&
       (filter === "All" || formatStatus(patient.status) === filter)
     ) {
-      // Create table row
       let row = `
         <tr>
           <td>${patient.queue_position}</td>
           <td>${fullName}</td>
           <td>${patient.queue_id}</td>
           <td>
-            <!-- Dropdown to update status -->
             <select onchange="updateStatus(${patient.queue_id}, this.value)">
               <option ${patient.status==="waiting"?"selected":""}>Waiting</option>
               <option ${patient.status==="in_consultation"?"selected":""}>In Consultation</option>
@@ -121,40 +119,34 @@ function renderPatients() {
           </td>
         </tr>
       `;
-      table.innerHTML += row; // Add row to table
+      table.innerHTML += row;
     }
   });
 }
 
-// Convert database status → readable text
+// Format status
 function formatStatus(status) {
   if (status === "waiting") return "Waiting";
   if (status === "in_consultation") return "In Consultation";
   if (status === "complete") return "Complete";
 }
 
-// Send updated status to backend
-async function updateStatus(id, value) {
-  let dbStatus = value.toLowerCase().replace(" ", "_"); // Convert to DB format
+// Simulate update (no backend)
+function updateStatus(id, value) {
+  let dbStatus = value.toLowerCase().replace(" ", "_");
 
-  await fetch(`/api/patients/${id}`, {
-    method: "PUT", // Update request
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ status: dbStatus }) // Send new status
-  });
+  patients = patients.map(p =>
+    p.queue_id === id ? { ...p, status: dbStatus } : p
+  );
 
-  loadPatients(); // Reload updated data
+  renderPatients();
 }
 
-// Re-render when user types in search
+// Event listeners
 document.getElementById("searchInput").addEventListener("input", renderPatients);
-
-// Re-render when filter changes
 document.getElementById("filterStatus").addEventListener("change", renderPatients);
 
-// Initial load of patients
+// Initial load
 loadPatients();
 </script>
 

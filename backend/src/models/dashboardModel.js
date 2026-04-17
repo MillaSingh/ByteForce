@@ -8,7 +8,8 @@ const getQueuePatients = async () => {
       q.queue_position,
       q.status,
       u.first_name,
-      u.last_name
+      u.last_name,
+      u.email
     FROM queue_entry q
     LEFT JOIN "user" u 
       ON q.patient_id = u.user_id

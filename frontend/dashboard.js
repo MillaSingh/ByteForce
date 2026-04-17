@@ -54,7 +54,7 @@ const renderPatients = () => {
       row.innerHTML = `
         <td>${patient.queue_position ?? "-"}</td>
         <td>${fullName}</td>
-        <td>${patient.queue_id}</td>
+        <td>${patient.email ?? "-"}</td>
         <td>
           <select data-id="${patient.queue_id}">
             <option value="Waiting"          ${patient.status === "waiting"         ? "selected" : ""}>Waiting</option>

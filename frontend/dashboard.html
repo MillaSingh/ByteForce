@@ -41,6 +41,8 @@
     <h2 class="section-title">Active Patient Queue</h2>
     <p class="section-sub">Search and manage patients</p>
 
+    
+
     <!-- Controls -->
     <section class="controls">
       <input type="text" id="searchInput" placeholder="Search patient...">
@@ -51,6 +53,8 @@
         <option value="In Consultation">In Consultation</option>
         <option value="Complete">Complete</option>
       </select>
+      <!-- ADD PATIENT BUTTON -->
+      <button id="addPatientBtn">Add Patient</button>
     </section>
 
     <!-- Table -->
@@ -61,6 +65,7 @@
           <th>Name</th>
           <th>Email</th>
           <th>Status</th>
+          
         </tr>
       </thead>
       <tbody id="patientTable"></tbody>
@@ -68,6 +73,19 @@
 
   </section>
 </main>
+    <!-- Add Walk in patient  -->
+  <dialog id="patientDialog">
+  <h3>Add Walk-in Patient</h3>
+
+  <input type="text" id="firstName" placeholder="First Name" required>
+  <input type="text" id="lastName" placeholder="Last Name" required>
+  <input type="email" id="email" placeholder="Email" required>
+
+  <section class="dialog-buttons">
+    <button onclick="submitPatient()">Add</button>
+    <button onclick="closeDialog()">Cancel</button>
+  </section>
+  </dialog>
 
 <!-- Footer -->
 <footer>

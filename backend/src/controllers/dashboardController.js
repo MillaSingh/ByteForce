@@ -26,7 +26,31 @@ const updateStatus = async (req, res) => {
   }
 };
 
+// POST /api/queue/add-walkin
+const addWalkInPatient = async (req, res) => {
+  console.log("ADD WALK-IN HIT"); //  check error
+  console.log("BODY:", req.body); //  check error
+
+  const { first_name, last_name, email, clinic_id } = req.body;
+
+  try {
+    const result = await dashboardModel.addWalkInPatient(
+      first_name,
+      last_name,
+      email,
+      clinic_id
+    );
+
+    res.json(result);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to add patient" });
+  }
+};
+
 module.exports = {
   getQueue,
-  updateStatus
+  updateStatus,
+  addWalkInPatient
 };

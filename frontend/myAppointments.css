@@ -1,0 +1,149 @@
+/* RESET */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #f8f5f0;
+  --white: #ffffff;
+  --ink: #1a1a2e;
+  --muted: #6b7280;
+  --accent: #204e86;
+  --accent-light: #52a0b7;
+  --accent-pale: #d8eaf3;
+  --border: #e5e0d8;
+  --shadow: 0 6px 28px rgba(26,26,46,0.08);
+  --radius: 14px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+}
+
+/* NAV */
+nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.nav-logo span { color: var(--ink); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--accent) 0%, #3c8a9c 100%);
+  color: var(--white);
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* MAIN WRAP */
+main {
+  max-width: 950px;
+  margin: -3rem auto 4rem;
+  padding: 0 1.5rem;
+}
+
+/* MAIN CARD (THIS IS THE BIG FIX) */
+.container-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+}
+
+/* SECTION */
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+/* APPOINTMENT LIST */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* APPOINTMENT CARD */
+.appointment-card {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  background: var(--white);
+}
+
+.appointment-card:hover {
+  border-color: var(--accent-light);
+  background: var(--accent-pale);
+}
+
+/* LEFT SIDE */
+.appointment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.appointment-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.appointment-date {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* STATUS BADGE */
+.status {
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* STATUS COLORS */
+.pending { background: #fff4cc; }
+.confirmed { background: #d4f5e9; }
+.cancelled { background: #ffe0e0; }
+.completed { background: #e0e7ff; }
+
+/* EMPTY / LOADING */
+.center {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--muted);
+}

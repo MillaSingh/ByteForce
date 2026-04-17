@@ -1,25 +1,68 @@
 /* Basic Reset */
 * {
-    box-sizing: border-box; /* adds padding and makes an element wider*/
-    margin: 0; /* different browers use different default spacing*/
-    padding: 0; /* removes default spacing around elements */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
 }
 
-body { /* th=is handles overall background and postioning*/
-    background-color: #f0f2f5;
-    display: flex; /* this turns the body into a flexbox container horizontally left to right*/
-    flex-direction: column; /* this stacks the child elements vertically*/
+:root {
+  --cream: #f8f5f0;
+  --white: #ffffff;
+  --ink: #1a1a2e;
+  --muted: #6b7280;
+  --accent: #204e86;
+  --accent-light: #52a0b7;
+  --accent-pale: #d8eaf3;
+  --border: #e5e0d8;
+  --shadow: 0 4px 24px rgba(26,26,46,0.08);
+  --radius: 14px;
+}
+
+nav {
+  background: var(--accent);
+  padding: 1.5rem 2rem;
+  border-radius: 0 0 var(--radius) var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  color: var(--white);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.nav-logo span {
+  color: var(--white);
+}
+
+body {
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /*tells the body to be as tall as the entire screen*/
+    min-height: 100vh;
 }
 
 main {
     width: 100%;
     max-width: 400px;
     padding: 20px;
-    flex-grow : 1; /* this allows the main content to grow and fill available space, pushing the footer to the bottom */
+    flex-grow : 1;
     align-items: center;
 }
 
@@ -36,7 +79,7 @@ header {
     width: 100%;
     padding : 40px 20px ;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    background-color:  #4A90E2;
+    background: var(--accent);
 }
 
 header h1 {
@@ -52,7 +95,7 @@ header p {
 
 form {
     display: flex;
-    flex-direction: column; /*this stacks the form elements vertically*/
+    flex-direction: column;
 }
 
 label {
@@ -72,23 +115,23 @@ input {
 
 input:focus {
     outline: none;
-    border-color: #4A90E2; /*this changes the border color when the input is focused (clicked on)*/
+    border-color: var(--accent);
 }
 
 button {
-    background-color: #4A90E2;
+    background: var(--accent);
     color: white;
     padding: 12px;
     border: none;
     border-radius: 6px;
     font-size: 16px;
     font-weight: bold;
-    cursor: pointer; /*changes the cursor to a pointer when hovering over the button*/
+    cursor: pointer;
     transition: background 0.3s;
 }
 
 button:hover {
-    background-color: #357ABD; /*this darkens the button when hovered over*/
+    background: #1a3d5e;
 }
 
 footer {
@@ -98,6 +141,7 @@ footer {
 }
 
 footer a {
-    color: #4A90E2;
+    color: var(--accent);
     text-decoration: none;
 }
+

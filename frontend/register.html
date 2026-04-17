@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - MediCure</title>
+    <title>Register - MEDIQUEUE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         #dobField {
             padding: 12px;
             margin-bottom: 20px;
-            border: 1px solid #4A90E2;
+            border: 1px solid var(--accent);
             border-radius: 6px;
             font-size: 16px;
             background-color: #f9f9f9;
@@ -21,10 +22,12 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>MediCure</h1>
-        <p>A South African Community Clinic Appointment and Queue Management System</p>
-    </header>
+    <nav>
+        <div class="nav-brand">
+            <img src="logo.jpeg" alt="MEDIQUEUE" width="50" height="50">
+            <div class="nav-logo">MEDI<span>QUEUE</span></div>
+        </div>
+    </nav>
     <main>
         <section id="register-card" style="background: rgb(239, 233, 233); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto;">
             <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Create Account</h2>
@@ -67,10 +70,15 @@
             const idNumber = this.value.replace(/\D/g, '').slice(0,13);
             this.value = idNumber;
             if (idNumber.length === 13) {
-                const yy = idNumber.slice(0,2);
+                const yy = parseInt(idNumber.slice(0,2));
                 const mm = idNumber.slice(2,4);
                 const dd = idNumber.slice(4,6);
-                const fullYear = 2000 + parseInt(yy);
+                let fullYear;
+                if (yy >= 0 && yy <= 21) {
+                  fullYear = 2000 + yy;
+                } else {
+                  fullYear = 1900 + yy;
+                }
                 dobField.value = `${fullYear}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
             } else {
                 dobField.value = '';
@@ -124,3 +132,4 @@
     </script>
 </body>
 </html>
+

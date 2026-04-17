@@ -1,127 +1,103 @@
-
 // GLOBAL VARIABLE
-
-
-// This will store data coming from the backend
+// Stores data from backend
 let patients = [];
 
 
-// LOAD DATA FROM BACKEND (FETCH)
-
-
-async function loadPatients() {
+// LOAD DATA FROM BACKEND
+const loadPatients = async () => {
   try {
-    // Call your backend API
-    const response = await fetch('/api/patients');
+    const response = await fetch('/api/queue');
 
-    // Convert response to JSON
+    if (!response.ok) throw new Error("Failed to fetch data");
+
     patients = await response.json();
-
-    // Display data in table
     renderPatients();
 
   } catch (error) {
     console.error("Error fetching patients:", error);
   }
-}
-
-
-
-// DISPLAY DATA IN TABLE
-
-
-function renderPatients() {
-  const table = document.getElementById("patientTable");
-  table.innerHTML = ""; // clear table before re-rendering
-
-  const search = document.getElementById("searchInput").value.toLowerCase();
-  const filter = document.getElementById("filterStatus").value;
-
-  patients.forEach((patient) => {
-
-    // Combine first + last name
-    const fullName = patient.first_name + " " + patient.last_name;
-
-    // Apply search + filter conditions
-    if (
-      fullName.toLowerCase().includes(search) &&
-      (filter === "All" || formatStatus(patient.status) === filter)
-    ) {
-
-      // Create table row
-      let row = `
-        <tr>
-          <td>${patient.queue_position}</td>
-          <td>${fullName}</td>
-          <td>${patient.queue_id}</td>
-          <td>
-            <select onchange="updateStatus(${patient.queue_id}, this.value)">
-              <option ${patient.status==="waiting"?"selected":""}>Waiting</option>
-              <option ${patient.status==="in_consultation"?"selected":""}>In Consultation</option>
-              <option ${patient.status==="complete"?"selected":""}>Complete</option>
-            </select>
-          </td>
-        </tr>
-      `;
-
-      table.innerHTML += row;
-    }
-  });
-}
-
+};
 
 
 // FORMAT STATUS (DB → UI)
+const formatStatus = (status) => {
+  const map = {
+    waiting: "Waiting",
+    in_consultation: "In Consultation",
+    complete: "Complete"
+  };
+  return map[status] ?? "";
+};
 
 
-function formatStatus(status) {
-  if (status === "waiting") return "Waiting";
-  if (status === "in_consultation") return "In Consultation";
-  if (status === "complete") return "Complete";
-}
+// DISPLAY DATA IN TABLE
+const renderPatients = () => {
+  const table = document.getElementById("patientTable");
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const filter = document.getElementById("filterStatus").value;
 
+  table.innerHTML = "";
+
+  patients
+    .filter(({ first_name = "", last_name = "", status }) => {
+      const fullName = `${first_name} ${last_name}`.toLowerCase();
+      return (
+        fullName.includes(search) &&
+        (filter === "All" || formatStatus(status) === filter)
+      );
+    })
+    .forEach((patient) => {
+      const fullName = `${patient.first_name ?? ""} ${patient.last_name ?? ""}`.trim();
+
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${patient.queue_position ?? "-"}</td>
+        <td>${fullName}</td>
+        <td>${patient.queue_id}</td>
+        <td>
+          <select data-id="${patient.queue_id}">
+            <option value="Waiting"          ${patient.status === "waiting"         ? "selected" : ""}>Waiting</option>
+            <option value="In Consultation"  ${patient.status === "in_consultation" ? "selected" : ""}>In Consultation</option>
+            <option value="Complete"         ${patient.status === "complete"        ? "selected" : ""}>Complete</option>
+          </select>
+        </td>
+      `;
+
+      row.querySelector("select").addEventListener("change", (e) => {
+        updateStatus(e.target.dataset.id, e.target.value);
+      });
+
+      table.appendChild(row);
+    });
+};
 
 
 // UPDATE STATUS IN DATABASE
-
-
-async function updateStatus(id, value) {
-
-  // Convert UI text → database format
-  let dbStatus = value.toLowerCase().replace(" ", "_");
+const updateStatus = async (id, value) => {
+  const dbStatus = value.toLowerCase().replace(/\s+/g, "_");
 
   try {
-    await fetch(`/api/patients/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
+    const response = await fetch(`/api/queue/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: dbStatus })
     });
 
-    // Reload updated data from database
-    loadPatients();
+    if (!response.ok) throw new Error("Failed to update status");
+
+    await loadPatients();
 
   } catch (error) {
     console.error("Error updating status:", error);
   }
-}
-
+};
 
 
 // EVENT LISTENERS
+document.getElementById("searchInput").addEventListener("input", renderPatients);
+document.getElementById("filterStatus").addEventListener("change", renderPatients);
 
 
-// Re-render table when user types
-document.getElementById("searchInput")
-  .addEventListener("input", renderPatients);
-
-// Re-render table when filter changes
-document.getElementById("filterStatus")
-  .addEventListener("change", renderPatients);
-
-
-
-
-// Load data when page opens
+// INITIAL LOAD
 loadPatients();

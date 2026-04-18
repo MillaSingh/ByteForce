@@ -35,15 +35,31 @@
     <section class="account-box">
       <button class="account-btn">Profile</button>
       <button class="account-btn">Settings</button>
-      <button class="account-btn logout" onclick="logout()">Log Out</button>
     </section>
   </main>
 
-  <script>
-    function logout() {
+<script type="module">
+  // 1. Import the real logout logic from your brain (auth.js)
+  import { logOut } from './auth.js';
+
+  // 2. Attach the event listener to the button
+  const logoutBtn = document.querySelector('.logout');
+  
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      // 3. Actually tell Firebase to kill the session
+      await logOut();
+      
+      // 4. Clear any local data and go home
+      sessionStorage.clear();
       window.location.href = "Login.html";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Error logging out. Please try again.");
     }
-  </script>
+  });
+</script>
+  
 
 </body>
 </html>

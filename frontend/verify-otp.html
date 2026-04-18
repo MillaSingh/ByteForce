@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,15 +36,16 @@
             border-color: #dc3545 !important;
             box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
             background-color: #fff5f5;
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
         .otp-input.error:focus {
             border-color: #dc3545 !important;
             box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
-        }
-        .otp-input::-webkit-outer-spin-button,
-        .otp-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
         }
         .otp-input {
             -moz-appearance: textfield;
@@ -88,41 +90,45 @@
                     <input type="text" class="otp-input" maxlength="1" autocomplete="one-time-code" />
                 </div>
 
-                <button type="submit">Verify</button>
+                <button type="submit">Verify & Complete Registration</button>
             </form>
             <p style="text-align: center; margin-top: 20px;">
                 <a href="register.html" id="backLink" style="color: var(--accent);">← Back to Register</a>
             </p>
             <div id="errorMsg" style="color: red; text-align: center; margin-top: 10px; display: none;"></div>
+            <div id="successMsg" style="color: green; text-align: center; margin-top: 10px; display: none;"></div>
             <div id="countdown" class="countdown" style="display: none;"></div>
         </section>
     </main>
 
-    <script>
-        let tempOtpData = JSON.parse(localStorage.getItem('tempOtpData'));
-        if (!tempOtpData) {
+    <script type="module">
+        import { signUp } from './auth.js';
+
+        // Check for pending user data
+        const pendingUserStr = sessionStorage.getItem('pendingUser');
+        const currentOTP = sessionStorage.getItem('currentOTP');
+        if (!pendingUserStr || !currentOTP) {
             alert('No verification session found. Please register again.');
             window.location.href = 'register.html';
-            throw new Error('No temp data');
         }
 
-        document.getElementById('emailDisplay').textContent = `We've sent a code to: ${tempOtpData.email}`;
-        const expiry = new Date(tempOtpData.expiry);
+        const pendingUser = JSON.parse(pendingUserStr);
+        document.getElementById('emailDisplay').textContent = `We've sent a code to: ${pendingUser.email}`;
 
+        // 30-minute expiry countdown
+        const expiryTime = Date.now() + 30 * 60 * 1000;
         function updateCountdown() {
-            const now = new Date().getTime();
-            const timeLeft = expiry - now;
+            const timeLeft = expiryTime - Date.now();
             if (timeLeft <= 0) {
-                document.getElementById('countdown').textContent = 'OTP expired. Please register again.';
+                document.getElementById('countdown').innerHTML = '<strong>Session expired. Please register again.</strong>';
                 document.getElementById('verifyForm').style.display = 'none';
                 return;
             }
             const minutes = Math.floor(timeLeft / 60000);
             const seconds = Math.floor((timeLeft % 60000) / 1000);
-            document.getElementById('countdown').textContent = `Resend in ${minutes}m ${seconds}s`;
+            document.getElementById('countdown').textContent = `Time remaining: ${minutes}m ${seconds}s`;
             setTimeout(updateCountdown, 1000);
         }
-
         updateCountdown();
         document.getElementById('countdown').style.display = 'block';
 
@@ -134,24 +140,13 @@
         }
 
         otpInputs.forEach((input, index) => {
-            input.addEventListener('input', function(e) {
-                // Only allow digits
-                let val = this.value;
-                val = val.replace(/[^0-9]/g, '');
+            input.addEventListener('input', function() {
+                let val = this.value.replace(/[^0-9]/g, '');
                 if (val.length > 1) val = val.slice(0,1);
                 this.value = val;
 
-                if (this.value.length === 1 && index < 5) {
+                if (this.value && index < 5) {
                     otpInputs[index + 1].focus();
-                }
-            });
-
-            input.addEventListener('keypress', function(e) {
-                // Block non-digit keypress
-                if (!/[0-9]/.test(e.key)) {
-                    e.preventDefault();
-                    this.classList.add('error');
-                    setTimeout(() => this.classList.remove('error'), 500);
                 }
             });
 
@@ -163,64 +158,60 @@
 
             input.addEventListener('paste', function(e) {
                 e.preventDefault();
-                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-                Array.from(pastedData).forEach((digit, i) => {
-                    if (otpInputs[i]) {
-                        otpInputs[i].value = digit;
-                    }
+                const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0,6);
+                Array.from(pasted).forEach((digit, i) => {
+                    if (otpInputs[i]) otpInputs[i].value = digit;
                 });
-                const nextIndex = Math.min(pastedData.length, 6);
-                otpInputs[nextIndex - 1 || 0].focus();
+                if (pasted.length) otpInputs[Math.min(pasted.length, 6)-1].focus();
             });
         });
 
-        document.getElementById('verifyForm').addEventListener('submit', function(e) {
+        document.getElementById('verifyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             clearErrorStyles();
-            const otp = Array.from(otpInputs).map(input => input.value).join('');
+
+            const enteredOtp = Array.from(otpInputs).map(i => i.value).join('');
             const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
 
-            if (!/^\d{6}$/.test(otp)) {
-                errorMsg.textContent = 'Please enter a valid 6-digit OTP.';
+            if (!/^\d{6}$/.test(enteredOtp)) {
+                errorMsg.textContent = 'Please enter valid 6-digit OTP';
                 errorMsg.style.display = 'block';
-                otpInputs.forEach(input => input.classList.add('error'));
+                otpInputs.forEach(i => i.classList.add('error'));
                 otpInputs[0].focus();
                 return;
             }
 
-            if (otp !== tempOtpData.otp) {
-                errorMsg.textContent = 'Invalid OTP. Please try again.';
+            if (enteredOtp !== currentOTP) {
+                errorMsg.textContent = 'Invalid OTP code!';
                 errorMsg.style.display = 'block';
-                otpInputs.forEach(input => input.classList.add('error'));
+                otpInputs.forEach(i => i.classList.add('error'));
                 otpInputs[0].focus();
                 return;
             }
 
-            const expiryTime = new Date(tempOtpData.expiry).getTime();
-            if (Date.now() > expiryTime) {
-                errorMsg.textContent = 'OTP has expired. Please register again.';
+            // OTP verified! Complete Firebase registration
+            try {
+                await signUp(pendingUser.fullName, pendingUser.email, pendingUser.password, {
+                    idNumber: pendingUser.idNumber,
+                    role: pendingUser.role
+                });
+
+                // Success cleanup
+                sessionStorage.clear();
+                successMsg.textContent = 'Email verified! Registration complete. Redirecting...';
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } catch (error) {
+                errorMsg.textContent = 'Firebase registration failed: ' + error.message;
                 errorMsg.style.display = 'block';
-                otpInputs.forEach(input => input.classList.add('error'));
-                return;
             }
-
-            // Success: complete registration
-            let users = JSON.parse(localStorage.getItem('users') || '[]');
-            const newUser = {
-                firstName: tempOtpData.firstName,
-                surname: tempOtpData.surname,
-                email: tempOtpData.email,
-                idNumber: tempOtpData.idNumber,
-                password: tempOtpData.password,
-                role: 'patient'
-            };
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            localStorage.removeItem('tempOtpData');
-
-            alert('Email verified! Registration successful.');
-            window.location.href = 'Login.html';
         });
     </script>
 </body>
 </html>
+

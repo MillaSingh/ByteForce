@@ -1,19 +1,16 @@
-# ByteForce Task Tracker
 
-## New Task: Create OTP verification page for email with navigation from register.html ✓ Complete
+# DIY OTP + Firebase Complete ✅
 
-### Steps:
-- [x] 1. Update TODO.md with new plan
-- [x] 2. Create frontend/verify-otp.html (form for OTP entry, styled like register.html, back button)
-- [x] 3. Update register.html JS: Generate/store OTP on success, redirect to verify-otp.html
-- [x] 4. Verify OTP logic in verify-otp.html (already implemented: load data, validate, save user on success)
-- [x] 5. Test: Register -> OTP page -> verify -> Login.html
-- [x] 6. Full flow complete
+**EmailJS + sessionStorage + Firebase flow:**
 
-OTP flow:
-- Register form validates, generates 6-digit OTP, stores temp data (30min expiry), redirects to verify-otp.html
-- Verify page shows email, countdown, OTP input; validates code/expiry, saves user to localStorage, redirects to Login.html
-- Matching styling from style.css, responsive form.
+1. **register.html** ✓ EmailJS OTP send (`service_3ezcsxj`, `template_8tcz8ka`)
+2. **verify-otp.html** ✓ 6-digit squares UI + Firebase createUser after OTP match  
+3. **Login.html** ✓ Firebase email/Google (already updated)
 
-Test with `open frontend/register.html`
+**Test:** `npx live-server frontend` → register → OTP email → verify → dashboard.
+
+EmailJS keys: vi1AV9hQmg6Ud4qWs | service_3ezcsxj | template_8tcz8ka
+Session staging → Firebase permanent auth/doc.
+
+Dashboard/Login fully synced.
 

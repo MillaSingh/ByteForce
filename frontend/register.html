@@ -131,13 +131,15 @@
                 return;
             }
 
-            let users = JSON.parse(localStorage.getItem('users') || '[]');
-            const newUser = { firstName, surname, email, idNumber, password, role: 'patient' };
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
+            // Generate 6-digit OTP
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiry = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 minutes
 
-            alert('Registration successful!');
-            window.location.href = 'Login.html';
+            const tempData = { firstName, surname, email, idNumber, password, otp, expiry };
+            localStorage.setItem('tempOtpData', JSON.stringify(tempData));
+
+            alert(`OTP sent to ${email}!`);
+            window.location.href = 'verify-otp.html';
         });
     </script>
 </body>

@@ -1,11 +1,19 @@
 # ByteForce Task Tracker
 
-## Current Task: Fix register.html to add missing email input
+## New Task: Create OTP verification page for email with navigation from register.html ✓ Complete
 
 ### Steps:
-- [x] 1. Create TODO.md with plan breakdown
-- [x] 2. Edit frontend/register.html: Add email input to HTML form
-- [x] 3. Update JS validation to include email (required + format check)
-- [x] 4. Update newUser object and localStorage to store email
-- [x] 5. Test the form and mark complete
-- [ ] 6. attempt_completion
+- [x] 1. Update TODO.md with new plan
+- [x] 2. Create frontend/verify-otp.html (form for OTP entry, styled like register.html, back button)
+- [x] 3. Update register.html JS: Generate/store OTP on success, redirect to verify-otp.html
+- [x] 4. Verify OTP logic in verify-otp.html (already implemented: load data, validate, save user on success)
+- [x] 5. Test: Register -> OTP page -> verify -> Login.html
+- [x] 6. Full flow complete
+
+OTP flow:
+- Register form validates, generates 6-digit OTP, stores temp data (30min expiry), redirects to verify-otp.html
+- Verify page shows email, countdown, OTP input; validates code/expiry, saves user to localStorage, redirects to Login.html
+- Matching styling from style.css, responsive form.
+
+Test with `open frontend/register.html`
+

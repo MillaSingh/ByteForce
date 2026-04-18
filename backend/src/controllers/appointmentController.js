@@ -5,7 +5,6 @@ const createBooking = async (req, res) => {
   try {
     const data = req.body;
 
-    // link booking to logged-in user
     data.patient_id = req.user.user_id;
 
     const existing = await appointmentModel.checkSlot(
@@ -54,9 +53,4 @@ const getMyAppointments = async (req, res) => {
 module.exports = {
   createBooking,
   getMyAppointments
-};  }
-};
-
-module.exports = {
-  createBooking
 };

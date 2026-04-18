@@ -1,6 +1,6 @@
 const db = require('../db');
 
-//check if slot is taken
+// check if slot is taken
 const checkSlot = async (clinic_id, appointment_date, appointment_time) => {
   const result = await db.query(
     `SELECT * FROM appointment
@@ -12,7 +12,7 @@ const checkSlot = async (clinic_id, appointment_date, appointment_time) => {
   return result.rows;
 };
 
-//create appointment
+// create appointment
 const createAppointment = async (data) => {
   const {
     patient_id,
@@ -27,9 +27,9 @@ const createAppointment = async (data) => {
 
   const result = await db.query(
     `INSERT INTO appointment
-    (clinic_id, appointment_date, appointment_time,
+    (patient_id, clinic_id, appointment_date, appointment_time,
      reason_for_visit, phone_number, medical_aid, additional_notes)
-    VALUES ($1,$2,$3,$4,$5,$6,$7)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
     RETURNING *`,
     [
       patient_id,
@@ -46,7 +46,7 @@ const createAppointment = async (data) => {
   return result.rows[0];
 };
 
-//get my appointments
+// get appointments by user
 const getAppointmentsByUser = async (patient_id) => {
   const result = await db.query(
     `SELECT 
@@ -66,16 +66,4 @@ module.exports = {
   checkSlot,
   createAppointment,
   getAppointmentsByUser
-};
-      medical_aid,
-      additional_notes
-    ]
-  );
-
-  return result.rows[0];
-};
-
-module.exports = {
-  checkSlot,
-  createAppointment
 };

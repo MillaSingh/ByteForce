@@ -26,6 +26,16 @@ app.use('/api/appointments', appointmentRouter);
 
 
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+//app.listen(PORT, () => {
+ // console.log(`Server running on http://localhost:${PORT}`);
+//});
+
+//  ONLY start server if NOT testing
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+// EXPORT app for testing
+module.exports = app;

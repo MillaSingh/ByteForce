@@ -1,5 +1,9 @@
 /* RESET */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
   --cream: #f8f5f0;
@@ -10,7 +14,7 @@
   --accent-light: #52a0b7;
   --accent-pale: #d8eaf3;
   --border: #e5e0d8;
-  --shadow: 0 6px 28px rgba(26,26,46,0.08);
+  --shadow: 0 4px 24px rgba(26,26,46,0.08);
   --radius: 14px;
 }
 
@@ -31,10 +35,176 @@ nav {
   justify-content: space-between;
 }
 
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .nav-logo {
   font-family: 'Playfair Display', serif;
   font-size: 1.4rem;
   color: var(--accent);
+  font-weight: 600;
+}
+.nav-logo span { color: var(--ink); }
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.nav-links a.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nav-cta {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--accent), #3c8a9c);
+  color: white;
+  text-align: center;
+  padding: 4rem 2rem 3rem;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+}
+
+/* MAIN */
+main {
+  max-width: 950px;
+  margin: -2rem auto 4rem;
+  padding: 0 1.5rem;
+}
+
+/* CARD */
+.container-card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 2rem;
+}
+
+/* SUMMARY */
+.summary-header {
+  margin-bottom: 1.5rem;
+}
+
+.summary-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+}
+
+.summary-header p {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.filters button {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+}
+
+.filters button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* GROUPS */
+.group {
+  margin-bottom: 2rem;
+}
+
+.group h3 {
+  font-family: 'Playfair Display', serif;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+}
+
+/* LIST */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* CARD */
+.appointment-card {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.25s;
+  border-left: 4px solid var(--accent-light);
+}
+
+.appointment-card:hover {
+  transform: translateY(-3px);
+  background: var(--accent-pale);
+}
+
+/* TEXT */
+.appointment-title {
+  font-weight: 600;
+}
+
+.appointment-date {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* STATUS */
+.status {
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.pending { background: #fff4cc; }
+.confirmed { background: #d4f5e9; }
+.cancelled { background: #ffe0e0; }
+.completed { background: #e0e7ff; }
+
+/* STATES */
+.center {
+  text-align: center;
+  color: var(--muted);
+  padding: 1.5rem;
+}  color: var(--accent);
   font-weight: 600;
 }
 .nav-logo span { color: var(--ink); }

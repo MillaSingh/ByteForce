@@ -5,7 +5,7 @@ const createBooking = async (req, res) => {
   try {
     const data = req.body;
 
-    // TEMP USER (replace later with auth)
+    // TEMP USER (replace with auth later)
     const patientId = 1;
     data.patient_id = patientId;
 
@@ -34,7 +34,7 @@ const createBooking = async (req, res) => {
   } catch (err) {
     console.error("CREATE BOOKING ERROR:", err);
     return res.status(500).json({
-      error: err.message || "Server error"
+      error: "Server error"
     });
   }
 };
@@ -51,27 +51,8 @@ const getMyAppointments = async (req, res) => {
   } catch (err) {
     console.error("GET APPOINTMENTS ERROR:", err);
     return res.status(500).json({
-      error: err.message || "Server error"
+      error: "Server error"
     });
-  }
-};
-
-module.exports = {
-  createBooking,
-  getMyAppointments
-};
-// GET MY APPOINTMENTS
-const getMyAppointments = async (req, res) => {
-  try {
-    const patientId = req.user.user_id;
-
-    const appointments = await appointmentModel.getAppointmentsByUser(patientId);
-
-    res.json(appointments);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
   }
 };
 

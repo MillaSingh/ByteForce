@@ -58,4 +58,17 @@ const getFilterOptions = async () => {
   };
 };
 
-module.exports = { getClinics, getFilterOptions };
+const getClinicById = async (id) => {
+  const clinicResult = await pool.query(
+    `SELECT * FROM clinic WHERE clinic_id = $1`, [id]
+  );
+  const servicesResult = await pool.query(
+    `SELECT service_name FROM clinic_service WHERE clinic_id = $1 ORDER BY service_name`, [id]
+  );
+  return {
+    clinic: clinicResult.rows[0],
+    services: servicesResult.rows
+  };
+};
+
+module.exports = { getClinics, getFilterOptions, getClinicById };

@@ -84,7 +84,9 @@
         --text-light: #6b8c74;
         --bg: #f7faf8;
         --white: #ffffff;
-        --border: #c8dece;
+        --muted: #6b7280;
+        --border: #e5e0d8;
+        --ink: #1a1a2e;
         --shadow-sm: 0 2px 8px rgba(26, 60, 46, 0.07);
         --shadow-md: 0 6px 24px rgba(26, 60, 46, 0.12);
         --radius: 12px;

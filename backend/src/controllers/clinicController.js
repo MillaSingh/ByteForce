@@ -1,4 +1,4 @@
-const { getClinics, getFilterOptions } = require('../models/clinicModel');
+const { getClinics, getFilterOptions, getClinicById } = require('../models/clinicModel');
 
 const listClinics = async (req, res) => {
   const {
@@ -33,4 +33,18 @@ const listFilterOptions = async (req, res) => {
   }
 };
 
-module.exports = { listClinics, listFilterOptions };
+const getClinicDetails = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await getClinicById(id);
+    if (!result.clinic) {
+      return res.status(404).json({ error: 'Clinic not found' });
+    }
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch clinic details' });
+  }
+};
+
+module.exports = { listClinics, listFilterOptions, getClinicDetails };

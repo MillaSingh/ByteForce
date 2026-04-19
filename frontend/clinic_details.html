@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Details | MediQueue</title>
+    <link rel="stylesheet" href="clinic_details.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <nav>
+        <div class="nav-brand">
+            <img src="logo.jpeg" width="60" height="60">
+            <div class="nav-logo">MEDI<span>QUEUE</span></div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="#" class="active">Clinics</a></li>
+            <li><a href="appointment.html">Book Appointment</a></li>
+
+        </ul>
+        <button class="nav-cta account-btn" onclick="window.location.href='account.html'">Account</button>
+    </nav>
+
+    <main id="ClinicMain">
+        <section class="clinic-hero" id="clinicHero" aria-label="Clinic image">
+            <img src="" alt="Clinic image" id="clinicImage" class="clinic-hero__img" />
+            <div class="clinic-hero__overlay">
+                <h1 id="clinicName">Loading...</h1>
+                <span class="badge" id="clinicBadge"></span>
+            </div>
+        </section>
+
+
+        <!-- Main content -->
+        <section class="clinic-body">
+            <article class="clinic-info">
+                <section class="clinic-info__header">
+                    <h2>About This Facility</h2>
+                </section>
+                <p class="clinic-description" id="clinicDescription">Loading clinic information...</p>
+                <dl class="clinic-meta">
+                    <dt>Province</dt>
+                    <dd id="metaProvince">—</dd>
+                    <dt>District</dt>
+                    <dd id="metaDistrict">—</dd>
+                    <dt>Municipality</dt>
+                    <dd id="metaMunicipality">—</dd>
+                    <dt>Facility Type</dt>
+                    <dd id="metaType">—</dd>
+                    <dt>Setting</dt>
+                    <dd id="metaRuralUrban">—</dd>
+                    <dt>Address</dt>
+                    <dd id="metaAddress">—</dd>
+                    <dt>Phone</dt>
+                    <dd id="metaPhone">—</dd>
+                </dl>
+            </article>
+            <aside class="clinic-sidebar">
+                <section class="sidebar-card" aria-label="Book appointment">
+                    <h2>Ready to visit?</h2>
+                    <p>Book your appointment at this clinic online in minutes.</p>
+                    <a href="#" class="btn-book" id="bookBtn">Book an Appointment</a>
+                </section>
+                <section class="sidebar-card" aria-label="Services offered">
+                    <h2>Services Offered</h2>
+                    <ul class="services-list" id="servicesList">
+                        <li>Loading services...</li>
+                    </ul>
+                </section>
+            </aside>
+        </section>
+
+        <footer>
+            © 2026 MediQueue · All rights reserved · <a href="#"
+                style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
+        </footer>
+
+        <script src="clinic_details.js"></script>
+    </main>
+</body>

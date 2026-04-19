@@ -69,10 +69,10 @@
 </head>
 <body>
     <nav>
-        <div class="nav-brand">
+        <span class="nav-brand">
             <img src="logo.jpeg" alt="MEDIQUEUE" width="50" height="50">
-            <div class="nav-logo">MEDI<span>QUEUE</span></div>
-        </div>
+            <div class="nav-logo">MEDI<span>QUEUE</span></s>
+        </span>
     </nav>
     <main>
         <section id="verify-card" style="background: rgb(239, 233, 233); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto;">
@@ -102,8 +102,8 @@
     </main>
 
     <script type="module">
-        import { signUp } from './auth.js';
-
+        import { signUp } from './auth.js'; 
+        
         // Check for pending user data
         const pendingUserStr = sessionStorage.getItem('pendingUser');
         const currentOTP = sessionStorage.getItem('currentOTP');
@@ -140,6 +140,28 @@
         }
 
         otpInputs.forEach((input, index) => {
+
+            input.addEventListener('input', (e) => {
+        if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
+        }
+    });
+
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus();
+        }
+    });
+
+    input.addEventListener('paste', (e) => {
+        const data = e.clipboardData.getData('text').split('');
+        if (data.length === otpInputs.length) {
+            otpInputs.forEach((input, i) => input.value = data[i]);
+            otpInputs[otpInputs.length - 1].focus();
+        }
+    });
+
             input.addEventListener('input', function() {
                 let val = this.value.replace(/[^0-9]/g, '');
                 if (val.length > 1) val = val.slice(0,1);
@@ -165,6 +187,8 @@
                 if (pasted.length) otpInputs[Math.min(pasted.length, 6)-1].focus();
             });
         });
+
+//////////
 
         document.getElementById('verifyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -211,6 +235,9 @@
                 errorMsg.style.display = 'block';
             }
         });
+
+
+
     </script>
 </body>
 </html>

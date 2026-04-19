@@ -5,7 +5,9 @@ const createBooking = async (req, res) => {
   try {
     const data = req.body;
 
-    data.patient_id = req.user.user_id;
+    // TEMP USER (replace later with auth)
+    const patientId = 1;
+    data.patient_id = patientId;
 
     const existing = await appointmentModel.checkSlot(
       data.clinic_id,
@@ -30,11 +32,34 @@ const createBooking = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    console.error("CREATE BOOKING ERROR:", err);
+    return res.status(500).json({
+      error: err.message || "Server error"
+    });
   }
 };
 
+// GET MY APPOINTMENTS
+const getMyAppointments = async (req, res) => {
+  try {
+    const patientId = 1; // TEMP USER
+
+    const appointments = await appointmentModel.getAppointmentsByUser(patientId);
+
+    return res.json(appointments);
+
+  } catch (err) {
+    console.error("GET APPOINTMENTS ERROR:", err);
+    return res.status(500).json({
+      error: err.message || "Server error"
+    });
+  }
+};
+
+module.exports = {
+  createBooking,
+  getMyAppointments
+};
 // GET MY APPOINTMENTS
 const getMyAppointments = async (req, res) => {
   try {

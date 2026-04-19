@@ -41,26 +41,23 @@
 <main>
   <div class="container-card">
 
-    <!-- SUMMARY -->
     <div class="summary-header">
       <h2>Your Dashboard</h2>
       <p id="summary-text">Loading appointments...</p>
     </div>
 
-    <!-- FILTERS -->
     <div class="filters">
       <button onclick="filterAppointments('all')">All</button>
       <button onclick="filterAppointments('upcoming')">Upcoming</button>
       <button onclick="filterAppointments('past')">Past</button>
     </div>
 
-    <!-- STATES -->
     <div id="loading" class="center">Loading appointments...</div>
+
     <div id="empty" class="center" style="display:none;">
       No appointments yet 🫤
     </div>
 
-    <!-- GROUPS -->
     <div class="group">
       <h3>Upcoming</h3>
       <div id="upcoming" class="list"></div>
@@ -86,6 +83,11 @@ async function loadAppointments() {
 
   try {
     const res = await fetch("http://localhost:3000/api/appointments/my");
+
+    if (!res.ok) {
+      throw new Error("Server error");
+    }
+
     const data = await res.json();
 
     loading.style.display = "none";
@@ -99,9 +101,13 @@ async function loadAppointments() {
     let upcomingCount = 0;
 
     data.forEach(app => {
+      if (!app.appointment_date || !app.appointment_time) return;
+
       const dateTime = new Date(`${app.appointment_date}T${app.appointment_time}`);
 
-      const isUpcoming = dateTime >= now && app.status !== "cancelled";
+      const status = app.status || "booked";
+
+      const isUpcoming = dateTime >= now && status !== "cancelled";
 
       const card = document.createElement("div");
       card.className = "appointment-card";
@@ -116,17 +122,17 @@ async function loadAppointments() {
           </div>
         </div>
 
-        <div class="status ${app.status}">
-          ${app.status}
+        <div class="status ${status}">
+          ${status}
         </div>
       `;
 
       card.onclick = () => {
         alert(
-          `Clinic: ${app.clinic_name}\n` +
+          `Clinic: ${app.clinic_name || "Clinic"}\n` +
           `Date: ${dateTime.toLocaleDateString()}\n` +
           `Time: ${dateTime.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n` +
-          `Status: ${app.status}`
+          `Status: ${status}`
         );
       };
 

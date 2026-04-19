@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
+
 const appointmentController = require('../controllers/appointmentController');
 
-// Create booking
+// CREATE APPOINTMENT
 router.post('/', appointmentController.createBooking);
 
-// Get my appointments
+// GET MY APPOINTMENTS
 router.get('/my', appointmentController.getMyAppointments);
 
 module.exports = router;

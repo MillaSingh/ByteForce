@@ -1,42 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>My Appointments</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <link rel="stylesheet" href="myAppointments.css">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=DM+Sans&display=swap" rel="stylesheet"/>
+<title>My Appointments | MEDIQUEUE</title>
+
+<link rel="stylesheet" href="myAppointments.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 </head>
 
 <body>
 
+<!-- NAV -->
 <nav>
-  <div class="nav-logo">MEDI<span>QUEUE</span></div>
+  <div class="nav-brand">
+    <img src="logo.jpeg" width="45" height="45">
+    <div class="nav-logo">MEDI<span>QUEUE</span></div>
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="home.html">Home</a></li>
+    <li><a href="clinics.html">Clinics</a></li>
+    <li><a href="appointment.html">Book</a></li>
+    <li><a class="active" href="myAppointments.html">My Appointments</a></li>
+  </ul>
+
+  <button class="nav-cta" onclick="window.location.href='account.html'">
+    Account
+  </button>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
   <h1>My Appointments</h1>
-  <p>Track your bookings</p>
+  <p>Track your medical bookings in one place</p>
 </div>
 
+<!-- MAIN -->
 <main>
-    <div class="container-card">
-  
-      <div id="loading" class="center">Loading...</div>
-      <div id="empty" class="center" style="display:none;">No appointments found</div>
-  
-      <div class="section">
-        <h2>Upcoming</h2>
-        <div id="upcoming" class="list"></div>
-      </div>
-  
-      <div class="section">
-        <h2>Past</h2>
-        <div id="past" class="list"></div>
-      </div>
-  
+  <div class="container-card">
+
+    <!-- SUMMARY -->
+    <div class="summary-header">
+      <h2>Your Dashboard</h2>
+      <p id="summary-text">Loading appointments...</p>
     </div>
-  </main>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <button onclick="filterAppointments('all')">All</button>
+      <button onclick="filterAppointments('upcoming')">Upcoming</button>
+      <button onclick="filterAppointments('past')">Past</button>
+    </div>
+
+    <!-- STATES -->
+    <div id="loading" class="center">Loading appointments...</div>
+    <div id="empty" class="center" style="display:none;">
+      No appointments yet 🫤
+    </div>
+
+    <!-- GROUPS -->
+    <div class="group">
+      <h3>Upcoming</h3>
+      <div id="upcoming" class="list"></div>
+    </div>
+
+    <div class="group">
+      <h3>Past</h3>
+      <div id="past" class="list"></div>
+    </div>
+
+  </div>
+</main>
 
 <script>
 async function loadAppointments() {
@@ -45,44 +81,80 @@ async function loadAppointments() {
   const loading = document.getElementById("loading");
   const empty = document.getElementById("empty");
 
-  try {
-    const res = await fetch("http://localhost:3000/appointments/my");
+  upcoming.innerHTML = "";
+  past.innerHTML = "";
 
+  try {
+    const res = await fetch("http://localhost:3000/api/appointments/my");
     const data = await res.json();
+
     loading.style.display = "none";
 
-    if (!data || data.length === 0) {
+    if (!Array.isArray(data) || data.length === 0) {
       empty.style.display = "block";
       return;
     }
 
     const now = new Date();
+    let upcomingCount = 0;
 
     data.forEach(app => {
-        const card = document.createElement("div");
-card.className = "appointment-card";
+      const dateTime = new Date(`${app.appointment_date}T${app.appointment_time}`);
 
-const date = new Date(app.appointment_date + "T" + app.appointment_time);
+      const isUpcoming = dateTime >= now && app.status !== "cancelled";
 
-card.innerHTML = `
-  <div class="appointment-info">
-    <div class="appointment-title">${app.clinic_name || "Clinic"}</div>
-    <div class="appointment-date">${date.toLocaleString()}</div>
-  </div>
-  <div class="status ${app.status}">${app.status}</div>
-`;
+      const card = document.createElement("div");
+      card.className = "appointment-card";
+      card.dataset.type = isUpcoming ? "upcoming" : "past";
 
-      if (date >= now && app.status !== "cancelled") {
+      card.innerHTML = `
+        <div>
+          <div class="appointment-title">${app.clinic_name || "Clinic"}</div>
+          <div class="appointment-date">
+            ${dateTime.toLocaleDateString()} • 
+            ${dateTime.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+          </div>
+        </div>
+
+        <div class="status ${app.status}">
+          ${app.status}
+        </div>
+      `;
+
+      card.onclick = () => {
+        alert(
+          `Clinic: ${app.clinic_name}\n` +
+          `Date: ${dateTime.toLocaleDateString()}\n` +
+          `Time: ${dateTime.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}\n` +
+          `Status: ${app.status}`
+        );
+      };
+
+      if (isUpcoming) {
         upcoming.appendChild(card);
+        upcomingCount++;
       } else {
         past.appendChild(card);
       }
     });
 
+    document.getElementById("summary-text").innerText =
+      `You have ${upcomingCount} upcoming appointment(s)`;
+
   } catch (err) {
     console.error(err);
-    loading.innerText = "Error loading appointments";
+    loading.innerText = "Failed to load appointments 😢";
   }
+}
+
+function filterAppointments(type) {
+  document.querySelectorAll(".appointment-card").forEach(card => {
+    if (type === "all") {
+      card.style.display = "flex";
+    } else {
+      card.style.display = card.dataset.type === type ? "flex" : "none";
+    }
+  });
 }
 
 loadAppointments();

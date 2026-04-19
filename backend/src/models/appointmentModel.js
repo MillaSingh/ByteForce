@@ -67,36 +67,4 @@ module.exports = {
   checkSlot,
   createAppointment,
   getAppointmentsByUser
-};      appointment_date,
-      appointment_time,
-      reason_for_visit,
-      phone_number,
-      medical_aid,
-      additional_notes
-    ]
-  );
-
-  return result.rows[0];
-};
-
-// get appointments by user
-const getAppointmentsByUser = async (patient_id) => {
-  const result = await db.query(
-    `SELECT 
-        a.*,
-        c.clinic_name
-     FROM appointment a
-     LEFT JOIN clinic c ON a.clinic_id = c.clinic_id
-     WHERE a.patient_id = $1
-     ORDER BY a.appointment_date DESC, a.appointment_time DESC`,
-    [patient_id]
-  );
-
-  return result.rows;
-};
-
-module.exports = {
-  checkSlot,
-  createAppointment,
-  getAppointmentsByUser
 };

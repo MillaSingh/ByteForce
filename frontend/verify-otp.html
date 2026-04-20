@@ -132,6 +132,8 @@
         updateCountdown();
         document.getElementById('countdown').style.display = 'block';
 
+        
+//////////// OTP input handling
         const otpInputs = document.querySelectorAll('.otp-input');
         otpInputs[0].focus();
 
@@ -188,7 +190,7 @@
             });
         });
 
-//////////
+/////////// Form submission and OTP verification
 
         document.getElementById('verifyForm').addEventListener('submit', async function(e) {
             e.preventDefault();

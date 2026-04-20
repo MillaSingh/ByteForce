@@ -108,28 +108,32 @@ loadPatients();
 
 // ADD PATIENT FUNCTIONALITY
 
-// OPEN DIALOG
+// When the "Add Patient" button is clicked, open the dialog (popup form)
 document.getElementById("addPatientBtn").addEventListener("click", () => {
   document.getElementById("patientDialog").showModal();
 });
 
-// CLOSE DIALOG
+// Function to close the dialog manually
 function closeDialog() {
   document.getElementById("patientDialog").close();
 }
 
-// SUBMIT PATIENT
+// Function to submit a new patient
 async function submitPatient() {
+
+  // Get values entered by the user from input fields
   const first_name = document.getElementById("firstName").value;
   const last_name = document.getElementById("lastName").value;
   const email = document.getElementById("email").value;
 
+  // Check if any field is empty
   if (!first_name || !last_name || !email) {
-    alert("Please fill in all fields");
-    return;
+    alert("Please fill in all fields"); // Show warning
+    return; // Stop function if validation fails
   }
 
   try {
+    // Send patient data to backend using POST request
     const response = await fetch("/api/queue/add-walkin", {
       method: "POST",
       headers: {
@@ -139,17 +143,24 @@ async function submitPatient() {
         first_name,
         last_name,
         email,
-        clinic_id: 1
+        clinic_id: 1 // Hardcoded clinic ID
       })
     });
 
+    // If request fails, throw an error
     if (!response.ok) throw new Error("Failed to add patient");
 
+    // Close the dialog after successful submission
     document.getElementById("patientDialog").close();
+
+    // Reload/update the patient list
     loadPatients();
 
   } catch (error) {
+    // Log error in console for debugging
     console.error(error);
+
+    // Show error message to user
     alert("Error adding patient");
   }
 }

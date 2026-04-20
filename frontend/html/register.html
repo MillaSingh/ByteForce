@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - MEDIQUEUE</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        #dobField {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        #dobLabel {
+            font-weight: 600 !important;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">
+            <img src="/images/logo.jpeg" alt="MEDIQUEUE" width="50" height="50">
+            <div class="nav-logo">MEDI<span>QUEUE</span></div>
+        </div>
+    </nav>
+    <main>
+        <section id="register-card" style="background: rgb(239, 233, 233); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto;">
+            <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Create Account</h2>
+            <form id="registerForm">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" required>
+
+                <label for="surname">Surname</label>
+                <input type="text" id="surname" required>
+
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+
+                <label for="idNumber">ID Number</label>
+                <input type="text" id="idNumber" required maxlength="13">
+
+                <label id="dobLabel" for="dobField">Date Of Birth</label>
+                <input type="text" id="dobField" readonly>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" required>
+
+                <label style="font-weight: normal;">
+                    <input type="checkbox" id="detailsConfirmation" required> I confirm that all details provided are true and valid. Providing false information may lead to legal consequences.
+                </label>
+
+                <button type="submit">Send OTP</button>
+            </form>
+            <p style="text-align: center; margin-top: 20px;">
+                Already have an account? <a href="/html/Login.html">Login</a>
+            </p>
+            <div id="errorMsg" style="color: red; text-align: center; margin-top: 10px; display: none;"></div>
+            <div id="successMsg" style="color: green; text-align: center; margin-top: 10px; display: none;"></div>
+        </section>
+    </main>
+
+    <script src="/js/register.js"></script>
+</body>
+</html>
+

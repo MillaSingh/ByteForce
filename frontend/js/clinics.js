@@ -42,7 +42,7 @@ function renderClinics(clinics, total, totalPages) {
           <dt>Service Type</dt><dd>${clinic.service_point_type || 'N/A'}</dd>
         </dl>
         <footer class="clinic-card__footer">
-          <a href="clinic_details.html?clinicId=${clinic.clinic_id}" class="btn-primary">View &amp; Book</a>
+          <a href="/html/clinic_details.html?clinicId=${clinic.clinic_id}" class="btn-primary">View &amp; Book</a>
         </footer>
       </article>
     `;

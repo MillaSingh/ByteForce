@@ -1,115 +1,11 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Email - MEDIQUEUE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .otp-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .otp-input {
-            width: 50px;
-            height: 50px;
-            border: 2px solid var(--accent);
-            border-radius: 8px;
-            font-size: 24px;
-            font-weight: 600;
-            text-align: center;
-            background-color: #f9f9f9;
-            color: #333;
-            caret-color: var(--accent);
-        }
-        .otp-input:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
-            background-color: white;
-        }
-        .otp-input.error {
-            border-color: #dc3545 !important;
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
-            background-color: #fff5f5;
-            animation: shake 0.5s;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        .otp-input.error:focus {
-            border-color: #dc3545 !important;
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
-        }
-        .otp-input {
-            -moz-appearance: textfield;
-        }
-        #emailDisplay {
-            background: #e8f4f8;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 16px;
-            color: #333;
-        }
-        .countdown {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <nav>
-        <span class="nav-brand">
-            <img src="logo.jpeg" alt="MEDIQUEUE" width="50" height="50">
-            <div class="nav-logo">MEDI<span>QUEUE</span></s>
-        </span>
-    </nav>
-    <main>
-        <section id="verify-card" style="background: rgb(239, 233, 233); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto;">
-            <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Verify Email</h2>
-            <div id="emailDisplay"></div>
-            <p style="text-align: center; margin-bottom: 20px; color: #666;">Enter the 6-digit OTP sent to your email</p>
-            <form id="verifyForm">
-                <label>OTP Code</label>
-                <div class="otp-container">
-                    <input type="text" class="otp-input" maxlength="1" autocomplete="one-time-code" />
-                    <input type="text" class="otp-input" maxlength="1" autocomplete="one-time-code" />
-                    <input type="text" class="otp-input" maxlength="1" autocomplete="one-time-code" />
-                    <input type="text" class="otp-input" maxlength="1" autocomplete="one-time-code" />
-                    <input type="text" class="otp-input" maxlength="1" autocomplete="one-time-code" />
-                    <input type="text" class="otp-input" maxlength="1" autocomplete="one-time-code" />
-                </div>
-
-                <button type="submit">Verify & Complete Registration</button>
-            </form>
-            <p style="text-align: center; margin-top: 20px;">
-                <a href="register.html" id="backLink" style="color: var(--accent);">← Back to Register</a>
-            </p>
-            <div id="errorMsg" style="color: red; text-align: center; margin-top: 10px; display: none;"></div>
-            <div id="successMsg" style="color: green; text-align: center; margin-top: 10px; display: none;"></div>
-            <div id="countdown" class="countdown" style="display: none;"></div>
-        </section>
-    </main>
-
-    <script type="module">
-        import { signUp } from './auth.js'; 
+import { signUp } from './auth.js'; 
         
         // Check for pending user data
         const pendingUserStr = sessionStorage.getItem('pendingUser');
         const currentOTP = sessionStorage.getItem('currentOTP');
         if (!pendingUserStr || !currentOTP) {
             alert('No verification session found. Please register again.');
-            window.location.href = 'register.html';
+            window.location.href = '/html/register.html';
         }
 
         const pendingUser = JSON.parse(pendingUserStr);
@@ -230,17 +126,10 @@
                 errorMsg.style.display = 'none';
 
                 setTimeout(() => {
-                    window.location.href = 'Login.html';
+                    window.location.href = '/html/Login.html';
                 }, 1500);
             } catch (error) {
                 errorMsg.textContent = 'Firebase registration failed: ' + error.message;
                 errorMsg.style.display = 'block';
             }
         });
-
-
-
-    </script>
-</body>
-</html>
-

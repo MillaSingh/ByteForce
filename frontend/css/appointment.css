@@ -377,3 +377,9 @@
       nav { padding: 0 1rem; }
       .nav-links { display: none; }
     }
+
+    .time-slot.unavailable {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

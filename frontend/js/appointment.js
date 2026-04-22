@@ -26,12 +26,54 @@ const clinicID = new URLSearchParams(window.location.search).get("clinicId");
   document.getElementById('appt-date').min = today;
   document.getElementById('appt-date').value = today;
   booking.date = formatDate(today);
+  updateTimeSlots();
 
   function formatDate(val) {
     if (!val) return '';
     const d = new Date(val + 'T00:00:00');
     return d.toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   }
+
+  function isPastTimeSlot(timeString, selectedDateValue) {
+  const now = new Date();
+
+  const slotDateTime = new Date(selectedDateValue + 'T00:00:00');
+
+  const [time, modifier] = timeString.split(' ');
+  let [hours, minutes] = time.split(':').map(Number);
+
+  if (modifier === 'PM' && hours !== 12) hours += 12;
+  if (modifier === 'AM' && hours === 12) hours = 0;
+
+  slotDateTime.setHours(hours, minutes, 0, 0);
+
+  return slotDateTime < now;
+}
+
+function updateTimeSlots() {
+  const selectedDateValue = document.getElementById('appt-date').value;
+
+  document.querySelectorAll('.time-slot').forEach(slot => {
+    const timeText = slot.textContent.trim();
+
+    if (isPastTimeSlot(timeText, selectedDateValue)) {
+      slot.classList.add('unavailable');
+      slot.classList.remove('selected');
+    } else {
+      slot.classList.remove('unavailable');
+    }
+  });
+
+  if (booking.time) {
+    const selectedStillAvailable = [...document.querySelectorAll('.time-slot')].some(
+      slot => slot.textContent.trim() === booking.time && !slot.classList.contains('unavailable')
+    );
+
+    if (!selectedStillAvailable) {
+      booking.time = '';
+    }
+  }
+}
 
   function selectClinic(el, name, spec) {
     document.querySelectorAll('.clinic-card').forEach(c => c.classList.remove('selected'));
@@ -54,8 +96,11 @@ const clinicID = new URLSearchParams(window.location.search).get("clinicId");
   }
 
   function updateDate(val) {
-    booking.date = formatDate(val);
-  }
+  booking.date = formatDate(val);
+  booking.time = '';
+  document.querySelectorAll('.time-slot').forEach(t => t.classList.remove('selected'));
+  updateTimeSlots();
+}
 
   function updateBooking() {
     booking.fname = document.getElementById('fname').value;

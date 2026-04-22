@@ -7,8 +7,6 @@ const clinicsRouter = require('./src/routes/clinics');
 const dashboardRouter = require('./src/routes/dashboardRoutes');
 const appointmentRouter = require('./src/routes/appointments');
 
-
-
 const app = express();
 const PORT = 3000;
 
@@ -17,20 +15,17 @@ app.use(express.json());
 // Serve frontend as static files
 app.use(express.static(path.join(__dirname, '../frontend')));
 
+// Redirect root URL to Login.html
+app.get('/', (req, res) => {
+  res.redirect('/html/Login.html');
+});
+
 // Register the routers
 app.use('/api/clinics', clinicsRouter);
 app.use('/api/queue', dashboardRouter);
 app.use('/api/appointments', appointmentRouter);
 
-
-
-
-
-//app.listen(PORT, () => {
- // console.log(`Server running on http://localhost:${PORT}`);
-//});
-
-//  ONLY start server if NOT testing
+//  Only start server if NOT testing
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

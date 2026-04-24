@@ -8,7 +8,7 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-// ─── Session helpers ──────────────────────────────────────────────────────────
+
 async function storeSession(user) {
   const idToken = await user.getIdToken();
   sessionStorage.setItem("firebaseToken", idToken);
@@ -28,7 +28,7 @@ async function clearSession() {
   await fetch("/api/auth/session", { method: "DELETE" });
 }
 
-// ─── Register (email + password) ─────────────────────────────────────────────
+
 // fullName is split into first/last to match the Postgres "user" table schema
 export const signUp = async (fullName, email, password) => {
   const userCredential = await createUserWithEmailAndPassword(
@@ -57,7 +57,7 @@ export const signUp = async (fullName, email, password) => {
   return user;
 };
 
-// ─── Email / password sign-in ─────────────────────────────────────────────────
+
 export const signIn = async (email, password) => {
   const userCredential = await signInWithEmailAndPassword(
     auth,
@@ -68,12 +68,12 @@ export const signIn = async (email, password) => {
   return userCredential.user;
 };
 
-// ─── Google sign-in ───────────────────────────────────────────────────────────
+
 export const googleSignIn = async () => {
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
 
-  // Split Google display name into first + last for Postgres schema
+  
   const [firstName, ...rest] = (user.displayName || user.email.split("@")[0])
     .trim()
     .split(" ");
@@ -96,14 +96,14 @@ export const googleSignIn = async () => {
   return { isNewUser: data.isNewUser, user };
 };
 
-// ─── Sign out ─────────────────────────────────────────────────────────────────
+
 export const logOut = async () => {
   await clearSession();
   await signOut(auth);
   window.location.href = "/html/Login.html";
 };
 
-// ─── Auth state listener ──────────────────────────────────────────────────────
+
 export const authStateListener = (callback) =>
   onAuthStateChanged(auth, callback);
 

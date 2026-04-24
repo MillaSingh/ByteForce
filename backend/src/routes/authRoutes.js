@@ -6,7 +6,7 @@ const { Pool } = require("pg");
 const { deleteAccount } = require("../controllers/authController");
 router.delete("/delete-account", deleteAccount);
 
-// ─── Postgres pool ────────────────────────────────────────────────────────────
+
 const pool = new Pool({
   host: "clinic-app-db.postgres.database.azure.com",
   port: 5432,
@@ -16,7 +16,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
-// ─── In-memory session store ──────────────────────────────────────────────────
+
 const activeSessions = new Map();
 
 // ─── POST /api/auth/session ── store token after login ───────────────────────
@@ -78,14 +78,10 @@ router.post("/register", async (req, res) => {
 });
 
 // ─── GET /api/auth/me ── fetch logged-in user's Postgres record ───────────────
-// Useful for any page that needs the user's role, id_number, etc.
 router.get("/me", requireAuth, async (req, res) => {
   try {
-    // The Firebase ID token is in req.firebaseToken — but we need the uid.
-    // We stored it as a cookie value, so decode it from the session map.
-    // For now we look up by the idToken directly stored at login time.
-    // In production, verify the token with Firebase Admin SDK instead.
-    const { uid } = req.body; // client can also POST uid if needed
+    
+    const { uid } = req.body; 
     const result = await pool.query(
       `SELECT user_id, first_name, last_name, email, role, id_number, date_of_birth, created_at
        FROM "user" WHERE external_auth_id = $1`,
@@ -100,8 +96,7 @@ router.get("/me", requireAuth, async (req, res) => {
   }
 });
 
-// ─── Middleware: requireAuth ──────────────────────────────────────────────────
-// Usage on any protected route:
+
 //   const { requireAuth } = require('./auth');
 //   router.get('/protected', requireAuth, handler);
 function requireAuth(req, res, next) {

@@ -5,8 +5,6 @@ import {
   GoogleAuthProvider,
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-// Replace these values with your Firebase project config
-// Firebase Console → Project Settings → Your apps → Web app → Config
 const firebaseConfig = {
   apiKey: "AIzaSyCnJSYTyPwR9G-FX_dirZ_1XX-KI7iQbu0",
   authDomain: "byteforce-87933.firebaseapp.com",

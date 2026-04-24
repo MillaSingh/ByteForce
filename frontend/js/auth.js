@@ -1,89 +1,125 @@
-import { auth, db } from './firebase-config.js';
+// frontend/js/auth.js
+import { auth, googleProvider } from "./firebase-config.js";
 import {
-  GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
-  sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
-} from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
-import { collection, query, where, getDocs, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-const googleProvider = new GoogleAuthProvider();
+// ─── Session helpers ──────────────────────────────────────────────────────────
+async function storeSession(user) {
+  const idToken = await user.getIdToken();
+  sessionStorage.setItem("firebaseToken", idToken);
+  sessionStorage.setItem("userEmail", user.email || "");
+  sessionStorage.setItem("userName", user.displayName || "");
+  sessionStorage.setItem("userPhoto", user.photoURL || "");
 
-export const signUp = async (fullName, email, password, additionalData = {}) => {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    await setDoc(doc(db, "users", user.uid), {
-      userId: user.uid,
-      fullName,
+  await fetch("/api/auth/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+}
+
+async function clearSession() {
+  sessionStorage.clear();
+  await fetch("/api/auth/session", { method: "DELETE" });
+}
+
+// ─── Register (email + password) ─────────────────────────────────────────────
+// fullName is split into first/last to match the Postgres "user" table schema
+export const signUp = async (fullName, email, password) => {
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password,
+  );
+  const user = userCredential.user;
+
+  const [firstName, ...rest] = (fullName || "").trim().split(" ");
+  const lastName = rest.join(" ") || "";
+
+  await fetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      uid: user.uid,
+      firstName,
+      lastName,
       email,
-      role: 'patient',
-      createdAt: new Date(),
-      ...additionalData
-    });
+      role: "patient",
+    }),
+  });
 
-    return user;
-  } catch (error) {
-    throw error;
-  }
+  await storeSession(user);
+  return user;
 };
 
-export const googleSignIn = async () => {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-
-    if (!userDoc.exists()) {
-      await setDoc(doc(db, "users", user.uid), {
-        userId: user.uid,
-        email: user.email,
-        fullName: user.displayName || user.email.split('@')[0],
-        role: 'patient',
-        createdAt: new Date(),
-      });
-      return { isNewUser: true, user };
-    }
-    
-    return { isNewUser: false, user };
-  } catch (error) {
-    throw error;
-  }
-};
-
+// ─── Email / password sign-in ─────────────────────────────────────────────────
 export const signIn = async (email, password) => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
-  } catch (error) {
-    throw error;
-  }
+  const userCredential = await signInWithEmailAndPassword(
+    auth,
+    email,
+    password,
+  );
+  await storeSession(userCredential.user);
+  return userCredential.user;
 };
 
+// ─── Google sign-in ───────────────────────────────────────────────────────────
+export const googleSignIn = async () => {
+  const result = await signInWithPopup(auth, googleProvider);
+  const user = result.user;
+
+  // Split Google display name into first + last for Postgres schema
+  const [firstName, ...rest] = (user.displayName || user.email.split("@")[0])
+    .trim()
+    .split(" ");
+  const lastName = rest.join(" ") || "";
+
+  const response = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      uid: user.uid,
+      firstName,
+      lastName,
+      email: user.email,
+      role: "patient",
+    }),
+  });
+
+  const data = await response.json();
+  await storeSession(user);
+  return { isNewUser: data.isNewUser, user };
+};
+
+// ─── Sign out ─────────────────────────────────────────────────────────────────
 export const logOut = async () => {
-  try {
-    await signOut(auth);
-  } catch (error) {
-    throw error;
-  }
+  await clearSession();
+  await signOut(auth);
+  window.location.href = "/html/Login.html";
 };
 
-export const authStateListener = (callback) => {
-  return onAuthStateChanged(auth, callback);
-};
+// ─── Auth state listener ──────────────────────────────────────────────────────
+export const authStateListener = (callback) =>
+  onAuthStateChanged(auth, callback);
 
-export const getUserRole = async (uid) => {
-  try {
-    const docRef = doc(db, "users", uid);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().role : null;
-  } catch (error) {
-    console.error("Error getting user role:", error);
-    return null;
+// ─── Guard: redirect to login if not authenticated ────────────────────────────
+export function requireAuth() {
+  if (!sessionStorage.getItem("firebaseToken")) {
+    window.location.href = "/html/Login.html";
   }
-};
+}
+
+// ─── Get stored user info without a round-trip ───────────────────────────────
+export function getCurrentUser() {
+  return {
+    email: sessionStorage.getItem("userEmail"),
+    name: sessionStorage.getItem("userName"),
+    photo: sessionStorage.getItem("userPhoto"),
+    token: sessionStorage.getItem("firebaseToken"),
+  };
+}

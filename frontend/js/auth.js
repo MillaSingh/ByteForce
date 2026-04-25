@@ -29,7 +29,6 @@ async function clearSession() {
 }
 
 
-// fullName is split into first/last to match the Postgres "user" table schema
 export const signUp = async (fullName, email, password) => {
   const userCredential = await createUserWithEmailAndPassword(
     auth,

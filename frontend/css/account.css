@@ -84,7 +84,7 @@ dialog::backdrop {
   padding: 2rem;
   width: 320px;
   max-width: 90%;
-  background-color: --cream;
+  background-color: var(--cream);
   text-align: center;
   font-family: 'Playfair Display', serif;
   opacity: 0;

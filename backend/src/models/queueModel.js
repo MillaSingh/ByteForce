@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const pool = require('../db');
 
 const getMyQueueByUserId = async (patientId) => {
   const query = `
@@ -33,5 +33,5 @@ const getMyQueueByUserId = async (patientId) => {
 };
 
 module.exports = {
-  getMyQueue
+  getMyQueueByUserId
 };

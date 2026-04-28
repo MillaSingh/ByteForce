@@ -74,6 +74,29 @@ function updateTimeSlots() {
     }
   }
 }
+async function loadBookedSlots(date) {
+  try {
+    const res = await fetch(`/api/appointments/my?clinicId=${booking.clinic_id}`);
+    const data = await res.json();
+
+    document.querySelectorAll('.time-slot').forEach(slot => {
+      const time = slot.textContent.trim();
+
+      const isBooked = data.some(appt =>
+        appt.clinic_id == booking.clinic_id &&
+        appt.appointment_date === date &&
+        appt.appointment_time === time
+      );
+
+      if (isBooked) {
+        slot.classList.add('unavailable');
+      }
+    });
+
+  } catch (err) {
+    console.error("Error loading booked slots", err);
+  }
+}
 
   function selectClinic(el, name, spec) {
     document.querySelectorAll('.clinic-card').forEach(c => c.classList.remove('selected'));
@@ -96,11 +119,17 @@ function updateTimeSlots() {
   }
 
   function updateDate(val) {
-  booking.date = formatDate(val);
-  booking.time = '';
-  document.querySelectorAll('.time-slot').forEach(t => t.classList.remove('selected'));
-  updateTimeSlots();
-}
+    booking.date = formatDate(val);
+    booking.time = '';
+  
+    document.querySelectorAll('.time-slot').forEach(t => {
+      t.classList.remove('selected');
+      t.classList.remove('unavailable'); // reset first
+    });
+  
+    updateTimeSlots(); // past times
+    loadBookedSlots(val); // 👈 THIS is the new requirement
+  }
 
   function updateBooking() {
     booking.fname = document.getElementById('fname').value;
@@ -142,30 +171,37 @@ function updateTimeSlots() {
   }
 
   function confirmBooking() {
-  const ref = 'CC-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-
-  const finalBooking = { ...booking, ref };
-
-  fetch('/api/bookings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(finalBooking)
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log('Saved to DB:', data);
-
-    document.getElementById('ref-code').textContent = ref;
-    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-    document.getElementById('section-success').classList.add('active');
-  })
-  .catch(err => {
-    console.error('Booking failed:', err);
-    alert('Something went wrong saving your booking.');
-  });
-}
+    const patientId = new URLSearchParams(window.location.search).get("patientId");
+  
+    const bookingData = {
+      patient_id: patientId, // important for Sprint 2
+      clinic_id: booking.clinic_id, // 👈 THIS is your selected clinic
+      appointment_date: document.getElementById('appt-date').value,
+      appointment_time: booking.time,
+      reason_for_visit: booking.reason,
+      phone_number: booking.phone,
+      medical_aid: document.getElementById('medical-aid').value,
+      additional_notes: document.getElementById('notes').value
+    };
+  
+    fetch('/api/appointments', { // ⚠️ fix endpoint too
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bookingData)
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('ref-code').textContent = data.ref;
+      document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('section-success').classList.add('active');
+    })
+    .catch(err => {
+      console.error('Booking failed:', err);
+      alert('Something went wrong saving your booking.');
+    });
+  }
 
   function resetForm() {
     location.reload();

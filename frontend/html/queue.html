@@ -1,95 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Home | MEDIQUEUE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/home.css">
+  <title>Queue | MEDIQUEUE</title>
+
+  <link rel="stylesheet" href="/css/queue.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
 </head>
 
-
 <body>
+
+  <!-- NAV -->
   <nav>
-  <section class="nav-brand">
-    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
-    <span class="nav-logo">MEDI<span>QUEUE</span></span>
-  </section>
+    <div class="nav-brand">
+      <img src="/images/logo.jpeg" width="45" height="45">
+      <div class="nav-logo">MEDI<span>QUEUE</span></div>
+    </div>
 
-  <ul class="nav-links">
-    <li><a href="/html/home.html" >Home</a></li>
-    <li><a href="/html/clinics.html">Clinics</a></li>
-    <li><a href="/html/myAppointments.html">My Appointments</a></li>
-    <li><a href= "/html/queue.html" class="active">Queue</a></li>
-  </ul>
+    <ul class="nav-links">
+      <li><a href="/html/home.html">Home</a></li>
+      <li><a href="/html/clinics.html">Clinics</a></li>
+      <li><a href="/html/myAppointments.html">My Appointments</a></li>
+      <li><a class="active" href="/html/queue.html">Queue</a></li>
+    </ul>
 
-  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">
-    Account
-  </button>
-</nav>
+    <button class="nav-cta" onclick="window.location.href='/html/account.html'">
+      Account
+    </button>
+  </nav>
 
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Queue</h1>
+    <p>Track your current clinic queue position</p>
+  </div>
 
-<header class="hero">
-  <h1>Smarter Clinic Queue Management</h1>
-  <p>
-    MEDIQUEUE helps South African clinics reduce overcrowding by allowing patients to book appointments,
-    join virtual queues, and track their position in real time.
-  </p>
-</header>
+  <!-- MAIN -->
+  <main>
+    <div class="container-card">
 
+      <div class="summary-header">
+        <h2>Your Position</h2>
+        <p id="summary-text">Loading your position...</p>
+      </div>
 
-<main>
+      <div id="loading" class="center">Loading your position...</div>
 
-<section class="section">
-  <h2>What is MEDIQUEUE?</h2>
-  <p>
-    MEDIQUEUE is a web-based appointment and queue management system designed for public health clinics.
-    It improves patient flow, reduces waiting frustration, and gives real-time visibility into queue status.
-  </p>
-</section>
+      <div id="empty" class="center" style="display:none;">
+        You are not in the queue
+      </div>
 
+      <div id="queue-details" class="queue-details" style="display:none;"></div>
 
-<section class="section">
-  <h2>What the System Does</h2>
+    </div>
+  </main>
 
-  <ul>
-    <li>Appointment booking and management</li>
-    <li>Real-time queue tracking</li>
-    <li>Clinic directory with filtering by province and district</li>
-    <li>Staff dashboard for managing patients</li>
-    <li>Notifications and reminders</li>
-    <li>Analytics and reporting tools</li>
-  </ul>
-</section>
-
-
-<section class="section">
-  <h2>User Roles</h2>
-
-  <ul>
-    <li><strong>Patients:</strong> Book appointments, join queues, track status</li>
-    <li><strong>Clinic Staff:</strong> Manage queues and update patient status</li>
-    <li><strong>Admins:</strong> Manage clinics, staff, and system data</li>
-  </ul>
-</section>
-
-
-<section class="section">
-  <h2>Why This System Matters</h2>
-  <p>
-    Public clinics in South Africa often experience overcrowding and long waiting times.
-    This system reduces uncertainty by giving patients clear information about their position in the queue
-    and expected wait times.
-  </p>
-</section>
-
-</main>
-
-
-<footer>
-  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
-</footer>
+  <script src="/js/queue.js"></script>
 
 </body>
+
 </html>

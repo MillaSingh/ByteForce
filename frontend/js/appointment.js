@@ -1,6 +1,6 @@
 const clinicID = new URLSearchParams(window.location.search).get("clinicId");
 
-// State
+// ---------------- STATE ----------------
 const booking = {
   clinic: '',
   specialty: '',
@@ -14,6 +14,7 @@ const booking = {
   clinic_id: clinicID
 };
 
+// ---------------- CLINIC LOAD ----------------
 function loadClinic() {
   if (!clinicID) return;
 
@@ -23,21 +24,26 @@ function loadClinic() {
       booking.clinic = data?.clinic?.clinic_name || data?.clinic_name || '';
       booking.clinic_id = clinicID;
     })
-    .catch(err => {
-      console.error("Failed to load clinic:", err);
-    });
+    .catch(err => console.error("Failed to load clinic:", err));
 }
 
 loadClinic();
 
-// Set min date to today
+// ---------------- DATE INIT ----------------
 const today = new Date().toISOString().split('T')[0];
-document.getElementById('appt-date').min = today;
-document.getElementById('appt-date').value = today;
-booking.date = formatDate(today);
 
-updateTimeSlots();
+const dateInput = document.getElementById('appt-date');
+if (dateInput) {
+  dateInput.min = today;
+  dateInput.value = today;
+}
 
+booking.date = today;
+
+// safe init
+if (typeof updateTimeSlots === "function") updateTimeSlots();
+
+// ---------------- DATE FORMAT ----------------
 function formatDate(val) {
   if (!val) return '';
   const d = new Date(val + 'T00:00:00');
@@ -49,17 +55,18 @@ function formatDate(val) {
   });
 }
 
+// ---------------- PAST SLOT CHECK ----------------
 function isPastTimeSlot(timeString, selectedDateValue) {
   const now = new Date();
-  const slotDateTime = new Date(selectedDateValue + 'T00:00:00');
+  const slotDateTime = new Date(`${selectedDateValue}T00:00:00`);
 
   let [hours, minutes] = timeString.split(':').map(Number);
-
   slotDateTime.setHours(hours, minutes, 0, 0);
 
   return slotDateTime < now;
 }
 
+// ---------------- TIME SLOT UPDATE ----------------
 function updateTimeSlots() {
   const selectedDateValue = document.getElementById('appt-date').value;
 
@@ -84,13 +91,16 @@ function updateTimeSlots() {
   }
 }
 
-// FIXED VERSION (CI SAFE)
+// ---------------- BOOKED SLOTS ----------------
 async function loadBookedSlots(date) {
   try {
     const patientId =
       new URLSearchParams(window.location.search).get("patientId") || 1;
 
     const res = await fetch(`/api/appointments/my?patientId=${patientId}`);
+
+    if (!res.ok) return;
+
     const data = await res.json();
 
     if (!Array.isArray(data)) return;
@@ -99,9 +109,9 @@ async function loadBookedSlots(date) {
       const time = slot.textContent.trim();
 
       const isBooked = data.some(appt =>
-        appt.clinic_id == booking.clinic_id &&
+        String(appt.clinic_id) === String(booking.clinic_id) &&
         appt.appointment_date === date &&
-        appt.appointment_time === time
+        appt.appointment_time?.startsWith(time)
       );
 
       if (isBooked) {
@@ -114,6 +124,7 @@ async function loadBookedSlots(date) {
   }
 }
 
+// ---------------- UI HANDLERS ----------------
 function selectClinic(el, name, spec) {
   document.querySelectorAll('.clinic-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
@@ -129,18 +140,19 @@ function selectReason(el) {
 
 function selectTime(el) {
   if (el.classList.contains('unavailable')) return;
+
   document.querySelectorAll('.time-slot').forEach(t => t.classList.remove('selected'));
   el.classList.add('selected');
-  booking.time = el.textContent;
+
+  booking.time = el.textContent.trim();
 }
 
 function updateDate(val) {
-  booking.date = formatDate(val);
+  booking.date = val;
   booking.time = '';
 
   document.querySelectorAll('.time-slot').forEach(t => {
-    t.classList.remove('selected');
-    t.classList.remove('unavailable');
+    t.classList.remove('selected', 'unavailable');
   });
 
   updateTimeSlots();
@@ -148,22 +160,23 @@ function updateDate(val) {
 }
 
 function updateBooking() {
-  booking.fname = document.getElementById('fname').value;
-  booking.lname = document.getElementById('lname').value;
-  booking.email = document.getElementById('email').value;
-  booking.phone = document.getElementById('phone').value;
+  booking.fname = document.getElementById('fname')?.value || '';
+  booking.lname = document.getElementById('lname')?.value || '';
+  booking.email = document.getElementById('email')?.value || '';
+  booking.phone = document.getElementById('phone')?.value || '';
 }
 
+// ---------------- STEPS ----------------
 function goToStep(n) {
   document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.step').forEach(s => {
-    s.classList.remove('active', 'done');
-  });
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active', 'done'));
 
   document.getElementById('section-' + n).classList.add('active');
 
   for (let i = 1; i <= 4; i++) {
     const tab = document.getElementById('step-tab-' + i);
+    if (!tab) continue;
+
     if (i < n) tab.classList.add('done');
     else if (i === n) tab.classList.add('active');
   }
@@ -173,6 +186,7 @@ function goToStep(n) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// ---------------- SUMMARY ----------------
 function populateSummary() {
   updateBooking();
 
@@ -187,6 +201,7 @@ function populateSummary() {
     booking.email || booking.phone || '—';
 }
 
+// ---------------- BOOKING ----------------
 function confirmBooking() {
   const patientId =
     new URLSearchParams(window.location.search).get("patientId");
@@ -203,25 +218,20 @@ function confirmBooking() {
     appointment_time: booking.time,
     reason_for_visit: booking.reason,
     phone_number: booking.phone,
-    medical_aid: document.getElementById('medical-aid').value,
-    additional_notes: document.getElementById('notes').value
+    medical_aid: document.getElementById('medical-aid')?.value || '',
+    additional_notes: document.getElementById('notes')?.value || ''
   };
 
   fetch('/api/appointments', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(bookingData)
   })
     .then(res => res.json())
     .then(data => {
       document.getElementById('ref-code').textContent = data.ref;
 
-      document.querySelectorAll('.form-section').forEach(s => {
-        s.classList.remove('active');
-      });
-
+      document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
       document.getElementById('section-success').classList.add('active');
     })
     .catch(err => {

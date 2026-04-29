@@ -16,6 +16,8 @@
   --border: #e5e0d8;
   --shadow: 0 4px 24px rgba(26,26,46,0.08);
   --radius: 14px;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
 }
 
 body {

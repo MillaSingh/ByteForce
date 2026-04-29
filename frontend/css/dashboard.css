@@ -26,54 +26,6 @@ body {
   color: var(--ink);                 /* Text color */
 }
 
-/* NAVIGATION BAR */
-nav {
-  background: var(--white);                 /* White background */
-  border-bottom: 1px solid var(--border);  /* Bottom border line */
-  padding: 0 2rem;                         /* Left & right spacing */
-  height: 64px;                            /* Fixed height */
-  display: flex;                           /* Flex layout */
-  align-items: center;                     /* Center vertically */
-  justify-content: space-between;          /* Space between items */
-}
-
-/* Logo + brand section */
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Space between logo and text */
-}
-
-/* App name styling */
-.nav-logo {
-  font-family: 'Playfair Display', serif; /* Fancy font */
-  font-size: 1.4rem;
-  color: var(--accent);
-}
-
-/* Part of logo text */
-.nav-logo span { 
-  color: var(--ink); 
-}
-
-/* Navigation links container */
-.nav-links {
-  display: flex;
-  gap: 2rem;          /* Space between links */
-  list-style: none;   /* Remove bullets */
-}
-
-/* Navigation links */
-.nav-links a {
-  text-decoration: none; /* Remove underline */
-  color: var(--muted);   /* Default color */
-}
-
-/* Active/current page link */
-.nav-links a.active {
-  color: var(--accent);  /* Highlight color */
-  font-weight: 600;      /* Slightly bold */
-}
 
 /* ACCOUNT BUTTON */
 .account-btn {

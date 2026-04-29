@@ -7,9 +7,8 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
-
-  <!-- External CSS -->
   <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/navigation.css">
 </head>
 
 <body>
@@ -17,15 +16,16 @@
 <!-- Navigation bar -->
 <nav>
   <section class="nav-brand">
-    <img src="/images/logo.jpeg" width="60" height="60">
+    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
     <span class="nav-logo">MEDI<span>QUEUE</span></span>
   </section>
 
   <ul class="nav-links">
     <li><a href="#" class="active">Dashboard</a></li>
   </ul>
-
-  Account
+  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">
+    Account
+  </button>
 </nav>
 
 <!-- Header -->

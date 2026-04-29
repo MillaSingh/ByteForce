@@ -37,6 +37,7 @@ const getClinics = async ({ search, province, district, facilityType, page, limi
     [...params, limit, offset]
   );
 
+  // dataResult.rows is the array of clinic records returned by SQL
   return { clinics: dataResult.rows, total, totalPages: Math.ceil(total / limit) };
 };
 
@@ -51,6 +52,7 @@ const getFilterOptions = async () => {
     'SELECT DISTINCT org_unit_type FROM clinic WHERE org_unit_type IS NOT NULL ORDER BY org_unit_type'
   );
 
+  // Get the rows as an array of objects. Transform each object into just the string value.
   return {
     provinces: provinces.rows.map(r => r.province),
     districts: districts.rows.map(r => r.district),
@@ -63,12 +65,52 @@ const getClinicById = async (id) => {
     `SELECT * FROM clinic WHERE clinic_id = $1`, [id]
   );
   const servicesResult = await pool.query(
-    `SELECT service_name FROM clinic_service WHERE clinic_id = $1 ORDER BY service_name`, [id]
+    `SELECT service_id, service_name FROM clinic_service WHERE clinic_id = $1 ORDER BY service_name`, [id]
   );
   return {
-    clinic: clinicResult.rows[0],
+    clinic: clinicResult.rows[0], // take the first and only element from the array
     services: servicesResult.rows
   };
 };
 
-module.exports = { getClinics, getFilterOptions, getClinicById };
+const updateClinic = async(id, data) => {
+  const result = await pool.query(
+    `UPDATE clinic 
+    SET address = $2, phone_number = $3,
+    description = $4, image_url = $5
+    WHERE clinic_id = $1
+    RETURNING *`, 
+    [id, data.address, data.phone_number, data.description, data.image_url]
+  )
+
+  return {
+    updatedClinic: result.rows[0]
+  }
+}
+
+const addService = async(clinicId, serviceName) => {
+  const result = await pool.query(
+    `INSERT INTO clinic_service (clinic_id, service_name)
+    VALUES($1, $2) 
+    RETURNING *`, 
+    [clinicId, serviceName]
+  )
+
+  return {
+    newService: result.rows[0]
+  }
+}
+
+const removeService = async(clinicId, serviceId) => {
+  const result = await pool.query(
+    `DELETE FROM clinic_service 
+    WHERE clinic_id = $1 AND service_id = $2`, 
+    [clinicId, serviceId]
+  )
+
+  return {
+    deletedRow: result.rowCount
+  }
+}
+
+module.exports = { getClinics, getFilterOptions, getClinicById, updateClinic, addService, removeService };

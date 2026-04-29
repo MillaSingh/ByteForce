@@ -4,25 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Book an Appointment | MEDIQUEUE</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="appointment.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/appointment.css">
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <div class="nav-brand">
-    <img src="logo.jpeg" width="60" height="60">
-    <div class="nav-logo">MEDI<span>QUEUE</span></div>
-  </div>
+  <section class="nav-brand">
+    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
+    <span class="nav-logo">MEDI<span>QUEUE</span></span>
+  </section>
 
   <ul class="nav-links">
-    <li><a href="home.html">Home</a></li>
-    <li><a href= "clinics.html">Clinics</a></li>
-    <li><a href="#"class="active">Book Appointment</a></li>
-    
+    <li><a href="/html/home.html">Home</a></li>
+    <li><a href= "/html/clinics.html">Clinics</a></li>
+    <li><a href="#" class="active">My Appointments</a></li>
+    <li><a href= "/html/queue.html">Queue</a></li>
   </ul>
-  <button class="nav-cta account-btn" onclick="window.location.href='account.html'">Account</button>
+  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">Account</button>
 </nav>
 
 <!-- HERO -->
@@ -66,7 +66,6 @@
       <div class="btn-row">
         <button class="btn-next" onclick="goToStep(2)">Continue →</button>
       </div>
-    </div>
     </div>
 
     <!-- STEP 2: Date & Time -->
@@ -198,7 +197,7 @@
     <div class="form-section" id="section-success">
       <div class="success-screen">
         <div class="success-icon">
-          <img src="success.png" width="60" height="60" alt="Success">
+          <img src="/images/success.png" width="60" height="60" alt="Success">
         </div>
         <h2>Appointment booked, status is pending</h2>
         <p>Your booking has been received. Check back to view confirmation details.</p>
@@ -215,106 +214,6 @@
   © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
 </footer>
 
-<script>
-  // State
-  const booking = {
-    clinic: '', specialty: '', reason: '',
-    date: '', time: '',
-    fname: '', lname: '', email: '', phone: ''
-  };
-
-  // Set min date to today
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('appt-date').min = today;
-  document.getElementById('appt-date').value = today;
-  booking.date = formatDate(today);
-
-  function formatDate(val) {
-    if (!val) return '';
-    const d = new Date(val + 'T00:00:00');
-    return d.toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  }
-
-  function selectClinic(el, name, spec) {
-    document.querySelectorAll('.clinic-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    booking.clinci = name;
-    booking.specialty = spec;
-  }
-
-  function selectReason(el) {
-    document.querySelectorAll('.reason-tag').forEach(t => t.classList.remove('selected'));
-    el.classList.add('selected');
-    booking.reason = el.textContent;
-  }
-
-  function selectTime(el) {
-    if (el.classList.contains('unavailable')) return;
-    document.querySelectorAll('.time-slot').forEach(t => t.classList.remove('selected'));
-    el.classList.add('selected');
-    booking.time = el.textContent;
-  }
-
-  function updateDate(val) {
-    booking.date = formatDate(val);
-  }
-
-  function updateBooking() {
-    booking.fname = document.getElementById('fname').value;
-    booking.lname = document.getElementById('lname').value;
-    booking.email = document.getElementById('email').value;
-    booking.phone = document.getElementById('phone').value;
-  }
-
-  function goToStep(n) {
-    // Hide all
-    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.step').forEach(s => { s.classList.remove('active', 'done'); });
-
-    // Show section
-    document.getElementById('section-' + n).classList.add('active');
-
-    // Update step tabs
-    for (let i = 1; i <= 4; i++) {
-      const tab = document.getElementById('step-tab-' + i);
-      if (i < n) tab.classList.add('done');
-      else if (i === n) tab.classList.add('active');
-    }
-
-    // Populate summary if step 4
-    if (n === 4) populateSummary();
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function populateSummary() {
-    updateBooking();
-    document.getElementById('sum-clinic').textContent = booking.clinic || '—';
-    document.getElementById('sum-reason').textContent = booking.reason || '—';
-    document.getElementById('sum-date').textContent = booking.date || '—';
-    document.getElementById('sum-time').textContent = booking.time || '—';
-    const name = [booking.fname, booking.lname].filter(Boolean).join(' ');
-    document.getElementById('sum-patient').textContent = name || '—';
-    document.getElementById('sum-contact').textContent = booking.email || booking.phone || '—';
-  }
-
-  function confirmBooking() {
-    // Generate reference
-    const ref = 'CC-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    document.getElementById('ref-code').textContent = ref;
-
-    // Hide all steps, show success
-    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.step').forEach(s => s.classList.add('done'));
-    document.getElementById('section-success').classList.add('active');
-
-    // TODO: Send booking data to your backend / database here
-    console.log('Booking confirmed:', { ...booking, ref });
-  }
-
-  function resetForm() {
-    location.reload();
-  }
-</script>
+<script src="/js/appointment.js"></script>
 </body>
 </html>

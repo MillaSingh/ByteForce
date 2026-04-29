@@ -6,7 +6,7 @@ const createBooking = async (req, res) => {
     const data = req.body;
 
     // TEMP USER (replace with auth later)
-    const patientId = 1;
+    const patientId = req.query.patientId;
     data.patient_id = patientId;
 
     const existing = await appointmentModel.checkSlot(

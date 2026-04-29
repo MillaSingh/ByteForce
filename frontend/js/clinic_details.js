@@ -53,7 +53,7 @@ function renderClinic(clinic) {
   metaPhone.textContent        = clinic.phone_number  || 'Not yet provided';
 
   // Book button — pass clinicId to appointment page
-  bookBtn.href = `appointment.html?clinicId=${clinic.clinic_id}`;
+  bookBtn.href = `/html/appointment.html?clinicId=${clinic.clinic_id}`;
 }
 
 function renderServices(services) {

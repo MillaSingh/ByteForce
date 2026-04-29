@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Queue | MEDIQUEUE</title>
+
+  <link rel="stylesheet" href="/css/queue.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand">
+      <img src="/images/logo.jpeg" width="45" height="45">
+      <div class="nav-logo">MEDI<span>QUEUE</span></div>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="/html/home.html">Home</a></li>
+      <li><a href="/html/clinics.html">Clinics</a></li>
+      <li><a href="/html/myAppointments.html">My Appointments</a></li>
+      <li><a class="active" href="/html/queue.html">Queue</a></li>
+    </ul>
+
+    <button class="nav-cta" onclick="window.location.href='/html/account.html'">
+      Account
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Queue</h1>
+    <p>Track your current clinic queue position</p>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+    <div class="container-card">
+
+      <div class="summary-header">
+        <h2>Your Position</h2>
+        <p id="summary-text">Loading your position...</p>
+      </div>
+
+      <div id="loading" class="center">Loading your position...</div>
+
+      <div id="empty" class="center" style="display:none;">
+        You are not in the queue
+      </div>
+
+      <div id="queue-details" class="queue-details" style="display:none;"></div>
+
+    </div>
+  </main>
+
+  <script src="/js/queue.js"></script>
+
+</body>
+
+</html>

@@ -29,20 +29,19 @@ let justLoggedIn = false;
 emailLoginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   clearError();
-
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const submitBtn = emailLoginForm.querySelector('button[type="submit"]');
-
   setLoading(submitBtn, true);
-
   try {
-    justLoggedIn = true;
     await signIn(email, password);
+    // Redirect directly here
+    authStatus.textContent = `Signed in — redirecting…`;
+    setTimeout(() => {
+      window.location.href = "/html/home.html";
+    }, 800);
   } catch (error) {
-    justLoggedIn = false;
     setLoading(submitBtn, false);
-
     const friendlyErrors = {
       "auth/user-not-found": "No account found with that email.",
       "auth/wrong-password": "Incorrect password. Please try again.",
@@ -57,22 +56,22 @@ emailLoginForm.addEventListener("submit", async (e) => {
 googleSignInBtn.addEventListener("click", async () => {
   clearError();
   setLoading(googleSignInBtn, true);
-
   try {
-    justLoggedIn = true;
     await googleSignIn();
+    // Redirect directly here instead of relying on authStateListener
+    authStatus.textContent = `Signed in — redirecting…`;
+    setTimeout(() => {
+      window.location.href = "/html/home.html";
+    }, 800);
   } catch (error) {
-    justLoggedIn = false;
     setLoading(googleSignInBtn, false);
-
     if (error.code === "auth/popup-closed-by-user") return;
     showError(error.message);
   }
 });
 
 authStateListener((user) => {
-  if (user && justLoggedIn) {
-    authStatus.textContent = `Signed in as ${user.email || user.displayName} — redirecting…`;
+  if (user) {
     setTimeout(() => {
       window.location.href = "/html/home.html";
     }, 800);

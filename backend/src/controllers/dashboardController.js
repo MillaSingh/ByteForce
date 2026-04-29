@@ -31,14 +31,15 @@ const addWalkInPatient = async (req, res) => {
   console.log("ADD WALK-IN HIT"); //  check error
   console.log("BODY:", req.body); //  check error
 
-  const { first_name, last_name, email, clinic_id } = req.body;
+  const { first_name, last_name, email, clinic_id,phone_number } = req.body;
 
   try {
     const result = await dashboardModel.addWalkInPatient(
       first_name,
       last_name,
       email,
-      clinic_id
+      clinic_id,
+      phone_number
     );
 
     res.json(result);

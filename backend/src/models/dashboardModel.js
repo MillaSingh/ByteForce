@@ -35,7 +35,7 @@ const updateQueueStatus = async (id, status) => {
   return result.rows[0];
 };
 
-const addWalkInPatient = async (first_name, last_name, email, clinic_id) => {
+const addWalkInPatient = async (first_name, last_name, email, clinic_id, phone_number) => {
   const client = await pool.connect();
 
   try {
@@ -51,7 +51,14 @@ const addWalkInPatient = async (first_name, last_name, email, clinic_id) => {
 
     const user_id = userResult.rows[0].user_id;
 
-    // 2. Get next queue position
+    // 2. Insert phone number into appointment table
+    await client.query(
+      `INSERT INTO appointment (patient_id, clinic_id, appointment_date, appointment_time, phone_number)
+       VALUES ($1, $2, CURRENT_DATE, CURRENT_TIME, $3)`,
+      [user_id, clinic_id, phone_number]
+    );
+
+    // 3. Get next queue position
     const positionResult = await client.query(
       `SELECT COALESCE(MAX(queue_position), 0) + 1 AS next_position
        FROM queue_entry
@@ -61,7 +68,7 @@ const addWalkInPatient = async (first_name, last_name, email, clinic_id) => {
 
     const queue_position = positionResult.rows[0].next_position;
 
-    // 3. Insert into queue
+    // 4. Insert into queue
     const queueResult = await client.query(
       `INSERT INTO queue_entry (clinic_id, patient_id, queue_position)
        VALUES ($1, $2, $3)

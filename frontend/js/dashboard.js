@@ -126,9 +126,10 @@ async function submitPatient() {
   const first_name = document.getElementById("firstName").value;
   const last_name = document.getElementById("lastName").value;
   const email = document.getElementById("email").value;
+  const phone_number = document.getElementById("phoneNumber").value;
 
   // Check if any field is empty
-  if (!first_name || !last_name || !email) {
+  if (!first_name || !last_name || !email || !phone_number) {
     alert("Please fill in all fields"); // Show warning
     return; // Stop function if validation fails
   }
@@ -144,6 +145,7 @@ async function submitPatient() {
         first_name,
         last_name,
         email,
+        phone_number,
         clinic_id: 1 // Hardcoded clinic ID
       })
     });

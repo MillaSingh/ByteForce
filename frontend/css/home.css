@@ -141,6 +141,23 @@ nav {
 }
 
 /* SECTIONS */
+
+.section-image {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: #3c9ba9;
+}
+
+.homepage-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 14px 35px rgba(32, 78, 134, 0.18);
+}
+
 .section {
   max-width: 900px;
   margin: auto;

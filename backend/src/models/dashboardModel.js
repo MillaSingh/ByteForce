@@ -9,13 +9,15 @@ const getQueuePatients = async () => {
       q.status,
       u.first_name,
       u.last_name,
-      u.email
+      u.email,
+      a.phone_number
     FROM queue_entry q
     LEFT JOIN "user" u 
       ON q.patient_id = u.user_id
+    LEFT JOIN appointment a
+      ON a.patient_id = u.user_id
     ORDER BY q.queue_position ASC;
   `);
-
   return result.rows;
 };
 

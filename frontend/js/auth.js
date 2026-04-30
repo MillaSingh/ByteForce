@@ -8,7 +8,6 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-
 async function storeSession(user) {
   const idToken = await user.getIdToken();
   sessionStorage.setItem("firebaseToken", idToken);
@@ -27,7 +26,6 @@ async function clearSession() {
   sessionStorage.clear();
   await fetch("/api/auth/session", { method: "DELETE" });
 }
-
 
 export const signUp = async (fullName, email, password) => {
   const userCredential = await createUserWithEmailAndPassword(
@@ -56,7 +54,6 @@ export const signUp = async (fullName, email, password) => {
   return user;
 };
 
-
 export const signIn = async (email, password) => {
   const userCredential = await signInWithEmailAndPassword(
     auth,
@@ -67,12 +64,10 @@ export const signIn = async (email, password) => {
   return userCredential.user;
 };
 
-
 export const googleSignIn = async () => {
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
 
-  
   const [firstName, ...rest] = (user.displayName || user.email.split("@")[0])
     .trim()
     .split(" ");
@@ -95,13 +90,11 @@ export const googleSignIn = async () => {
   return { isNewUser: data.isNewUser, user };
 };
 
-
 export const logOut = async () => {
   await clearSession();
   await signOut(auth);
-  window.location.href = "/html/Login.html";
+  window.location.replace("/html/Login.html");
 };
-
 
 export const authStateListener = (callback) =>
   onAuthStateChanged(auth, callback);

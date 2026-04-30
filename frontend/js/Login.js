@@ -6,7 +6,7 @@ const errorMsg = document.getElementById("errorMsg");
 const authStatus = document.getElementById("authStatus");
 
 if (sessionStorage.getItem("firebaseToken")) {
-  window.location.href = "/html/home.html";
+  window.location.replace("/html/home.html");
 }
 
 function showError(msg) {
@@ -38,7 +38,7 @@ emailLoginForm.addEventListener("submit", async (e) => {
     // Redirect directly here
     authStatus.textContent = `Signed in — redirecting…`;
     setTimeout(() => {
-      window.location.href = "/html/home.html";
+      window.location.replace("/html/home.html");
     }, 800);
   } catch (error) {
     setLoading(submitBtn, false);
@@ -61,7 +61,7 @@ googleSignInBtn.addEventListener("click", async () => {
     // Redirect directly here instead of relying on authStateListener
     authStatus.textContent = `Signed in — redirecting…`;
     setTimeout(() => {
-      window.location.href = "/html/home.html";
+      window.location.replace("/html/home.html");
     }, 800);
   } catch (error) {
     setLoading(googleSignInBtn, false);

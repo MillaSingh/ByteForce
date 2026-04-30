@@ -1,6 +1,8 @@
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const admin = require("firebase-admin");
+const serviceAccount = require("./byteforce-87933-firebase-adminsdk-fbsvc-5f0c8bf4ba.json");
 require("dotenv").config({ path: "../.env" });
 
 const clinicsRouter = require("./src/routes/clinics");
@@ -12,6 +14,10 @@ const queueRoutes = require("./src/routes/queueRoutes");
 
 const app = express();
 const PORT = process.env.PORT;
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 app.use(express.json());
 app.use(cookieParser());

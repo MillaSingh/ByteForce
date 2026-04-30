@@ -1,4 +1,3 @@
-// frontend/js/auth.js
 import { auth, googleProvider } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
@@ -27,7 +26,7 @@ async function clearSession() {
   await fetch("/api/auth/session", { method: "DELETE" });
 }
 
-export const signUp = async (fullName, email, password) => {
+export const signUp = async (fullName, email, password, extras = {}) => {
   const userCredential = await createUserWithEmailAndPassword(
     auth,
     email,
@@ -46,7 +45,10 @@ export const signUp = async (fullName, email, password) => {
       firstName,
       lastName,
       email,
-      role: "patient",
+      role: extras.role || "patient",
+      idNumber: extras.idNumber || null,
+      dateOfBirth: extras.dateOfBirth || null,
+      password,
     }),
   });
 
@@ -82,6 +84,9 @@ export const googleSignIn = async () => {
       lastName,
       email: user.email,
       role: "patient",
+      idNumber: null,
+      dateOfBirth: null,
+      password: null,
     }),
   });
 
@@ -99,14 +104,12 @@ export const logOut = async () => {
 export const authStateListener = (callback) =>
   onAuthStateChanged(auth, callback);
 
-// ─── Guard: redirect to login if not authenticated ────────────────────────────
 export function requireAuth() {
   if (!sessionStorage.getItem("firebaseToken")) {
-    window.location.href = "/html/Login.html";
+    window.location.replace("/html/Login.html");
   }
 }
 
-// ─── Get stored user info without a round-trip ───────────────────────────────
 export function getCurrentUser() {
   return {
     email: sessionStorage.getItem("userEmail"),

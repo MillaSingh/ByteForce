@@ -1,11 +1,10 @@
-// backend/src/routes/auth.js
 const express = require("express");
 const router = express.Router();
 const { Pool } = require("pg");
+const bcrypt = require("bcrypt");
 
 const { deleteAccount } = require("../controllers/authController");
 router.delete("/delete-account", deleteAccount);
-
 
 const pool = new Pool({
   host: "clinic-app-db.postgres.database.azure.com",
@@ -15,7 +14,6 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   ssl: { rejectUnauthorized: false },
 });
-
 
 const activeSessions = new Map();
 
@@ -44,19 +42,25 @@ router.delete("/session", (req, res) => {
 });
 
 // ─── POST /api/auth/register ── upsert user into Postgres ────────────────────
-// Called after every Google sign-in and email sign-up.
-// ON CONFLICT (external_auth_id) DO NOTHING means returning users are skipped safely.
 router.post("/register", async (req, res) => {
-  const { uid, firstName, lastName, email, role } = req.body;
+  const {
+    uid,
+    firstName,
+    lastName,
+    email,
+    role,
+    idNumber,
+    dateOfBirth,
+    password,
+  } = req.body;
 
   if (!uid || !email) {
     return res.status(400).json({ error: "uid and email are required" });
   }
 
   try {
-    // First check if user already exists so we can return isNewUser accurately
     const existing = await pool.query(
-      `SELECT user_id FROM "user" WHERE external_auth_id = $1`,
+      `SELECT user_id FROM "user" WHERE external_auth_id = \$1`,
       [uid],
     );
 
@@ -64,10 +68,24 @@ router.post("/register", async (req, res) => {
       return res.json({ isNewUser: false });
     }
 
+    let passwordHash = null;
+    if (password) {
+      passwordHash = await bcrypt.hash(password, 10);
+    }
+
     await pool.query(
-      `INSERT INTO "user" (first_name, last_name, email, external_auth_id, role, created_at)
-       VALUES ($1, $2, $3, $4, $5, NOW())`,
-      [firstName || "", lastName || "", email, uid, role || "patient"],
+      `INSERT INTO "user" (first_name, last_name, email, external_auth_id, role, id_number, date_of_birth, password_hash, created_at)
+       VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, NOW())`,
+      [
+        firstName || "",
+        lastName || "",
+        email,
+        uid,
+        role || "patient",
+        idNumber || null,
+        dateOfBirth || null,
+        passwordHash,
+      ],
     );
 
     return res.json({ isNewUser: true });
@@ -80,11 +98,10 @@ router.post("/register", async (req, res) => {
 // ─── GET /api/auth/me ── fetch logged-in user's Postgres record ───────────────
 router.get("/me", requireAuth, async (req, res) => {
   try {
-    
-    const { uid } = req.body; 
+    const { uid } = req.body;
     const result = await pool.query(
       `SELECT user_id, first_name, last_name, email, role, id_number, date_of_birth, created_at
-       FROM "user" WHERE external_auth_id = $1`,
+       FROM "user" WHERE external_auth_id = \$1`,
       [uid],
     );
     if (result.rowCount === 0)
@@ -96,9 +113,6 @@ router.get("/me", requireAuth, async (req, res) => {
   }
 });
 
-
-//   const { requireAuth } = require('./auth');
-//   router.get('/protected', requireAuth, handler);
 function requireAuth(req, res, next) {
   const token = req.cookies?.firebaseToken;
   if (!token || !activeSessions.has(token)) {

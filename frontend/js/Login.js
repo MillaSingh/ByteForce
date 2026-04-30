@@ -1,4 +1,4 @@
-import { signIn, googleSignIn, authStateListener } from "./auth.js";
+import { signIn, googleSignIn } from "./auth.js";
 
 const emailLoginForm = document.getElementById("emailLoginForm");
 const googleSignInBtn = document.getElementById("googleSignInBtn");
@@ -67,13 +67,5 @@ googleSignInBtn.addEventListener("click", async () => {
     setLoading(googleSignInBtn, false);
     if (error.code === "auth/popup-closed-by-user") return;
     showError(error.message);
-  }
-});
-
-authStateListener((user) => {
-  if (user) {
-    setTimeout(() => {
-      window.location.href = "/html/home.html";
-    }, 800);
   }
 });

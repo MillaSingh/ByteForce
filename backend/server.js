@@ -8,11 +8,10 @@ const dashboardRouter = require("./src/routes/dashboardRoutes");
 const appointmentRouter = require("./src/routes/appointments");
 const authRouter = require("./src/routes/authRoutes");
 const otpRouter = require("./src/routes/otpRoutes");
-const queueRoutes = require('./src/routes/queueRoutes');
-
+const queueRoutes = require("./src/routes/queueRoutes");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -28,7 +27,7 @@ app.use("/api/clinics", clinicsRouter);
 app.use("/api/queue", dashboardRouter);
 app.use("/api/appointments", appointmentRouter);
 app.use("/api/otp", otpRouter);
-app.use('/api/patient-queue', queueRoutes);
+app.use("/api/patient-queue", queueRoutes);
 
 // Only start server if NOT testing
 if (process.env.NODE_ENV !== "test") {

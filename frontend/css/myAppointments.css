@@ -268,3 +268,13 @@ main {
   padding: 1.5rem;
   color: var(--muted);
 }
+
+/* FOOTER */
+footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 1.5rem 2rem;
+  background: #1a3c2e;
+  font-size: 0.85rem;
+  color:  rgba(255, 255, 255, 0.6);;
+}

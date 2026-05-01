@@ -1,6 +1,6 @@
-const pool = require('../db');
+const pool = require("../db");
 
-const getMyQueueByUserId = async (patientId) => {
+const getMyQueueByUserId = async (email) => {
   const query = `
     SELECT 
       qe.queue_id,
@@ -17,21 +17,34 @@ const getMyQueueByUserId = async (patientId) => {
         SELECT COUNT(*)
         FROM queue_entry qe2
         WHERE qe2.clinic_id = qe.clinic_id
-        AND qe2.status = 'waiting'
+        AND LOWER(qe2.status) = 'waiting'
       ) AS people_waiting_at_clinic
 
     FROM queue_entry qe
-    JOIN clinic c ON qe.clinic_id = c.clinic_id
-    WHERE qe.patient_id = $1
-    AND qe.status IN ('waiting', 'called', 'in_progress')
+
+    JOIN "user" u
+      ON qe.patient_id = u.user_id
+
+    JOIN clinic c
+      ON qe.clinic_id = c.clinic_id
+
+    WHERE u.email = $1
+    AND LOWER(qe.status) IN (
+      'waiting',
+      'called',
+      'in_progress',
+      'in consultation',
+      'in_consultation'
+    )
+
     ORDER BY qe.check_in_time DESC
     LIMIT 1;
   `;
 
-  const result = await pool.query(query, [patientId]);
+  const result = await pool.query(query, [email]);
   return result.rows[0];
 };
 
 module.exports = {
-  getMyQueueByUserId
+  getMyQueueByUserId,
 };

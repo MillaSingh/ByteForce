@@ -1,14 +1,14 @@
-const { getMyQueue } = require('../models/queueModel');
+const { getMyQueueByUserId  } = require('../models/queueModel');
 
 const getMyQueueEntry = async (req, res) => {
   try {
-    const userId = req.user?.user_id;
+    const { email } = req.body;
 
-    if (!userId) {
-      return res.status(401).json({ error: "Not logged in" });
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
     }
 
-    const queueEntry = await getMyQueueByUserId(userId);
+    const queueEntry = await getMyQueueByUserId(email);
 
     if (!queueEntry) {
       return res.json(null);

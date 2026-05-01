@@ -1,3 +1,7 @@
+import { requireAuth, getCurrentUser } from "./auth.js";
+
+requireAuth();
+
 async function loadQueue() {
   const loading = document.getElementById("loading");
   const empty = document.getElementById("empty");
@@ -9,15 +13,34 @@ async function loadQueue() {
   queueDetails.style.display = "none";
 
   try {
-    const res = await fetch("/api/patient-queue/my");
+  const token = sessionStorage.getItem("firebaseToken");
 
-    if (!res.ok) {
-      throw new Error("Server error");
-    }
+  if (!token) {
+    window.location.replace("/html/Login.html");
+    return;
+  }
 
-    const queue = await res.json();
+const user = getCurrentUser();
 
-    loading.style.display = "none";
+const res = await fetch("/api/patient-queue/my", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: "include",
+  body: JSON.stringify({
+    email: user.email,
+  }),
+});
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => null);
+    throw new Error(error?.error || "Server error");
+  }
+
+  const queue = await res.json();
+
+  loading.style.display = "none";
 
     if (!queue) {
       empty.style.display = "block";

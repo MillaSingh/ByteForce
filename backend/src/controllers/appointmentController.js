@@ -56,7 +56,32 @@ const getMyAppointments = async (req, res) => {
   }
 };
 
+const getSlots = async (req, res) => {
+  const { clinicId, date } = req.query;
+
+  if (!clinicId || !date) {
+    return res.status(400).json({ error: 'clinicId and date are required' });
+  }
+
+  // Prevent booking in the past
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const selectedDate = new Date(date);
+  if (selectedDate < today) {
+    return res.status(400).json({ error: 'Cannot book appointments in the past' });
+  }
+
+  try {
+    const result = await appointmentModel.getAvailableSlots(clinicId, date);
+    res.json(result);
+  } catch (err) {
+    console.error('GET SLOTS ERROR:', err);
+    res.status(500).json({ error: 'Failed to fetch available slots' });
+  }
+};
+
 module.exports = {
   createBooking,
-  getMyAppointments
+  getMyAppointments,
+  getSlots
 };

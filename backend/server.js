@@ -11,6 +11,7 @@ const appointmentRouter = require("./src/routes/appointments");
 const authRouter = require("./src/routes/authRoutes");
 const otpRouter = require("./src/routes/otpRoutes");
 const queueRoutes = require("./src/routes/queueRoutes");
+const operatingHoursRouter = require('./src/routes/operatingHoursRoutes');
 
 const app = express();
 const PORT = process.env.PORT;
@@ -34,6 +35,7 @@ app.use("/api/queue", dashboardRouter);
 app.use("/api/appointments", appointmentRouter);
 app.use("/api/otp", otpRouter);
 app.use("/api/patient-queue", queueRoutes);
+app.use('/api/clinics', operatingHoursRouter);
 
 // Only start server if NOT testing
 if (process.env.NODE_ENV !== "test") {

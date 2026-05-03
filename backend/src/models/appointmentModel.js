@@ -63,8 +63,79 @@ const getAppointmentsByUser = async (patient_id) => {
   return result.rows;
 };
 
+const getAvailableSlots = async (clinicId, date) => {
+  // Step 1: Get day of week from the date
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayOfWeek = dayNames[new Date(date).getDay()];
+
+  // Step 2: Get operating hours for that day
+  const hoursResult = await db.query(
+    `SELECT open_time, close_time, is_closed, slot_capacity
+     FROM clinic_operating_hours
+     WHERE clinic_id = $1 AND day_of_week = $2`,
+    [clinicId, dayOfWeek]
+  );
+
+  // No hours configured or clinic is closed that day
+  if (hoursResult.rows.length === 0 || hoursResult.rows[0].is_closed) {
+    return { slots: [], dayOfWeek };
+  }
+
+  const { open_time, close_time, slot_capacity } = hoursResult.rows[0];
+
+  // Step 3: Generate all 30-minute slots between open and close time
+  const slots = [];
+  const [openHour, openMin]   = open_time.slice(0, 5).split(':').map(Number);
+  const [closeHour, closeMin] = close_time.slice(0, 5).split(':').map(Number);
+
+  let currentHour = openHour;
+  let currentMin  = openMin;
+
+  while (
+    currentHour < closeHour ||
+    (currentHour === closeHour && currentMin < closeMin)
+  ) {
+    const timeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+    slots.push(timeStr);
+
+    // Advance by 30 minutes
+    currentMin += 30;
+    if (currentMin >= 60) {
+      currentMin -= 60;
+      currentHour += 1;
+    }
+  }
+
+  // Step 4: For each slot, count how many confirmed/pending bookings exist
+  const bookedResult = await db.query(
+    `SELECT appointment_time, COUNT(*) as booking_count
+     FROM appointment
+     WHERE clinic_id = $1
+     AND appointment_date = $2
+     AND status IN ('pending', 'confirmed')
+     GROUP BY appointment_time`,
+    [clinicId, date]
+  );
+
+  // Build a map of time -> booking count
+  const bookingMap = {};
+  bookedResult.rows.forEach(row => {
+    const time = row.appointment_time.slice(0, 5);
+    bookingMap[time] = parseInt(row.booking_count);
+  });
+
+  // Step 5: Filter out fully booked slots
+  const availableSlots = slots.filter(slot => {
+    const bookingCount = bookingMap[slot] || 0;
+    return bookingCount < slot_capacity;
+  });
+
+  return { slots: availableSlots, dayOfWeek };
+};
+
 module.exports = {
   checkSlot,
   createAppointment,
-  getAppointmentsByUser
+  getAppointmentsByUser,
+  getAvailableSlots
 };

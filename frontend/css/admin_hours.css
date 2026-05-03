@@ -1,0 +1,308 @@
+/* ── Variables ── */
+:root {
+  --green-dark:   #1a3c2e;
+  --green-mid:    #2d6a4f;
+  --green-light:  #52b788;
+  --green-pale:   #d8f3dc;
+  --accent:       #204e86;
+  --text-dark:    #111f14;
+  --text-mid:     #3d5245;
+  --text-light:   #6b8c74;
+  --bg:           #f7faf8;
+  --white:        #ffffff;
+  --border:       #c8dece;
+  --shadow-sm:    0 2px 8px rgba(26,60,46,0.07);
+  --shadow-md:    0 6px 24px rgba(26,60,46,0.12);
+  --radius:       12px;
+  --radius-sm:    6px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', sans-serif;
+  --error:        #c0392b;
+  --success:      #27ae60;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text-dark);
+  font-size: 1rem;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+
+/* ── Nav ── */
+nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.nav-logo span { color: var(--text-dark); }
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--green-mid); }
+
+.nav-links a.active {
+  color: var(--green-dark);
+  font-weight: 600;
+  border-bottom: 2px solid var(--green-light);
+  padding-bottom: 2px;
+}
+
+.nav-cta {
+  background: var(--green-dark);
+  color: var(--white);
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-cta:hover { background: var(--green-mid); }
+
+/* ── Page Header ── */
+.page-header {
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+  color: var(--white);
+  padding: 3rem 4rem;
+}
+
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  font-size: 1rem;
+  opacity: 0.85;
+  font-weight: 300;
+}
+
+/* ── Main ── */
+main {
+  flex: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  width: 100%;
+}
+
+/* ── Hours Section ── */
+.hours-section {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Table ── */
+.hours-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.hours-table thead tr {
+  background-color: var(--green-pale);
+  border-bottom: 2px solid var(--green-light);
+}
+
+.hours-table th {
+  padding: 0.85rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--green-dark);
+  text-align: left;
+}
+
+.hours-table th[scope="col"]:not(:first-child) {
+  text-align: center;
+}
+
+.hours-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.15s;
+}
+
+.hours-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.hours-table tbody tr:hover {
+  background-color: #f0faf3;
+}
+
+.hours-table tbody tr.is-closed-row {
+  background-color: #fafafa;
+  opacity: 0.6;
+}
+
+.hours-table tbody th[scope="row"] {
+  padding: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  width: 120px;
+}
+
+.hours-table tbody td {
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+/* ── Table Inputs ── */
+.hours-table input[type="time"],
+.hours-table input[type="number"] {
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  background-color: var(--bg);
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.hours-table input[type="time"]:focus,
+.hours-table input[type="number"]:focus {
+  outline: none;
+  border-color: var(--green-light);
+}
+
+.hours-table input[type="time"]:disabled,
+.hours-table input[type="number"]:disabled {
+  background-color: #eee;
+  color: var(--text-light);
+  cursor: not-allowed;
+  border-color: var(--border);
+}
+
+.hours-table input[type="number"] {
+  width: 80px;
+  text-align: center;
+}
+
+/* ── Checkbox ── */
+.hours-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--green-mid);
+}
+
+/* ── Validation error highlight ── */
+.hours-table input.input-error {
+  border-color: var(--error);
+  background-color: #fff5f5;
+}
+
+/* ── Form Actions ── */
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--green-pale);
+}
+
+.btn-save {
+  padding: 0.75rem 2.5rem;
+  background-color: var(--green-mid);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.btn-save:hover {
+  background-color: var(--green-dark);
+  transform: translateY(-1px);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.save-status {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.save-status.success { color: var(--success); }
+.save-status.error   { color: var(--error); }
+
+/* ── Footer ── */
+footer {
+  background-color: var(--green-dark);
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  padding: 1.5rem 2rem;
+  font-size: 0.85rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .page-header { padding: 2rem 1.5rem; }
+  main { padding: 2rem 1rem; }
+  .hours-section { padding: 1rem; overflow-x: auto; }
+  .hours-table { min-width: 600px; }
+  .nav-links { display: none; }
+}

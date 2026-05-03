@@ -3,6 +3,9 @@ const router = express.Router();
 
 const appointmentController = require('../controllers/appointmentController');
 
+// GET AVAILABLE SLOTS
+router.get('/slots', appointmentController.getSlots)
+
 // CREATE APPOINTMENT
 router.post('/', appointmentController.createBooking);
 

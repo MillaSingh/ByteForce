@@ -11,6 +11,16 @@ const getQueue = async (req, res) => {
   }
 };
 
+const getClinics = async (req, res) => {
+  try {
+    const clinics = await dashboardModel.getClinics();
+    res.json(clinics);
+  } catch (error) {
+    console.error("Error fetching clinics:", error);
+    res.status(500).json({ error: "Failed to fetch clinics" });
+  }
+};
+
 
 // PATCH /api/queue/:id
 const updateStatus = async (req, res) => {
@@ -49,9 +59,32 @@ const addWalkInPatient = async (req, res) => {
     res.status(500).json({ error: "Failed to add patient" });
   }
 };
+// DELETE /api/queue/:id
+const deleteQueuePatient = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await dashboardModel.deleteQueuePatient(id);
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Queue patient not found" });
+    }
+
+    res.json({
+      message: "Patient removed from queue",
+      deleted
+    });
+
+  } catch (error) {
+    console.error("Error deleting queue patient:", error);
+    res.status(500).json({ error: error.message || "Failed to add patient" });
+  }
+};
 
 module.exports = {
   getQueue,
   updateStatus,
-  addWalkInPatient
+  addWalkInPatient,
+  getClinics,
+  deleteQueuePatient
 };

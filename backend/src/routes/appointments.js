@@ -11,5 +11,7 @@ router.post('/', appointmentController.createBooking);
 
 // GET MY APPOINTMENTS
 router.get('/my', appointmentController.getMyAppointments);
+//cancel appointment
+router.delete('/:id', appointmentController.cancelAppointment);
 
 module.exports = router;

@@ -48,21 +48,29 @@ async function loadAppointments() {
       card.dataset.type = isUpcoming ? "upcoming" : "past";
 
       card.innerHTML = `
-        <div>
-          <div class="appointment-title">${app.clinic_name || "Clinic"}</div>
-          <div class="appointment-date">
-            ${dateTime.toLocaleDateString()} • 
-            ${dateTime.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
-          </div>
-        </div>
+    <div>
+    <div class="appointment-title">${app.clinic_name || "Clinic"}</div>
+    <div class="appointment-date">
+      ${dateTime.toLocaleDateString()} • 
+      ${dateTime.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      })}
+    </div>
+    </div>
 
-        <div class="status ${status}">
-          ${status}
-        </div>
-      `;
+  <div class="status ${status}">
+    ${status}
+  </div>
+
+  ${
+    isUpcoming
+      ? `<button class="cancel-btn" data-id="${app.appointment_id}">
+           Cancel
+         </button>`
+      : ""
+  }
+`;
 
       card.onclick = () => {
         alert(
@@ -75,6 +83,36 @@ async function loadAppointments() {
           `Status: ${status}`
         );
       };
+
+      const cancelBtn = card.querySelector(".cancel-btn");
+
+if (cancelBtn) {
+  cancelBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+
+    const confirmCancel = confirm("Are you sure you want to cancel this appointment?");
+    if (!confirmCancel) return;
+
+    try {
+      cancelBtn.disabled = true;
+
+      const res = await fetch(`/api/appointments/${app.appointment_id}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) throw new Error("Failed");
+
+      alert("Appointment cancelled");
+
+      loadAppointments(); // refresh UI
+
+    } catch (err) {
+      console.error(err);
+      alert("Error cancelling appointment");
+      cancelBtn.disabled = false;
+    }
+  });
+}
 
       if (isUpcoming) {
         upcoming?.appendChild(card);

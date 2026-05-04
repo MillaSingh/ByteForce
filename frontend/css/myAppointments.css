@@ -278,3 +278,21 @@ footer {
   font-size: 0.85rem;
   color:  rgba(255, 255, 255, 0.6);;
 }
+
+.cancel-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.cancel-btn:hover {
+  background: #cc0000;
+}
+
+.status.cancelled {
+  color: red;
+}

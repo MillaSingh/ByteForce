@@ -42,7 +42,7 @@ const createBooking = async (req, res) => {
 // GET MY APPOINTMENTS
 const getMyAppointments = async (req, res) => {
   try {
-    const patientId = 1; // TEMP USER
+    const patientId = req.query.patientId;
 
     const appointments = await appointmentModel.getAppointmentsByUser(patientId);
 
@@ -79,9 +79,24 @@ const getSlots = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch available slots' });
   }
 };
+//cancel appointment
+const cancelAppointment = async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
+
+    await appointmentModel.cancelAppointment(appointmentId);
+
+    return res.json({ success: true });
+
+  } catch (err) {
+    console.error("CANCEL ERROR:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
 
 module.exports = {
   createBooking,
   getMyAppointments,
-  getSlots
+  getSlots,
+  cancelAppointment
 };

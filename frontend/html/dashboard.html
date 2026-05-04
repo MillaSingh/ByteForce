@@ -64,8 +64,10 @@
           <th>Position</th>
           <th>Name</th>
           <th>Email</th>
-           <th>Phone Number</th>
+          <th>Phone Number</th>
           <th>Status</th>
+          <th>Clinic</th>
+          
           
         </tr>
       </thead>
@@ -81,7 +83,13 @@
   <input type="text" id="firstName" placeholder="Jo" required>
   <input type="text" id="lastName" placeholder="Doe" required>
   <input type="email" id="email" placeholder="jodoe@gmail.com" required>
+
+  <select id="clinicSelect" required>
+    <option value="">Select clinic</option>
+  </select>
+
   <input type="tel" id="phoneNumber" placeholder="0712345678" />
+
 
   <section class="dialog-buttons">
     <button onclick="submitPatient()">Add</button>

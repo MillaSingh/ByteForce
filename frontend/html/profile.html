@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile | MEDIQUEUE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/navigation.css">
+  <link rel="stylesheet" href="/css/profile.css">
+
+</head>
+<body>
+
+<nav>
+  <section class="nav-brand">
+    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
+    <span class="nav-logo">MEDI<span>QUEUE</span></span>
+  </section>
+
+    <ul class="nav-links">
+      <li><a href="/html/home.html">Home</a></li>
+      <li><a href="/html/clinics.html">Clinics</a></li>
+      <li><a href="/html/myAppointments.html">My Appointments</a></li>
+      <li><a href="/html/queue.html">Queue</a></li>
+    </ul>
+
+    <button class="nav-cta" onclick="window.location.href='/html/account.html'">
+      Account
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>My Profile</h1>
+    <p>View your personal account details and manage your clinic profile.</p>
+  </div>
+
+  <main>
+    <section class="profile-card" aria-labelledby="profile-title">
+      <figure class="profile-photo-wrap">
+        <img
+          id="profilePhoto"
+          class="profile-photo"
+          src="/images/logo.jpeg"
+          alt="User profile photo"
+        />
+      </figure>
+
+      <article class="profile-details">
+        <h2 id="profile-title">Account Information</h2>
+
+        <p class="profile-intro">
+          These are the details linked to your signed-in account.
+        </p>
+
+        <dl class="profile-list">
+          <dt>Name</dt>
+          <dd id="profileName">Loading...</dd>
+
+          <dt>Email</dt>
+          <dd id="profileEmail">Loading...</dd>
+        </dl>
+
+        <aside class="profile-note">
+          <p>
+            Your email address is linked to your login account and is used for appointment and clinic communication.
+          </p>
+        </aside>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
+  </footer>
+
+  <script type="module" src="../js/profile.js"></script>
+</body>
+</html>

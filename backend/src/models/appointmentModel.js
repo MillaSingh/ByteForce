@@ -133,9 +133,19 @@ const getAvailableSlots = async (clinicId, date) => {
   return { slots: availableSlots, dayOfWeek };
 };
 
+const cancelAppointment = async (appointment_id) => {
+  await db.query(
+    `UPDATE appointment
+     SET status = 'cancelled'
+     WHERE appointment_id = $1`,
+    [appointment_id]
+  );
+};
+
 module.exports = {
   checkSlot,
   createAppointment,
   getAppointmentsByUser,
-  getAvailableSlots
+  getAvailableSlots,
+  cancelAppointment
 };

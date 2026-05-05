@@ -2,13 +2,16 @@
 jest.mock('../src/controllers/clinicController', () => ({
   listClinics: jest.fn((req, res) => res.json({ clinics: [], total: 0, totalPages: 0, page: 1 })),
   listFilterOptions: jest.fn((req, res) => res.json({ provinces: [], districts: [], facilityTypes: [] })),
-  getClinicDetails: jest.fn((req, res) => res.json({ clinic: { clinic_id: 1, clinic_name: 'Test Clinic' }, services: [] }))
+  getClinicDetails: jest.fn((req, res) => res.json({ clinic: { clinic_id: 1, clinic_name: 'Test Clinic' }, services: [] })),
+  updateClinicDetails: jest.fn((req, res) => res.json({ updatedClinic: { clinic_id: 1 } })),
+  addClinicService: jest.fn((req, res) => res.json({ newService: { service_id: 1, service_name: 'Test Service' } })),
+  removeClinicService: jest.fn((req, res) => res.json({ success: true }))
 }));
 
 const express = require('express');
 const request = require('supertest');
 const clinicsRouter = require('../src/routes/clinics');
-const { listClinics, listFilterOptions, getClinicDetails } = require('../src/controllers/clinicController');
+const { listClinics, listFilterOptions, getClinicDetails, updateClinicDetails, addClinicService, removeClinicService } = require('../src/controllers/clinicController');
 
 // Set up a minimal express app for testing
 const app = express();
@@ -97,4 +100,35 @@ describe('GET /api/clinics/:id', () => {
     expect(getClinicDetails).not.toHaveBeenCalled();
   });
 
+});
+
+describe('PATCH /api/clinics/:id', () => {
+  test('responds with 200 and calls updateClinicDetails controller', async () => {
+    const res = await request(app).patch('/api/clinics/1').send({
+      address: 'Test Address',
+      phone_number: '011 123 4567',
+      description: 'Test description',
+      image_url: 'https://example.com/image.jpg'
+    });
+    expect(res.statusCode).toBe(200);
+    expect(updateClinicDetails).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('POST /api/clinics/:id/services', () => {
+  test('responds with 200 and calls addClinicService controller', async () => {
+    const res = await request(app).post('/api/clinics/1/services').send({
+      service_name: 'TB Screening'
+    });
+    expect(res.statusCode).toBe(200);
+    expect(addClinicService).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('DELETE /api/clinics/:id/services/:serviceId', () => {
+  test('responds with 200 and calls removeClinicService controller', async () => {
+    const res = await request(app).delete('/api/clinics/1/services/1');
+    expect(res.statusCode).toBe(200);
+    expect(removeClinicService).toHaveBeenCalledTimes(1);
+  });
 });

@@ -94,9 +94,28 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+const getAppointmentsByPhone = async (req, res) => {
+  try {
+    const { phone } = req.query;
+
+    if (!phone) {
+      return res.status(400).json({ error: "Phone required" });
+    }
+
+    const appointments = await appointmentModel.getAppointmentsByPhone(phone);
+
+    return res.json(appointments);
+
+  } catch (err) {
+    console.error("PHONE FETCH ERROR:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
   createBooking,
   getMyAppointments,
   getSlots,
-  cancelAppointment
+  cancelAppointment,
+  getAppointmentsByPhone
 };

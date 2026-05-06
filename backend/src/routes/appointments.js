@@ -13,5 +13,7 @@ router.post('/', appointmentController.createBooking);
 router.get('/my', appointmentController.getMyAppointments);
 //cancel appointment
 router.delete('/:id', appointmentController.cancelAppointment);
+//Get appointments by phone number
+router.get('/by-phone', appointmentController.getAppointmentsByPhone);
 
 module.exports = router;

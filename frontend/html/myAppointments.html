@@ -37,7 +37,25 @@
   <!-- MAIN -->
   <main>
     <div class="container-card">
+          <!-- PATIENT LOOKUP FORM -->
+      <div id="lookup-section">
 
+      <div class="section">
+       <h2>Find Your Appointments</h2>
+
+      <input type="text" id="firstName" placeholder="First Name" class="input-field" />
+      <input type="text" id="lastName" placeholder="Surname" class="input-field" />
+      <input type="text" id="phone" placeholder="Phone Number" class="input-field" />
+
+    <button onclick="findAppointments()" class="nav-cta" style="margin-top:10px;">
+      View Appointments
+    </button>
+
+      <p id="lookup-error" style="color:red; margin-top:10px;"></p>
+      </div>
+
+  </div>
+  <div id="dashboard" style="display:none;">
       <div class="summary-header">
         <h2>Your Dashboard</h2>
         <p id="summary-text">Loading appointments...</p>
@@ -52,7 +70,7 @@
       <div id="loading" class="center">Loading appointments...</div>
 
       <div id="empty" class="center" style="display:none;">
-        No appointments yet 🫤
+        No appointments yet 
       </div>
 
       <div class="group">
@@ -64,7 +82,7 @@
         <h3>Past</h3>
         <div id="past" class="list"></div>
       </div>
-
+      </div>
     </div>
   </main>
 

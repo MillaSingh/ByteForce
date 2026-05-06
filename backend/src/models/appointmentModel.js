@@ -142,10 +142,26 @@ const cancelAppointment = async (appointment_id) => {
   );
 };
 
+const getAppointmentsByPhone = async (phone) => {
+  const result = await db.query(
+    `SELECT 
+        a.*,
+        c.clinic_name
+     FROM appointment a
+     LEFT JOIN clinic c ON a.clinic_id = c.clinic_id
+     WHERE a.phone_number = $1
+     ORDER BY a.appointment_date DESC, a.appointment_time DESC`,
+    [phone]
+  );
+
+  return result.rows;
+};
+
 module.exports = {
   checkSlot,
   createAppointment,
   getAppointmentsByUser,
   getAvailableSlots,
-  cancelAppointment
+  cancelAppointment,
+  getAppointmentsByPhone
 };

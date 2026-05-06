@@ -1,138 +1,164 @@
-async function loadAppointments() {
+async function findAppointments() {
+  const phone = document.getElementById("phone").value.trim();
+  const error = document.getElementById("lookup-error");
+
+  if (!phone) {
+    error.innerText = "Please enter your phone number";
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/appointments/by-phone?phone=${phone}`);
+
+    if (!res.ok) throw new Error("Error fetching");
+
+    const data = await res.json();
+
+    if (!data || data.length === 0) {
+      error.innerText = "No appointments found for this number";
+      return;
+    }
+
+    // Hide form, show dashboard
+    document.getElementById("lookup-section").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    loadAppointmentsByData(data);
+
+  } catch (err) {
+    console.error(err);
+    error.innerText = "Something went wrong";
+  }
+}
+
+
+function loadAppointmentsByData(data) {
   const upcoming = document.getElementById("upcoming");
   const past = document.getElementById("past");
   const loading = document.getElementById("loading");
   const empty = document.getElementById("empty");
 
-  if (upcoming) upcoming.innerHTML = "";
-  if (past) past.innerHTML = "";
+  upcoming.innerHTML = "";
+  past.innerHTML = "";
 
-  try {
-    const patientId =
-      new URLSearchParams(window.location.search).get("patientId");
+  loading.style.display = "none";
 
-    if (!patientId) {
-      throw new Error("Missing patientId in URL");
-    }
+  if (!data.length) {
+    empty.style.display = "block";
+    return;
+  }
 
-    const res = await fetch(`/api/appointments/my?patientId=${patientId}`);
+  const now = new Date();
+  now.setSeconds(0, 0);
 
-    if (!res.ok) {
-      throw new Error("Server error");
-    }
+  let upcomingCount = 0;
 
-    const data = await res.json();
+  data.forEach(app => {
 
-    if (loading) loading.style.display = "none";
+    try {
+      // ✅ FIXED DATE HANDLING (WORKS WITH YOUR DB FORMAT)
 
-    if (!Array.isArray(data) || data.length === 0) {
-      if (empty) empty.style.display = "block";
-      return;
-    }
+      // Convert DB date safely (handles string OR Date object)
+      const rawDate = new Date(app.appointment_date);
 
-    const now = new Date();
-    let upcomingCount = 0;
+      const year = rawDate.getFullYear();
+      const month = rawDate.getMonth(); // 0-based
+      const day = rawDate.getDate();
 
-    data.forEach(app => {
-      if (!app.appointment_date || !app.appointment_time) return;
+      // Remove microseconds from time
+      const timeParts = app.appointment_time.split(".")[0].split(":");
 
-      const dateTime = new Date(
-        `${app.appointment_date}T${app.appointment_time}`
-      );
+      const hour = parseInt(timeParts[0], 10);
+      const minute = parseInt(timeParts[1], 10);
 
-      const status = app.status || "booked";
-      const isUpcoming = dateTime >= now && status !== "cancelled";
+      // Final valid JS Date
+      const dateTime = new Date(year, month, day, hour, minute);
+
+      if (isNaN(dateTime.getTime())) {
+        console.error("Invalid date:", app);
+        return; // skip only broken record (not all)
+      }
+
+      const status = app.status || "pending";
+
+      const isUpcoming =
+        dateTime.getTime() >= now.getTime() &&
+        status !== "cancelled";
 
       const card = document.createElement("div");
       card.className = "appointment-card";
       card.dataset.type = isUpcoming ? "upcoming" : "past";
 
       card.innerHTML = `
-    <div>
-    <div class="appointment-title">${app.clinic_name || "Clinic"}</div>
-    <div class="appointment-date">
-      ${dateTime.toLocaleDateString()} • 
-      ${dateTime.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
-      })}
-    </div>
-    </div>
+        <div class="appointment-info">
+          <div class="appointment-title">${app.clinic_name || "Clinic"}</div>
+          <div class="appointment-date">
+            ${dateTime.toLocaleDateString()} • 
+            ${dateTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </div>
+        </div>
 
-  <div class="status ${status}">
-    ${status}
-  </div>
+        <div>
+          <span class="status ${status}">${status}</span>
 
-  ${
-    isUpcoming
-      ? `<button class="cancel-btn" data-id="${app.appointment_id}">
-           Cancel
-         </button>`
-      : ""
-  }
-`;
+          ${
+            isUpcoming
+              ? `<button class="cancel-btn" data-id="${app.appointment_id}">
+                  Cancel
+                </button>`
+              : ""
+          }
+        </div>
+      `;
 
-      card.onclick = () => {
-        alert(
-          `Clinic: ${app.clinic_name || "Clinic"}\n` +
-          `Date: ${dateTime.toLocaleDateString()}\n` +
-          `Time: ${dateTime.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-          })}\n` +
-          `Status: ${status}`
-        );
-      };
-
+      // CANCEL BUTTON
       const cancelBtn = card.querySelector(".cancel-btn");
 
-if (cancelBtn) {
-  cancelBtn.addEventListener("click", async (e) => {
-    e.stopPropagation();
+      if (cancelBtn) {
+        cancelBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
 
-    const confirmCancel = confirm("Are you sure you want to cancel this appointment?");
-    if (!confirmCancel) return;
+          if (!confirm("Cancel this appointment?")) return;
 
-    try {
-      cancelBtn.disabled = true;
+          try {
+            const res = await fetch(`/api/appointments/${app.appointment_id}`, {
+              method: "DELETE"
+            });
 
-      const res = await fetch(`/api/appointments/${app.appointment_id}`, {
-        method: "DELETE"
-      });
+            if (!res.ok) throw new Error("Cancel failed");
 
-      if (!res.ok) throw new Error("Failed");
+            alert("Appointment cancelled");
 
-      alert("Appointment cancelled");
+            // Reload data
+            findAppointments();
 
-      loadAppointments(); // refresh UI
+          } catch (err) {
+            console.error(err);
+            alert("Error cancelling appointment");
+          }
+        });
+      }
 
-    } catch (err) {
-      console.error(err);
-      alert("Error cancelling appointment");
-      cancelBtn.disabled = false;
-    }
-  });
-}
-
+      // APPEND TO CORRECT SECTION
       if (isUpcoming) {
-        upcoming?.appendChild(card);
+        upcoming.appendChild(card);
         upcomingCount++;
       } else {
-        past?.appendChild(card);
+        past.appendChild(card);
       }
-    });
 
-    const summaryText = document.getElementById("summary-text");
-    if (summaryText) {
-      summaryText.innerText = `You have ${upcomingCount} upcoming appointment(s)`;
+    } catch (err) {
+      console.error("Error processing appointment:", err, app);
     }
 
-  } catch (err) {
-    console.error(err);
-    if (loading) loading.innerText = "Failed to load appointments ";
-  }
+  });
+
+  document.getElementById("summary-text").innerText =
+    `You have ${upcomingCount} upcoming appointment(s)`;
 }
 
+
+// FILTER FUNCTION
 function filterAppointments(type) {
   document.querySelectorAll(".appointment-card").forEach(card => {
     if (type === "all") {
@@ -143,5 +169,3 @@ function filterAppointments(type) {
     }
   });
 }
-
-loadAppointments();

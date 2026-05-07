@@ -85,7 +85,7 @@ async function loadAvailableSlots(date) {
     timeSlotsContainer.innerHTML = '';
 
     if (!data.slots || data.slots.length === 0) {
-      timeSlotsContainer.innerHTML = '<p id="slots-message">No available slots for this date. Please try another date.</p>';
+      timeSlotsContainer.innerHTML = '<p id="slots-message">This clinic is closed on the selected date. Please try another date.</p>';
       booking.time = '';
       return;
     }
@@ -94,13 +94,13 @@ async function loadAvailableSlots(date) {
     data.slots.forEach(slot => {
       const slotEl = document.createElement('div');
       slotEl.className = 'time-slot';
-      slotEl.textContent = slot;
-      slotEl.onclick = () => selectTime(slotEl);
+      slotEl.textContent = slot.time;
 
-      // Mark past slots on today's date as unavailable
-      if (isPastTimeSlot(slot, date)) {
+      if (!slot.available || isPastTimeSlot(slot.time, date)) {
         slotEl.classList.add('unavailable');
         slotEl.onclick = null;
+      } else {
+        slotEl.onclick = () => selectTime(slotEl);
       }
 
       timeSlotsContainer.appendChild(slotEl);

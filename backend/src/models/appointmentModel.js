@@ -126,12 +126,15 @@ const getAvailableSlots = async (clinicId, date) => {
   });
 
   // Step 5: Filter out fully booked slots
-  const availableSlots = slots.filter(slot => {
+  const slotsWithAvailability = slots.map(slot => {
     const bookingCount = bookingMap[slot] || 0;
-    return bookingCount < slot_capacity;
+    return {
+      time: slot,
+      available: bookingCount < slot_capacity
+    };
   });
 
-  return { slots: availableSlots, dayOfWeek };
+  return { slots: slotsWithAvailability, dayOfWeek };
 };
 
 const cancelAppointment = async (appointment_id) => {

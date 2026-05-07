@@ -5,9 +5,11 @@ const createBooking = async (req, res) => {
   try {
     const data = req.body;
 
-    // TEMP USER (replace with auth later)
-    const patientId = req.query.patientId;
-    data.patient_id = patientId;
+    const user = await appointmentModel.getUserByEmail(data.user_email);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found. Please log in.' });
+    }
+    data.patient_id = user.user_id;
 
     const existing = await appointmentModel.checkSlot(
       data.clinic_id,

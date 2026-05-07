@@ -40,8 +40,7 @@ if (dateInput) {
 
 booking.date = today;
 
-// safe init
-if (typeof updateTimeSlots === "function") updateTimeSlots();
+loadAvailableSlots(today);
 
 // ---------------- DATE FORMAT ----------------
 function formatDate(val) {
@@ -66,62 +65,58 @@ function isPastTimeSlot(timeString, selectedDateValue) {
   return slotDateTime < now;
 }
 
-// ---------------- TIME SLOT UPDATE ----------------
-function updateTimeSlots() {
-  const selectedDateValue = document.getElementById('appt-date').value;
+// ---------------- LOAD AVAILABLE SLOTS FROM API ----------------
+async function loadAvailableSlots(date) {
+  const timeSlotsContainer = document.getElementById('time-slots');
+  const slotsMessage = document.getElementById('slots-message');
 
-  document.querySelectorAll('.time-slot').forEach(slot => {
-    const timeText = slot.textContent.trim();
-
-    if (isPastTimeSlot(timeText, selectedDateValue)) {
-      slot.classList.add('unavailable');
-      slot.classList.remove('selected');
-    } else {
-      slot.classList.remove('unavailable');
-    }
-  });
-
-  if (booking.time) {
-    const stillValid = [...document.querySelectorAll('.time-slot')].some(
-      slot => slot.textContent.trim() === booking.time &&
-      !slot.classList.contains('unavailable')
-    );
-
-    if (!stillValid) booking.time = '';
+  if (!clinicID) {
+    timeSlotsContainer.innerHTML = '<p id="slots-message">No clinic selected. Please go back and select a clinic.</p>';
+    return;
   }
-}
 
-// ---------------- BOOKED SLOTS ----------------
-async function loadBookedSlots(date) {
+  // Show loading state
+  timeSlotsContainer.innerHTML = '<p id="slots-message">Loading available times...</p>';
+
   try {
-    const patientId =
-      new URLSearchParams(window.location.search).get("patientId") || 1;
+    const response = await fetch(`/api/appointments/slots?clinicId=${clinicID}&date=${date}`);
+    const data = await response.json();
 
-    const res = await fetch(`/api/appointments/my?patientId=${patientId}`);
+    timeSlotsContainer.innerHTML = '';
 
-    if (!res.ok) return;
+    if (!data.slots || data.slots.length === 0) {
+      timeSlotsContainer.innerHTML = '<p id="slots-message">No available slots for this date. Please try another date.</p>';
+      booking.time = '';
+      return;
+    }
 
-    const data = await res.json();
+    // Render each available slot as a clickable element
+    data.slots.forEach(slot => {
+      const slotEl = document.createElement('div');
+      slotEl.className = 'time-slot';
+      slotEl.textContent = slot;
+      slotEl.onclick = () => selectTime(slotEl);
 
-    if (!Array.isArray(data)) return;
-
-    document.querySelectorAll('.time-slot').forEach(slot => {
-      const time = slot.textContent.trim();
-
-      const isBooked = data.some(appt =>
-        String(appt.clinic_id) === String(booking.clinic_id) &&
-        appt.appointment_date === date &&
-        appt.appointment_time?.startsWith(time)
-      );
-
-      if (isBooked) {
-        slot.classList.add('unavailable');
+      // Mark past slots on today's date as unavailable
+      if (isPastTimeSlot(slot, date)) {
+        slotEl.classList.add('unavailable');
+        slotEl.onclick = null;
       }
+
+      timeSlotsContainer.appendChild(slotEl);
     });
 
   } catch (err) {
-    console.error("Error loading booked slots", err);
+    console.error('Failed to load available slots:', err);
+    timeSlotsContainer.innerHTML = '<p id="slots-message">Failed to load available times. Please try again.</p>';
   }
+}
+
+// ---------------- DATE UPDATE ----------------
+function updateDate(val) {
+  booking.date = val;
+  booking.time = '';
+  loadAvailableSlots(val);
 }
 
 // ---------------- UI HANDLERS ----------------
@@ -145,18 +140,6 @@ function selectTime(el) {
   el.classList.add('selected');
 
   booking.time = el.textContent.trim();
-}
-
-function updateDate(val) {
-  booking.date = val;
-  booking.time = '';
-
-  document.querySelectorAll('.time-slot').forEach(t => {
-    t.classList.remove('selected', 'unavailable');
-  });
-
-  updateTimeSlots();
-  loadBookedSlots(val);
 }
 
 function updateBooking() {
@@ -203,8 +186,7 @@ function populateSummary() {
 
 // ---------------- BOOKING ----------------
 function confirmBooking() {
-  const patientId =
-    new URLSearchParams(window.location.search).get("patientId");
+  const userEmail = sessionStorage.getItem("userEmail");
 
   if (!booking.time || !booking.reason || !booking.clinic_id) {
     alert("Please complete all required fields");
@@ -212,7 +194,7 @@ function confirmBooking() {
   }
 
   const bookingData = {
-    patient_id: patientId,
+    user_email: userEmail,
     clinic_id: booking.clinic_id,
     appointment_date: document.getElementById('appt-date').value,
     appointment_time: booking.time,

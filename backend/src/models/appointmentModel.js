@@ -66,7 +66,8 @@ const getAppointmentsByUser = async (patient_id) => {
 const getAvailableSlots = async (clinicId, date) => {
   // Step 1: Get day of week from the date
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const dayOfWeek = dayNames[new Date(date).getDay()];
+  const [year, month, day] = date.split('-').map(Number);
+  const dayOfWeek = dayNames[new Date(year, month - 1, day).getDay()];
 
   // Step 2: Get operating hours for that day
   const hoursResult = await db.query(
@@ -85,11 +86,11 @@ const getAvailableSlots = async (clinicId, date) => {
 
   // Step 3: Generate all 30-minute slots between open and close time
   const slots = [];
-  const [openHour, openMin]   = open_time.slice(0, 5).split(':').map(Number);
+  const [openHour, openMin] = open_time.slice(0, 5).split(':').map(Number);
   const [closeHour, closeMin] = close_time.slice(0, 5).split(':').map(Number);
 
   let currentHour = openHour;
-  let currentMin  = openMin;
+  let currentMin = openMin;
 
   while (
     currentHour < closeHour ||
@@ -157,11 +158,20 @@ const getAppointmentsByPhone = async (phone) => {
   return result.rows;
 };
 
+const getUserByEmail = async (email) => {
+  const result = await db.query(
+    'SELECT user_id FROM "user" WHERE email = $1',
+    [email]
+  );
+  return result.rows[0];
+};
+
 module.exports = {
   checkSlot,
   createAppointment,
   getAppointmentsByUser,
   getAvailableSlots,
   cancelAppointment,
-  getAppointmentsByPhone
+  getAppointmentsByPhone,
+  getUserByEmail
 };

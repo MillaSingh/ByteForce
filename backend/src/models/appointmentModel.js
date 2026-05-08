@@ -1,12 +1,18 @@
 const db = require('../db');
 
 // CHECK SLOT
-const checkSlot = async (clinic_id, appointment_date, appointment_time) => {
+const checkSlot = async (
+  clinic_id,
+  appointment_date,
+  appointment_time
+) => {
+
   const result = await db.query(
     `SELECT * FROM appointment
      WHERE clinic_id = $1
      AND appointment_date = $2
-     AND appointment_time = $3`,
+     AND appointment_time = $3
+     AND status IN ('pending', 'confirmed')`,
     [clinic_id, appointment_date, appointment_time]
   );
 
@@ -68,7 +74,8 @@ const getAvailableSlots = async (clinicId, date) => {
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const [year, month, day] = date.split('-').map(Number);
   const dayOfWeek = dayNames[new Date(year, month - 1, day).getDay()];
-
+  const selectedDate = new Date(date);
+  
   // Step 2: Get operating hours for that day
   const hoursResult = await db.query(
     `SELECT open_time, close_time, is_closed, slot_capacity
@@ -126,11 +133,34 @@ const getAvailableSlots = async (clinicId, date) => {
   });
 
   // Step 5: Filter out fully booked slots
+const now = new Date();
+
+const isToday =
+  selectedDate.toDateString() === now.toDateString();
   const slotsWithAvailability = slots.map(slot => {
+
+    let available = true;
+  
+    // Check capacity
     const bookingCount = bookingMap[slot] || 0;
+  
+    if (bookingCount >= slot_capacity) {
+      available = false;
+    }
+  
+    // Prevent past times today
+    if (isToday) {
+  
+      const slotDateTime = new Date(`${date}T${slot}`);
+  
+      if (slotDateTime <= now) {
+        available = false;
+      }
+    }
+  
     return {
       time: slot,
-      available: bookingCount < slot_capacity
+      available
     };
   });
 
@@ -144,6 +174,44 @@ const cancelAppointment = async (appointment_id) => {
      WHERE appointment_id = $1`,
     [appointment_id]
   );
+};
+
+const checkSlotExcludingCurrent = async (
+  clinic_id,
+  appointment_date,
+  appointment_time,
+  appointment_id
+) => {
+
+  const result = await db.query(
+    `SELECT * FROM appointment
+     WHERE clinic_id = $1
+     AND appointment_date = $2
+     AND appointment_time = $3
+     AND appointment_id != $4
+     AND status IN ('pending', 'confirmed')`,
+    [clinic_id, appointment_date, appointment_time, appointment_id]
+  );
+
+  return result.rows;
+};
+
+const updateAppointmentSlot = async (
+  appointment_id,
+  appointment_date,
+  appointment_time
+) => {
+
+  const result = await db.query(
+    `UPDATE appointment
+     SET appointment_date = $1,
+         appointment_time = $2
+     WHERE appointment_id = $3
+     RETURNING *`,
+    [appointment_date, appointment_time, appointment_id]
+  );
+
+  return result.rows[0];
 };
 
 const getAppointmentsByPhone = async (phone) => {
@@ -176,5 +244,7 @@ module.exports = {
   getAvailableSlots,
   cancelAppointment,
   getAppointmentsByPhone,
-  getUserByEmail
+  getUserByEmail,
+  checkSlotExcludingCurrent,
+  updateAppointmentSlot
 };

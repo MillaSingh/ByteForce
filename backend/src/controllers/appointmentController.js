@@ -114,10 +114,72 @@ const getAppointmentsByPhone = async (req, res) => {
   }
 };
 
+const rescheduleAppointment = async (req, res) => {
+
+  try {
+
+    const appointmentId = req.params.id;
+
+    const {
+      clinic_id,
+      appointment_date,
+      appointment_time
+    } = req.body;
+
+    // Prevent past date/time booking
+    const now = new Date();
+
+    const selectedDateTime = new Date(
+      `${appointment_date}T${appointment_time}`
+    );
+
+    if (selectedDateTime <= now) {
+      return res.status(400).json({
+        error: "Cannot book a past time slot"
+      });
+    }
+
+    const existing =
+      await appointmentModel.checkSlotExcludingCurrent(
+        clinic_id,
+        appointment_date,
+        appointment_time,
+        appointmentId
+      );
+
+    if (existing.length > 0) {
+      return res.status(400).json({
+        error: "Time slot already booked"
+      });
+    }
+
+    const updated =
+      await appointmentModel.updateAppointmentSlot(
+        appointmentId,
+        appointment_date,
+        appointment_time
+      );
+
+    return res.json({
+      success: true,
+      appointment: updated
+    });
+
+  } catch (err) {
+
+    console.error("RESCHEDULE ERROR:", err);
+
+    return res.status(500).json({
+      error: "Server error"
+    });
+  }
+};
+
 module.exports = {
   createBooking,
   getMyAppointments,
   getSlots,
   cancelAppointment,
-  getAppointmentsByPhone
+  getAppointmentsByPhone,
+  rescheduleAppointment
 };

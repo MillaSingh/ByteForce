@@ -2,11 +2,14 @@
 jest.mock('../src/models/clinicModel', () => ({
   getClinics: jest.fn(),
   getFilterOptions: jest.fn(),
-  getClinicById: jest.fn()
+  getClinicById: jest.fn(),
+  updateClinic: jest.fn(),
+  addService: jest.fn(),
+  removeService: jest.fn()
 }));
 
-const { getClinics, getFilterOptions, getClinicById } = require('../src/models/clinicModel');
-const { listClinics, listFilterOptions, getClinicDetails } = require('../src/controllers/clinicController');
+const { getClinics, getFilterOptions, getClinicById, updateClinic, addService, removeService } = require('../src/models/clinicModel');
+const { listClinics, listFilterOptions, getClinicDetails, updateClinicDetails, addClinicService, removeClinicService } = require('../src/controllers/clinicController');
 
 // Helper to create mock req and res objects
 const mockReq = (query = {}, params = {}) => ({ query, params });
@@ -158,6 +161,135 @@ describe('getClinicDetails', () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: 'Failed to fetch clinic details' });
+  });
+
+});
+
+
+describe('updateClinicDetails', () => {
+
+  test('returns updated clinic when update succeeds', async () => {
+    const fakeResult = { updatedClinic: { clinic_id: 1, address: 'New Address' } };
+    updateClinic.mockResolvedValueOnce(fakeResult);
+
+    const req = mockReq({}, { id: '1' });
+    req.body = { address: 'New Address', phone_number: '011 123 4567', description: 'Desc', image_url: null };
+    const res = mockRes();
+
+    await updateClinicDetails(req, res);
+
+    expect(updateClinic).toHaveBeenCalledWith('1', req.body);
+    expect(res.json).toHaveBeenCalledWith(fakeResult);
+  });
+
+  test('returns 404 when clinic does not exist', async () => {
+    updateClinic.mockResolvedValueOnce({ updatedClinic: undefined });
+
+    const req = mockReq({}, { id: '99999' });
+    req.body = { address: 'Address', phone_number: '000', description: 'Desc', image_url: null };
+    const res = mockRes();
+
+    await updateClinicDetails(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Clinic not found' });
+  });
+
+  test('returns 500 when model throws', async () => {
+    updateClinic.mockRejectedValueOnce(new Error('Database error'));
+
+    const req = mockReq({}, { id: '1' });
+    req.body = { address: 'Address', phone_number: '000', description: 'Desc', image_url: null };
+    const res = mockRes();
+
+    await updateClinicDetails(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Failed to update clinic details' });
+  });
+
+});
+
+
+describe('addClinicService', () => {
+
+  test('returns new service when add succeeds', async () => {
+    const fakeResult = { newService: { service_id: 1, service_name: 'TB Screening' } };
+    addService.mockResolvedValueOnce(fakeResult);
+
+    const req = mockReq({}, { id: '1' });
+    req.body = { service_name: 'TB Screening' };
+    const res = mockRes();
+
+    await addClinicService(req, res);
+
+    expect(addService).toHaveBeenCalledWith('1', 'TB Screening');
+    expect(res.json).toHaveBeenCalledWith(fakeResult);
+  });
+
+  test('returns 400 when service name is missing', async () => {
+    const req = mockReq({}, { id: '1' });
+    req.body = { service_name: undefined };
+    const res = mockRes();
+
+    await addClinicService(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Service name is required' });
+  });
+
+  test('returns 500 when model throws', async () => {
+    addService.mockRejectedValueOnce(new Error('Database error'));
+
+    const req = mockReq({}, { id: '1' });
+    req.body = { service_name: 'TB Screening' };
+    const res = mockRes();
+
+    await addClinicService(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Failed to add service' });
+  });
+
+});
+
+
+describe('removeClinicService', () => {
+
+  test('returns success when service is deleted', async () => {
+    removeService.mockResolvedValueOnce({ deletedRow: 1 });
+
+    const req = mockReq({}, { id: '1', serviceId: '1' });
+    const res = mockRes();
+
+    await removeClinicService(req, res);
+
+    expect(removeService).toHaveBeenCalledWith('1', '1');
+    expect(res.json).toHaveBeenCalledWith({ success: true });
+  });
+
+  test('returns 404 when service does not exist', async () => {
+    removeService.mockResolvedValueOnce({ deletedRow: 0 });
+
+    const req = mockReq({}, { id: '1', serviceId: '99999' });
+    const res = mockRes();
+
+    await removeClinicService(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Service not found' });
+  });
+
+  test('returns 500 when model throws', async () => {
+    removeService.mockRejectedValueOnce(new Error('Database error'));
+
+    const req = mockReq({}, { id: '1', serviceId: '1' });
+    const res = mockRes();
+
+    await removeClinicService(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Failed to remove service' });
   });
 
 });

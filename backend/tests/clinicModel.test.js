@@ -4,14 +4,12 @@ jest.mock('../src/db', () => ({
 }));
 
 const pool = require('../src/db');
-const { getClinics, getFilterOptions, getClinicById } = require('../src/models/clinicModel');
+const { getClinics, getFilterOptions, getClinicById, updateClinic, addService, removeService } = require('../src/models/clinicModel');
 
 // Reset mocks before each test
 beforeEach(() => {
   jest.clearAllMocks();
 });
-
-// ── getClinics ──────────────────────────────────────────────────────────────
 
 describe('getClinics', () => {
 
@@ -117,7 +115,6 @@ describe('getClinics', () => {
 
 });
 
-// ── getFilterOptions ────────────────────────────────────────────────────────
 
 describe('getFilterOptions', () => {
 
@@ -155,7 +152,6 @@ describe('getFilterOptions', () => {
 
 });
 
-// ── getClinicById ───────────────────────────────────────────────────────────
 
 describe('getClinicById', () => {
 
@@ -198,6 +194,107 @@ describe('getClinicById', () => {
     pool.query.mockRejectedValueOnce(new Error('Database error'));
 
     await expect(getClinicById(1)).rejects.toThrow('Database error');
+  });
+
+});
+
+
+describe('updateClinic', () => {
+
+  test('returns updated clinic when update succeeds', async () => {
+    const fakeClinic = {
+      clinic_id: 1,
+      clinic_name: 'Afsondering Clinic',
+      address: 'New Address',
+      phone_number: '011 123 4567',
+      description: 'Updated description',
+      image_url: 'https://example.com/image.jpg'
+    };
+    pool.query.mockResolvedValueOnce({ rows: [fakeClinic] });
+
+    const result = await updateClinic(1, {
+      address: 'New Address',
+      phone_number: '011 123 4567',
+      description: 'Updated description',
+      image_url: 'https://example.com/image.jpg'
+    });
+
+    expect(result.updatedClinic).toBeDefined();
+    expect(result.updatedClinic.address).toBe('New Address');
+    expect(result.updatedClinic.phone_number).toBe('011 123 4567');
+  });
+
+  test('returns undefined updatedClinic when clinic does not exist', async () => {
+    pool.query.mockResolvedValueOnce({ rows: [] });
+
+    const result = await updateClinic(99999, {
+      address: 'Address',
+      phone_number: '000',
+      description: 'Desc',
+      image_url: null
+    });
+
+    expect(result.updatedClinic).toBeUndefined();
+  });
+
+  test('throws error when database query fails', async () => {
+    pool.query.mockRejectedValueOnce(new Error('Database error'));
+
+    await expect(updateClinic(1, {
+      address: 'Address',
+      phone_number: '000',
+      description: 'Desc',
+      image_url: null
+    })).rejects.toThrow('Database error');
+  });
+
+});
+
+
+describe('addService', () => {
+
+  test('returns newly created service', async () => {
+    const fakeService = { service_id: 1, clinic_id: 1, service_name: 'TB Screening' };
+    pool.query.mockResolvedValueOnce({ rows: [fakeService] });
+
+    const result = await addService(1, 'TB Screening');
+
+    expect(result.newService).toBeDefined();
+    expect(result.newService.service_name).toBe('TB Screening');
+    expect(result.newService.clinic_id).toBe(1);
+  });
+
+  test('throws error when database query fails', async () => {
+    pool.query.mockRejectedValueOnce(new Error('Database error'));
+
+    await expect(addService(1, 'TB Screening')).rejects.toThrow('Database error');
+  });
+
+});
+
+
+describe('removeService', () => {
+
+  test('returns rowCount of 1 when service is deleted', async () => {
+    pool.query.mockResolvedValueOnce({ rowCount: 1 });
+
+    const result = await removeService(1, 1);
+
+    expect(result.deletedRow).toBe(1);
+  });
+
+  test('returns rowCount of 0 when service does not exist', async () => {
+    pool.query.mockResolvedValueOnce({ rowCount: 0 });
+
+    const result = await removeService(1, 99999);
+
+    expect(result.deletedRow).toBe(0);
+  });
+
+  test('throws error when database query fails', async () => {
+    pool.query.mockRejectedValueOnce(new Error('Database error'));
+
+    await expect(removeService(1, 1)).rejects.toThrow('Database error');
   });
 
 });

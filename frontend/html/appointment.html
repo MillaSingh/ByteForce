@@ -1,39 +1,217 @@
-const clinicID = new URLSearchParams(window.location.search).get("clinicId");
-const userEmail = sessionStorage.getItem("userEmail");
-emailjs.init("It5nWm42g6-DChkm5");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book an Appointment | MEDIQUEUE</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/appointment.css">
+</head>
+<body>
 
-if (!userEmail) {
-  window.location.href = "/html/login.html";
-}
-// ---------------- STATE ----------------
-const booking = {
-  clinic: '',
-  specialty: '',
-  reason: '',
-  date: '',
-  time: '',
-  fname: '',
-  lname: '',
-  email: '',
-  phone: '',
-  clinic_id: clinicID
-};
+<!-- NAV -->
+<nav>
+  <section class="nav-brand">
+    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
+    <span class="nav-logo">MEDI<span>QUEUE</span></span>
+  </section>
 
-// ---------------- CLINIC LOAD ----------------
-function loadClinic() {
-  if (!clinicID) return;
+  <ul class="nav-links">
+    <li><a href="/html/home.html">Home</a></li>
+    <li><a href= "/html/clinics.html">Clinics</a></li>
+    <li><a href="/html/myAppointments.html">My Appointments</a></li>
+    <li><a href= "/html/queue.html">Queue</a></li>
+  </ul>
+  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">Account</button>
+</nav>
 
-  fetch(`/api/clinics/${clinicID}`)
-    .then(res => res.json())
-    .then(data => {
-      booking.clinic = data?.clinic?.clinic_name || data?.clinic_name || '';
-      booking.clinic_id = clinicID;
-    })
-    .catch(err => console.error("Failed to load clinic:", err));
-}
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Online Booking</div>
+  <h1>Book Your Appointment</h1>
+  <p>Pick a time that suits you based on your chosen clinic</p>
+</div>
 
-loadClinic();
+<!-- MAIN -->
+<main>
+  <div class="card">
 
+    <!-- STEPS -->
+    <div class="steps">
+      <div class="step active" id="step-tab-1"><span class="step-num">1</span>Reason</div>
+      <div class="step" id="step-tab-2"><span class="step-num">2</span>Date & Time</div>
+      <div class="step" id="step-tab-3"><span class="step-num">3</span>Your Details</div>
+      <div class="step" id="step-tab-4"><span class="step-num">4</span>Confirm</div>
+    </div>
+
+    <!-- STEP 1: Reason -->
+
+      <!-- STEP 1: Reason -->
+    <div class="form-section active" id="section-1">
+      <div class="section-title">Reason for Visit</div>
+      <div class="section-sub">Select the reason for your appointment</div>
+
+      <div class="label-group">Reason for Visit</div>
+      <div class="reason-grid">
+        <div class="reason-tag" onclick="selectReason(this)">General Check-up</div>
+        <div class="reason-tag" onclick="selectReason(this)">Flu / Cold Symptoms</div>
+        <div class="reason-tag" onclick="selectReason(this)">Follow-up Appointment</div>
+        <div class="reason-tag" onclick="selectReason(this)">Chronic Condition</div>
+        <div class="reason-tag" onclick="selectReason(this)">Blood Pressure</div>
+        <div class="reason-tag" onclick="selectReason(this)">Prescription Renewal</div>
+        <div class="reason-tag" onclick="selectReason(this)">Mental Health</div>
+        <div class="reason-tag" onclick="selectReason(this)">Other</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-next" onclick="goToStep(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Date & Time -->
+    <div class="form-section" id="section-2">
+      <div class="section-title">Pick a Date & Time</div>
+      <div class="section-sub">Available slots for your selected clinic</div>
+
+      <div class="date-time-grid">
+        <div>
+          <div class="label-group">Date</div>
+          <div class="field">
+            <input type="date" id="appt-date" min="" onchange="updateDate(this.value)"/>
+          </div>
+        </div>
+        <div>
+          <div class="label-group">Available Times</div>
+          <div class="time-slots" id="time-slots">
+            <p id="slots-message">Please select a date to see available times.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goToStep(1)">← Back</button>
+        <button class="btn-next" onclick="goToStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Patient Details -->
+    <div class="form-section" id="section-3">
+      <div class="section-title">Your Details</div>
+      <div class="section-sub">We need a few details to confirm your booking</div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label>First Name *</label>
+          <input type="text" id="fname" placeholder="e.g. Thabo" oninput="updateBooking()"/>
+        </div>
+        <div class="field">
+          <label>Last Name *</label>
+          <input type="text" id="lname" placeholder="e.g. Dlamini" oninput="updateBooking()"/>
+        </div>
+        <div class="field">
+          <label>Email Address *</label>
+          <input type="email" id="email" placeholder="you@email.com" oninput="updateBooking()"/>
+        </div>
+        <div class="field">
+          <label>Phone Number *</label>
+          <input type="tel" id="phone" placeholder="e.g. 071 234 5678" oninput="updateBooking()"/>
+        </div>
+        <div class="field">
+          <label>ID / Passport Number</label>
+          <input type="text" id="id-number" placeholder="Optional"/>
+        </div>
+        <div class="field">
+          <label>Medical Aid / Insurance</label>
+          <select id="medical-aid">
+            <option value="">Self-pay / None</option>
+            <option>Discovery Health</option>
+            <option>Bonitas</option>
+            <option>Momentum Health</option>
+            <option>Medihelp</option>
+            <option>Bestmed</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Additional Notes</label>
+        <textarea id="notes" placeholder="Any symptoms, allergies, or extra information for the clinic..."></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goToStep(2)">← Back</button>
+        <button class="btn-next" onclick="goToStep(4)">Review Booking →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Confirm -->
+    <div class="form-section" id="section-4">
+      <div class="section-title">Review & Confirm</div>
+      <div class="section-sub">Please check your details before confirming</div>
+
+      <div class="summary-box">
+        <div class="summary-row">
+          <span class="summary-label">Clinic</span>
+          <span class="summary-value" id="sum-clinic">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Reason</span>
+          <span class="summary-value" id="sum-reason">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Date</span>
+          <span class="summary-value" id="sum-date">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Time</span>
+          <span class="summary-value" id="sum-time">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Patient</span>
+          <span class="summary-value" id="sum-patient">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Contact</span>
+          <span class="summary-value" id="sum-contact">—</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goToStep(3)">← Back</button>
+        <button class="btn-next" onclick="confirmBooking()">✓ Confirm Booking</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="form-section" id="section-success">
+      <div class="success-screen">
+        <div class="success-icon">
+          <img src="/images/success.png" width="60" height="60" alt="Success">
+        </div>
+        <h2>Appointment booked, status is pending</h2>
+        <p>Your booking has been received. Check back to view confirmation details.</p>
+        <div class="ref-code" id="ref-code">CC-000000</div>
+        <br/>
+        <button class="btn-next" onclick="resetForm()" style="margin: 0 auto;">Book Another Appointment</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+  emailjs.init("It5nWm42g6-DChkm5");
+</script>
+
+<script src="/js/appointment.js"></script>
+</body>
+</html>
 // ---------------- DATE INIT ----------------
 const today = new Date().toISOString().split('T')[0];
 

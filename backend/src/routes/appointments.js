@@ -15,5 +15,6 @@ router.get('/my', appointmentController.getMyAppointments);
 router.delete('/:id', appointmentController.cancelAppointment);
 //Get appointments by phone number
 router.get('/by-phone', appointmentController.getAppointmentsByPhone);
-
+// RESCHEDULE APPOINTMENT
+router.put('/:id/reschedule', appointmentController.rescheduleAppointment);
 module.exports = router;

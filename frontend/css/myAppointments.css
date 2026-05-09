@@ -297,6 +297,290 @@ footer {
   color: red;
 }
 
+.reschedule-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.reschedule-btn:hover {
+  background: #163b67;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+}
+
+/* MAIN */
+main {
+  max-width: 950px;
+  margin: -2rem auto 4rem;
+  padding: 0 1.5rem;
+}
+
+/* CARD */
+.container-card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 2rem;
+}
+
+/* SUMMARY */
+.summary-header {
+  margin-bottom: 1.5rem;
+}
+
+.summary-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+}
+
+.summary-header p {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.filters button {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+}
+
+.filters button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* GROUPS */
+.group {
+  margin-bottom: 2rem;
+}
+
+.group h3 {
+  font-family: 'Playfair Display', serif;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+}
+
+/* LIST */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* CARD */
+.appointment-card {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.25s;
+  border-left: 4px solid var(--accent-light);
+}
+
+.appointment-card:hover {
+  transform: translateY(-3px);
+  background: var(--accent-pale);
+}
+
+/* TEXT */
+.appointment-title {
+  font-weight: 600;
+}
+
+.appointment-date {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* STATUS */
+.status {
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.pending { background: #fff4cc; }
+.confirmed { background: #d4f5e9; }
+.cancelled { background: #ffe0e0; }
+.completed { background: #e0e7ff; }
+
+/* STATES */
+.center {
+  text-align: center;
+  color: var(--muted);
+  padding: 1.5rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.nav-logo span { color: var(--ink); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--accent) 0%, #3c8a9c 100%);
+  color: var(--white);
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* MAIN WRAP */
+main {
+  max-width: 950px;
+  margin: -3rem auto 4rem;
+  padding: 0 1.5rem;
+}
+
+/* MAIN CARD (THIS IS THE BIG FIX) */
+.container-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+}
+
+/* SECTION */
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+/* APPOINTMENT LIST */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* APPOINTMENT CARD */
+.appointment-card {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  background: var(--white);
+}
+
+.appointment-card:hover {
+  border-color: var(--accent-light);
+  background: var(--accent-pale);
+}
+
+/* LEFT SIDE */
+.appointment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.appointment-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.appointment-date {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* STATUS BADGE */
+.status {
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* STATUS COLORS */
+.pending { background: #fff4cc; }
+.confirmed { background: #d4f5e9; }
+.cancelled { background: #ffe0e0; }
+.completed { background: #e0e7ff; }
+
+/* EMPTY / LOADING */
+.center {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--muted);
+}
+
+/* FOOTER */
+footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 1.5rem 2rem;
+  background: #1a3c2e;
+  font-size: 0.85rem;
+  color:  rgba(255, 255, 255, 0.6);;
+}
+
+.cancel-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.cancel-btn:hover {
+  background: #cc0000;
+}
+
+.status.cancelled {
+  color: red;
+}
+
 .input-field {
   width: 100%;
   padding: 10px;

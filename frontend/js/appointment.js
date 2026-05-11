@@ -224,7 +224,7 @@ function confirmBooking() {
         "service_tisniwj",
         "template_pchia0c",
         {
-          to_email: booking.email || userEmail,
+          email: booking.email || userEmail,
           patient_name: `${booking.fname} ${booking.lname}`,
           clinic_name: booking.clinic,
           appointment_date: booking.date,

@@ -84,11 +84,11 @@ async function loadClinicData() {
     const services = data.services;
 
     // Populate form fields
-    clinicName.value   = clinic.clinic_name        || '';
-    address.value      = clinic.address            || '';
-    phoneNumber.value  = clinic.phone_number       || '';
-    description.value  = clinic.description        || '';
-    imageUrl.value     = clinic.image_url          || '';
+    clinicName.value = clinic.clinic_name || '';
+    address.value = clinic.address || '';
+    phoneNumber.value = clinic.phone_number || '';
+    description.value = clinic.description || '';
+    imageUrl.value = clinic.image_url || '';
 
     // Show image preview if URL exists
     if (clinic.image_url) {
@@ -128,10 +128,10 @@ clinicForm.addEventListener('submit', async (e) => {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        address:      address.value.trim(),
+        address: address.value.trim(),
         phone_number: phoneNumber.value.trim(),
-        description:  description.value.trim(),
-        image_url:    imageUrl.value.trim()
+        description: description.value.trim(),
+        image_url: imageUrl.value.trim()
       })
     });
 
@@ -182,7 +182,6 @@ addServiceForm.addEventListener('submit', async (e) => {
 
 // Remove service
 async function removeService(serviceId) {
-  console.log('removing serviceId:', serviceId);  // ADD THIS
   try {
     const response = await fetch(`/api/clinics/${CLINIC_ID}/services/${serviceId}`, {
       method: 'DELETE'

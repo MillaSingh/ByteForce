@@ -85,9 +85,6 @@ const addClinicService = async(req, res) => {
 const removeClinicService = async(req, res) => {
   const clinicId = req.params.id;
   const serviceId = req.params.serviceId;
-  console.log('req.params:', req.params);  // ADD THIS
-  console.log('clinicId:', clinicId);      // ADD THIS
-  console.log('serviceId:', serviceId);    // ADD THIS
   try {
     const result = await removeService(clinicId, serviceId);
     if (result.deletedRow === 0) {

@@ -40,7 +40,7 @@ const getMyQueueByUserId = async (email) => {
     ORDER BY qe.check_in_time DESC
     LIMIT 1;
   `;
-
+// replaced with email
   const result = await pool.query(query, [email]);
   return result.rows[0];
 };

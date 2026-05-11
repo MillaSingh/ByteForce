@@ -216,18 +216,15 @@ function confirmBooking() {
     .then(res => res.json())
     .then(data => {
 
-      document.getElementById('ref-code').textContent = data.ref;
-
       // SHOW SUCCESS SCREEN
       document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
       document.getElementById('section-success').classList.add('active');
 
-      //EMAIL ONLY AFTER SUCCESS
       return emailjs.send(
         "service_tisniwj",
         "template_pchia0c",
         {
-          to_email: userEmail,
+          email: booking.email || userEmail,
           patient_name: `${booking.fname} ${booking.lname}`,
           clinic_name: booking.clinic,
           appointment_date: booking.date,

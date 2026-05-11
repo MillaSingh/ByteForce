@@ -1,5 +1,6 @@
 import { requireAuth, getCurrentUser } from "./auth.js";
 
+// Makes sure only logged-in users can access this page
 requireAuth();
 
 async function loadQueue() {
@@ -8,50 +9,59 @@ async function loadQueue() {
   const queueDetails = document.getElementById("queue-details");
   const summaryText = document.getElementById("summary-text");
 
+  // Clears anything that was displayed before loading new queue data
   queueDetails.innerHTML = "";
+
   empty.style.display = "none";
   queueDetails.style.display = "none";
 
   try {
-  const token = sessionStorage.getItem("firebaseToken");
+    const token = sessionStorage.getItem("firebaseToken");
 
-  if (!token) {
-    window.location.replace("/html/Login.html");
-    return;
-  }
+    // If there is no token, the user should not stay on this page
+    if (!token) {
+      window.location.replace("/html/Login.html");
+      return;
+    }
 
-const user = getCurrentUser();
+    const user = getCurrentUser();
 
-const res = await fetch("/api/patient-queue/my", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  credentials: "include",
-  body: JSON.stringify({
-    email: user.email,
-  }),
-});
+// Sends the current user's email to the server to find their queue
+    const res = await fetch("/api/patient-queue/my", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => null);
-    throw new Error(error?.error || "Server error");
-  }
+      // Allows cookies/session information to be sent with the request
+      credentials: "include",
+      body: JSON.stringify({
+        email: user.email,
+      }),
+    });
 
-  const queue = await res.json();
+// Stops the code if the server sends back an error response
+    if (!res.ok) {
+      const error = await res.json().catch(() => null);
+      throw new Error(error?.error || "Server error");
+    }
 
-  loading.style.display = "none";
+    const queue = await res.json();
 
+    loading.style.display = "none";
+
+    // Shows a message if the user is not currently in any queue
     if (!queue) {
       empty.style.display = "block";
       summaryText.innerText = "You are not currently in a queue";
       return;
     }
 
+// Stores queue values in variables so they are easier to use below
     const clinicName = queue.clinic_name || "Clinic";
     const queuePosition = Number(queue.queue_position);
     const status = queue.status || "waiting";
-
+//operator checks if check_in_time exists
     const checkInTime = queue.check_in_time
       ? new Date(queue.check_in_time)
       : null;
@@ -61,6 +71,7 @@ const res = await fetch("/api/patient-queue/my", {
     summaryText.innerText =
       `You are number ${queuePosition} in the queue at ${clinicName}`;
 
+    // Builds the queue card that will be shown on the page
     queueDetails.innerHTML = `
       <div class="queue-card">
 
@@ -118,6 +129,7 @@ const res = await fetch("/api/patient-queue/my", {
   }
 }
 
+// Changes wait time from minutes into a more readable message
 function formatWaitTime(minutes) {
   if (minutes === null || minutes === undefined) {
     return "Not available";
@@ -141,6 +153,7 @@ function formatWaitTime(minutes) {
   return `${hours} hour(s) ${remainingMinutes} minute(s)`;
 }
 
+// Formats the check-in time so only the hour and minutes show
 function formatTime(date) {
   return date.toLocaleTimeString([], {
     hour: "2-digit",
@@ -148,8 +161,10 @@ function formatTime(date) {
   });
 }
 
+// Makes the status text easier to read by removing underscores
 function formatStatus(status) {
   return status.replace("_", " ");
 }
 
+// Runs the function when the page loads
 loadQueue();

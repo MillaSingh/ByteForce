@@ -25,12 +25,9 @@ const createBooking = async (req, res) => {
 
     const appointment = await appointmentModel.createAppointment(data);
 
-    const ref = "CC-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-
     return res.json({
       success: true,
-      appointment,
-      ref
+      appointment
     });
 
   } catch (err) {

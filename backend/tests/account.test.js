@@ -12,7 +12,7 @@ const mockResponse = () => {
 
 describe("Delete Account Controller", () => {
 
-  // ✅ Test 1: Delete button visible (UI-level - basic check)
+  //  Test 1: Delete button visible (UI-level - basic check)
   test("should allow delete request when user is logged in", async () => {
     const req = {
       user: { user_id: 1 },
@@ -25,7 +25,7 @@ describe("Delete Account Controller", () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  // ✅ Test 2: Password required
+  //  Test 2: Password required
   test("should not delete account if password is missing", async () => {
     const req = {
       user: { user_id: 1 },
@@ -41,7 +41,7 @@ describe("Delete Account Controller", () => {
     });
   });
 
-  // ✅ Test 3: Incorrect password
+  //  Test 3: Incorrect password
   test("should not delete account if password is incorrect", async () => {
     const req = {
       user: { user_id: 1 },
@@ -54,7 +54,7 @@ describe("Delete Account Controller", () => {
     expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  // ✅ Test 4: Successful deletion
+  //  Test 4: Successful deletion
   test("should delete account with correct password", async () => {
     const req = {
       user: { user_id: 1 },
@@ -70,7 +70,7 @@ describe("Delete Account Controller", () => {
     });
   });
 
-  // ✅ Test 5: Account inaccessible after deletion
+  // Test 5: Account inaccessible after deletion
   test("should prevent login after account deletion", async () => {
     const deletedUser = null;
 

@@ -5,9 +5,7 @@ async function findAppointments() {
 
   if (!userEmail) {
     window.location.href = "/html/login.html";
-    return;
   }
-
   if (!phone) {
     error.innerText = "Please enter your phone number";
     return;
@@ -39,7 +37,6 @@ async function findAppointments() {
 
 
 function loadAppointmentsByData(data) {
-
   const upcoming = document.getElementById("upcoming");
   const past = document.getElementById("past");
   const loading = document.getElementById("loading");
@@ -63,8 +60,7 @@ function loadAppointmentsByData(data) {
   data.forEach(app => {
 
     try {
-
-      // FIXED DATE HANDLING (WORKS WITH YOUR DB FORMAT)
+      // ✅ FIXED DATE HANDLING (WORKS WITH YOUR DB FORMAT)
 
       // Convert DB date safely (handles string OR Date object)
       const rawDate = new Date(app.appointment_date);
@@ -74,19 +70,17 @@ function loadAppointmentsByData(data) {
       const day = rawDate.getDate();
 
       // Remove microseconds from time
-      const timeParts =
-        app.appointment_time.split(".")[0].split(":");
+      const timeParts = app.appointment_time.split(".")[0].split(":");
 
       const hour = parseInt(timeParts[0], 10);
       const minute = parseInt(timeParts[1], 10);
 
       // Final valid JS Date
-      const dateTime =
-        new Date(year, month, day, hour, minute);
+      const dateTime = new Date(year, month, day, hour, minute);
 
       if (isNaN(dateTime.getTime())) {
         console.error("Invalid date:", app);
-        return;
+        return; // skip only broken record (not all)
       }
 
       const status = app.status || "pending";
@@ -96,44 +90,31 @@ function loadAppointmentsByData(data) {
         status !== "cancelled";
 
       const card = document.createElement("div");
-
       card.className = "appointment-card";
-
-      card.dataset.type =
-        isUpcoming ? "upcoming" : "past";
+      card.dataset.type = isUpcoming ? "upcoming" : "past";
 
       card.innerHTML = `
         <div class="appointment-info">
-          <div class="appointment-title">
-            ${app.clinic_name || "Clinic"}
-          </div>
-
+          <div class="appointment-title">${app.clinic_name || "Clinic"}</div>
           <div class="appointment-date">
-            ${dateTime.toLocaleDateString()} •
-            ${dateTime.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
+            ${dateTime.toLocaleDateString()} • 
+            ${dateTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           </div>
         </div>
 
         <div>
-          <span class="status ${status}">
-            ${status}
-          </span>
+          <span class="status ${status}">${status}</span>
 
           ${
             isUpcoming
               ? `
-                <button
-                  class="reschedule-btn"
+                <button class="reschedule-btn"
                   data-id="${app.appointment_id}"
                   data-clinic="${app.clinic_id}">
                   Reschedule
                 </button>
-
-                <button
-                  class="cancel-btn"
+          
+                <button class="cancel-btn"
                   data-id="${app.appointment_id}">
                   Cancel
                 </button>
@@ -144,31 +125,20 @@ function loadAppointmentsByData(data) {
       `;
 
       // CANCEL BUTTON
-      const cancelBtn =
-        card.querySelector(".cancel-btn");
+      const cancelBtn = card.querySelector(".cancel-btn");
 
       if (cancelBtn) {
-
         cancelBtn.addEventListener("click", async (e) => {
-
           e.stopPropagation();
 
-          if (!confirm("Cancel this appointment?")) {
-            return;
-          }
+          if (!confirm("Cancel this appointment?")) return;
 
           try {
+            const res = await fetch(`/api/appointments/${app.appointment_id}`, {
+              method: "DELETE"
+            });
 
-            const res = await fetch(
-              `/api/appointments/${app.appointment_id}`,
-              {
-                method: "DELETE"
-              }
-            );
-
-            if (!res.ok) {
-              throw new Error("Cancel failed");
-            }
+            if (!res.ok) throw new Error("Cancel failed");
 
             alert("Appointment cancelled");
 
@@ -176,36 +146,26 @@ function loadAppointmentsByData(data) {
             findAppointments();
 
           } catch (err) {
-
             console.error(err);
-
             alert("Error cancelling appointment");
           }
         });
       }
 
       // RESCHEDULE BUTTON
-      const rescheduleBtn =
-        card.querySelector(".reschedule-btn");
+      const rescheduleBtn = card.querySelector(".reschedule-btn");
 
       if (rescheduleBtn) {
-
         rescheduleBtn.addEventListener("click", async (e) => {
-
           e.stopPropagation();
-
-          const newDate =
-            prompt("Enter new date (YYYY-MM-DD)");
-
+      
+          const newDate = prompt("Enter new date (YYYY-MM-DD)");
           if (!newDate) return;
-
-          const newTime =
-            prompt("Enter new time (HH:MM)");
-
+      
+          const newTime = prompt("Enter new time (HH:MM)");
           if (!newTime) return;
-
+      
           try {
-
             const res = await fetch(
               `/api/appointments/${app.appointment_id}/reschedule`,
               {
@@ -220,47 +180,54 @@ function loadAppointmentsByData(data) {
                 })
               }
             );
-
-            const responseData = await res.json();
-
+      
+            const result = await res.json();
+      
             if (!res.ok) {
-              throw new Error(
-                responseData.error || "Failed"
-              );
+              throw new Error(result.error || "Failed");
             }
-
+      
             alert("Appointment rescheduled");
-
+      
+            // 📧 EMAIL CONFIRMATION (same pattern as booking.js)
+            await emailjs.send(
+              "service_tisniwj",
+              "template_r16nbsw",
+              {
+                email: sessionStorage.getItem("userEmail"),
+                patient_name: "Patient",
+                clinic_name: app.clinic_name,
+                appointment_date: newDate,
+                appointment_time: newTime,
+                reason: app.reason_for_visit
+              }
+            );
+      
+            console.log("Reschedule email sent");
+      
+            // refresh UI AFTER everything
             findAppointments();
-
+      
           } catch (err) {
-
             console.error(err);
-
             alert(err.message);
+      
+            // still refresh UI even if email fails
+            findAppointments();
           }
         });
       }
 
       // APPEND TO CORRECT SECTION
       if (isUpcoming) {
-
         upcoming.appendChild(card);
-
         upcomingCount++;
-
       } else {
-
         past.appendChild(card);
       }
 
     } catch (err) {
-
-      console.error(
-        "Error processing appointment:",
-        err,
-        app
-      );
+      console.error("Error processing appointment:", err, app);
     }
 
   });
@@ -272,21 +239,12 @@ function loadAppointmentsByData(data) {
 
 // FILTER FUNCTION
 function filterAppointments(type) {
-
-  document
-    .querySelectorAll(".appointment-card")
-    .forEach(card => {
-
-      if (type === "all") {
-
-        card.style.display = "flex";
-
-      } else {
-
-        card.style.display =
-          card.dataset.type === type
-            ? "flex"
-            : "none";
-      }
-    });
+  document.querySelectorAll(".appointment-card").forEach(card => {
+    if (type === "all") {
+      card.style.display = "flex";
+    } else {
+      card.style.display =
+        card.dataset.type === type ? "flex" : "none";
+    }
+  });
 }

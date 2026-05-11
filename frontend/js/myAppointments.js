@@ -2,6 +2,7 @@ async function findAppointments() {
   const phone = document.getElementById("phone").value.trim();
   const error = document.getElementById("lookup-error");
   const userEmail = sessionStorage.getItem("userEmail");
+  emailjs.init("It5nWm42g6-DChkm5");
 
   if (!userEmail) {
     window.location.href = "/html/login.html";

@@ -84,8 +84,9 @@ const getSlots = async (req, res) => {
 //cancel appointment
 const cancelAppointment = async (req, res) => {
   try {
+    // Get appointment ID from URL
     const appointmentId = req.params.id;
-
+    // Update appointment status in database
     await appointmentModel.cancelAppointment(appointmentId);
 
     return res.json({ success: true });
@@ -95,15 +96,16 @@ const cancelAppointment = async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 };
-
+// Get appointments using phone number
 const getAppointmentsByPhone = async (req, res) => {
   try {
+    // Get phone number from query
     const { phone } = req.query;
-
+    //check if the phone number is missing
     if (!phone) {
       return res.status(400).json({ error: "Phone required" });
     }
-
+    //send appointments back to the frontend
     const appointments = await appointmentModel.getAppointmentsByPhone(phone);
 
     return res.json(appointments);

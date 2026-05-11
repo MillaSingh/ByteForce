@@ -1,95 +1,288 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+
+<head>
+
+  <!-- Character encoding -->
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Appointments | MEDIQUEUE</title>
-  <link rel="stylesheet" href="/css/navigation.css">
-  <link rel="stylesheet" href="/css/myAppointments.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+
+  <!-- Makes website responsive -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <!-- Page title -->
+  <title>
+    My Appointments | MEDIQUEUE
+  </title>
+
+  <!-- Navigation CSS -->
+  <link
+    rel="stylesheet"
+    href="/css/navigation.css"
+  />
+
+  <!-- Appointments page CSS -->
+  <link
+    rel="stylesheet"
+    href="/css/myAppointments.css"
+  />
+
+  <!-- Google font connection -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  />
+
+  <!-- Import Google fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
 </head>
 
 <body>
+
+  <!-- Navigation bar -->
   <nav>
-  <section class="nav-brand">
-    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
-    <span class="nav-logo">MEDI<span>QUEUE</span></span>
-  </section>
 
-  <ul class="nav-links">
-    <li><a href="/html/home.html">Home</a></li>
-    <li><a href="/html/clinics.html">Clinics</a></li>
-    <li><a class="active" href="/html/myAppointments.html">My Appointments</a></li>
-    <li><a href= "/html/queue.html">Queue</a></li>
-  </ul>
+    <!-- Logo section -->
+    <section class="nav-brand">
 
-  <button class="nav-cta" onclick="window.location.href='/html/account.html'">
-    Account
-  </button>
-</nav>
+      <!-- Logo image -->
+      <img
+        src="/images/logo.jpeg"
+        width="60"
+        height="60"
+        alt="Logo"
+      />
 
-  <!-- HERO -->
-  <div class="hero">
-    <h1>My Appointments</h1>
-    <p>Track your medical bookings in one place</p>
-  </div>
+      <!-- Website name -->
+      <span class="nav-logo">
+        MEDI<span>QUEUE</span>
+      </span>
 
-  <!-- MAIN -->
-  <main>
-    <div class="container-card">
-          <!-- PATIENT LOOKUP FORM -->
-      <div id="lookup-section">
+    </section>
 
-      <div class="section">
-       <h2>Find Your Appointments</h2>
+    <!-- Navigation links -->
+    <ul class="nav-links">
 
-      <input type="text" id="firstName" placeholder="First Name" class="input-field" />
-      <input type="text" id="lastName" placeholder="Surname" class="input-field" />
-      <input type="text" id="phone" placeholder="Phone Number" class="input-field" />
+      <li>
+        <a href="/html/home.html">
+          Home
+        </a>
+      </li>
 
-    <button onclick="findAppointments()" class="nav-cta" style="margin-top:10px;">
-      View Appointments
+      <li>
+        <a href="/html/clinics.html">
+          Clinics
+        </a>
+      </li>
+
+      <!-- Current page -->
+      <li>
+        <a
+          class="active"
+          href="/html/myAppointments.html"
+        >
+          My Appointments
+        </a>
+      </li>
+
+      <li>
+        <a href="/html/queue.html">
+          Queue
+        </a>
+      </li>
+
+    </ul>
+
+    <!-- Account button -->
+    <button
+      class="nav-cta"
+      onclick="window.location.href='/html/account.html'"
+    >
+      Account
     </button>
 
-      <p id="lookup-error" style="color:red; margin-top:10px;"></p>
-      </div>
+  </nav>
+
+  <!-- Hero section -->
+  <div class="hero">
+
+    <h1>My Appointments</h1>
+
+    <p>
+      Track your medical bookings in one place
+    </p>
 
   </div>
-  <div id="dashboard" style="display:none;">
-      <div class="summary-header">
-        <h2>Your Dashboard</h2>
-        <p id="summary-text">Loading appointments...</p>
+
+  <!-- Main page content -->
+  <main>
+
+    <!-- Main white card -->
+    <div class="container-card">
+
+      <!-- Appointment lookup form -->
+      <div id="lookup-section">
+
+        <div class="section">
+
+          <h2>
+            Find Your Appointments
+          </h2>
+
+          <!-- First name input -->
+          <input
+            type="text"
+            id="firstName"
+            placeholder="First Name"
+            class="input-field"
+          />
+
+          <!-- Surname input -->
+          <input
+            type="text"
+            id="lastName"
+            placeholder="Surname"
+            class="input-field"
+          />
+
+          <!-- Phone number input -->
+          <input
+            type="text"
+            id="phone"
+            placeholder="Phone Number"
+            class="input-field"
+          />
+
+          <!-- Button to load appointments -->
+          <button
+            onclick="findAppointments()"
+            class="nav-cta"
+            style="margin-top:10px;"
+          >
+            View Appointments
+          </button>
+
+          <!-- Error message -->
+          <p
+            id="lookup-error"
+            style="color:red; margin-top:10px;"
+          ></p>
+
+        </div>
+
       </div>
 
-      <div class="filters">
-        <button onclick="filterAppointments('all')">All</button>
-        <button onclick="filterAppointments('upcoming')">Upcoming</button>
-        <button onclick="filterAppointments('past')">Past</button>
+      <!-- Dashboard section -->
+      <div id="dashboard" style="display:none;">
+
+        <!-- Dashboard heading -->
+        <div class="summary-header">
+
+          <h2>Your Dashboard</h2>
+
+          <!-- Appointment summary -->
+          <p id="summary-text">
+            Loading appointments...
+          </p>
+
+        </div>
+
+        <!-- Filter buttons -->
+        <div class="filters">
+
+          <button
+            onclick="filterAppointments('all')"
+          >
+            All
+          </button>
+
+          <button
+            onclick="filterAppointments('upcoming')"
+          >
+            Upcoming
+          </button>
+
+          <button
+            onclick="filterAppointments('past')"
+          >
+            Past
+          </button>
+
+        </div>
+
+        <!-- Loading message -->
+        <div
+          id="loading"
+          class="center"
+        >
+          Loading appointments...
+        </div>
+
+        <!-- Empty message -->
+        <div
+          id="empty"
+          class="center"
+          style="display:none;"
+        >
+          No appointments yet
+        </div>
+
+        <!-- Upcoming appointments -->
+        <div class="group">
+
+          <h3>Upcoming</h3>
+
+          <div
+            id="upcoming"
+            class="list"
+          ></div>
+
+        </div>
+
+        <!-- Past appointments -->
+        <div class="group">
+
+          <h3>Past</h3>
+
+          <div
+            id="past"
+            class="list"
+          ></div>
+
+        </div>
+
       </div>
 
-      <div id="loading" class="center">Loading appointments...</div>
-
-      <div id="empty" class="center" style="display:none;">
-        No appointments yet 
-      </div>
-
-      <div class="group">
-        <h3>Upcoming</h3>
-        <div id="upcoming" class="list"></div>
-      </div>
-
-      <div class="group">
-        <h3>Past</h3>
-        <div id="past" class="list"></div>
-      </div>
-      </div>
     </div>
+
   </main>
 
+  <!-- Footer -->
   <footer>
-  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
+
+    © 2026 MediQueue ·
+    All rights reserved ·
+
+    
+    <a
+      href="#"
+      style="
+        color:var(--accent);
+        text-decoration:none;
+      "
+    >
+      Privacy Policy
+    </a>
+
   </footer>
 
+  <!-- Link JavaScript file -->
   <script src="/js/myAppointments.js"></script>
 
 </body>

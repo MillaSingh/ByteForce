@@ -216,6 +216,7 @@ const updateAppointmentSlot = async (
 
 const getAppointmentsByPhone = async (phone) => {
   const result = await db.query(
+    // Select appointment data and clinic name
     `SELECT 
         a.*,
         c.clinic_name
@@ -226,7 +227,7 @@ const getAppointmentsByPhone = async (phone) => {
     [phone]
   );
 
-  return result.rows;
+  return result.rows;//returns all the appointment rows
 };
 
 const getUserByEmail = async (email) => {

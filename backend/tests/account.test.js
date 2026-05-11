@@ -1,80 +1,127 @@
-// authController.test.js
+// account.test.js
 
-const { deleteAccount } = require('../src/controllers/authController.js');
+jest.mock("firebase-admin", () => ({
+  auth: jest.fn(() => ({
+    verifyIdToken: jest.fn(),
+    deleteUser: jest.fn(),
+  })),
+}));
 
-// Mock response object
+jest.mock("pg", () => {
+  const mockPool = {
+    query: jest.fn(),
+  };
+
+  return {
+    Pool: jest.fn(() => mockPool),
+    __mockPool: mockPool,
+  };
+});
+
+const admin = require("firebase-admin");
+const pg = require("pg");
+const { deleteAccount } = require("../src/controllers/authController.js");
+
 const mockResponse = () => {
   const res = {};
   res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn().mockReturnValue(res);
+  res.clearCookie = jest.fn().mockReturnValue(res);
   return res;
 };
 
 describe("Delete Account Controller", () => {
-
-  //  Test 1: Delete button visible (UI-level - basic check)
-  test("should allow delete request when user is logged in", async () => {
-    const req = {
-      user: { user_id: 1 },
-      body: { password: "correctPassword" }
-    };
-    const res = mockResponse();
-
-    await deleteAccount(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(200);
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  //  Test 2: Password required
-  test("should not delete account if password is missing", async () => {
+  test("should return 401 if authorization header is missing", async () => {
     const req = {
-      user: { user_id: 1 },
-      body: {}
+      headers: {},
+      body: {},
     };
-    const res = mockResponse();
 
-    await deleteAccount(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      error: "Password is required"
-    });
-  });
-
-  //  Test 3: Incorrect password
-  test("should not delete account if password is incorrect", async () => {
-    const req = {
-      user: { user_id: 1 },
-      body: { password: "wrongPassword" }
-    };
     const res = mockResponse();
 
     await deleteAccount(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Unauthorized",
+    });
   });
 
-  //  Test 4: Successful deletion
-  test("should delete account with correct password", async () => {
+  test("should return 401 if authorization header is not a Bearer token", async () => {
     const req = {
-      user: { user_id: 1 },
-      body: { password: "correctPassword" }
+      headers: {
+        authorization: "Invalid token",
+      },
+      body: {},
     };
+
     const res = mockResponse();
 
     await deleteAccount(req, res);
 
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
-      success: true,
-      message: "Account deleted"
+      error: "Unauthorized",
     });
   });
 
-  // Test 5: Account inaccessible after deletion
-  test("should prevent login after account deletion", async () => {
-    const deletedUser = null;
+  test("should delete account successfully when token is valid", async () => {
+    const req = {
+      headers: {
+        authorization: "Bearer fake-token",
+      },
+      body: {},
+    };
 
-    expect(deletedUser).toBeNull();
+    const res = mockResponse();
+
+    admin.auth().verifyIdToken.mockResolvedValue({
+      uid: "firebase-user-123",
+    });
+
+    pg.__mockPool.query.mockResolvedValue({ rowCount: 1 });
+
+    admin.auth().deleteUser.mockResolvedValue();
+
+    await deleteAccount(req, res);
+
+    expect(admin.auth().verifyIdToken).toHaveBeenCalledWith("fake-token");
+
+    expect(pg.__mockPool.query).toHaveBeenCalledWith(
+      `DELETE FROM "user" WHERE external_auth_id = $1`,
+      ["firebase-user-123"]
+    );
+
+    expect(admin.auth().deleteUser).toHaveBeenCalledWith("firebase-user-123");
+
+    expect(res.clearCookie).toHaveBeenCalledWith("firebaseToken");
+
+    expect(res.json).toHaveBeenCalledWith({
+      status: "Account deleted successfully",
+    });
   });
 
+  test("should return 500 if Firebase or database deletion fails", async () => {
+    const req = {
+      headers: {
+        authorization: "Bearer fake-token",
+      },
+      body: {},
+    };
+
+    const res = mockResponse();
+
+    admin.auth().verifyIdToken.mockRejectedValue(new Error("Invalid token"));
+
+    await deleteAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Invalid token",
+    });
+  });
 });

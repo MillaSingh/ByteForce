@@ -39,16 +39,55 @@ const createBooking = async (req, res) => {
 };
 
 // GET MY APPOINTMENTS
-const getMyAppointments = async (req, res) => {
-  try {
-    const patientId = req.query.patientId;
+const admin = require("firebase-admin");
 
-    const appointments = await appointmentModel.getAppointmentsByUser(patientId);
+const getMyAppointments = async (req, res) => {
+
+  try {
+
+    // Get firebase token from cookie
+    const token = req.cookies.firebaseToken;
+
+    if (!token) {
+
+      return res.status(401).json({
+        error: "Not authenticated"
+      });
+    }
+
+    // Verify firebase token
+    const decoded =
+      await admin.auth().verifyIdToken(token);
+
+    // Get firebase UID
+    const uid = decoded.uid;
+
+    // Get database user
+    const user =
+      await appointmentModel.getUserByFirebaseUID(uid);
+
+    if (!user) {
+
+      return res.status(404).json({
+        error: "User not found"
+      });
+    }
+
+    // Fetch appointments
+    const appointments =
+      await appointmentModel.getAppointmentsByUser(
+        user.user_id
+      );
 
     return res.json(appointments);
 
   } catch (err) {
-    console.error("GET APPOINTMENTS ERROR:", err);
+
+    console.error(
+      "GET MY APPOINTMENTS ERROR:",
+      err
+    );
+
     return res.status(500).json({
       error: "Server error"
     });
@@ -90,25 +129,6 @@ const cancelAppointment = async (req, res) => {
 
   } catch (err) {
     console.error("CANCEL ERROR:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
-};
-// Get appointments using phone number
-const getAppointmentsByPhone = async (req, res) => {
-  try {
-    // Get phone number from query
-    const { phone } = req.query;
-    //check if the phone number is missing
-    if (!phone) {
-      return res.status(400).json({ error: "Phone required" });
-    }
-    //send appointments back to the frontend
-    const appointments = await appointmentModel.getAppointmentsByPhone(phone);
-
-    return res.json(appointments);
-
-  } catch (err) {
-    console.error("PHONE FETCH ERROR:", err);
     return res.status(500).json({ error: "Server error" });
   }
 };
@@ -179,6 +199,5 @@ module.exports = {
   getMyAppointments,
   getSlots,
   cancelAppointment,
-  getAppointmentsByPhone,
   rescheduleAppointment
 };

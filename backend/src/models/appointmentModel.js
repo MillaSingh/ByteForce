@@ -214,21 +214,7 @@ const updateAppointmentSlot = async (
   return result.rows[0];
 };
 
-const getAppointmentsByPhone = async (phone) => {
-  const result = await db.query(
-    // Select appointment data and clinic name
-    `SELECT 
-        a.*,
-        c.clinic_name
-     FROM appointment a
-     LEFT JOIN clinic c ON a.clinic_id = c.clinic_id
-     WHERE a.phone_number = $1
-     ORDER BY a.appointment_date DESC, a.appointment_time DESC`,
-    [phone]
-  );
 
-  return result.rows;//returns all the appointment rows
-};
 
 const getUserByEmail = async (email) => {
   const result = await db.query(
@@ -238,14 +224,28 @@ const getUserByEmail = async (email) => {
   return result.rows[0];
 };
 
+const getUserByFirebaseUID = async (uid) => {
+
+  const result = await db.query(
+    `
+      SELECT user_id
+      FROM "user"
+      WHERE external_auth_id = $1
+    `,
+    [uid]
+  );
+
+  return result.rows[0];
+};
+
 module.exports = {
   checkSlot,
   createAppointment,
   getAppointmentsByUser,
   getAvailableSlots,
   cancelAppointment,
-  getAppointmentsByPhone,
   getUserByEmail,
   checkSlotExcludingCurrent,
-  updateAppointmentSlot
+  updateAppointmentSlot,
+  getUserByFirebaseUID
 };

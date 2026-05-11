@@ -14,6 +14,20 @@ async function storeSession(user) {
   sessionStorage.setItem("userName", user.displayName || "");
   sessionStorage.setItem("userPhoto", user.photoURL || "");
 
+  // Fetch role from PostgreSQL and store it
+  try {
+    const response = await fetch("/api/auth/me", {
+      headers: { "x-user-email": user.email }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      sessionStorage.setItem("userRole", data.role || "patient");
+    }
+  } catch (err) {
+    console.error("Failed to fetch user role:", err);
+    sessionStorage.setItem("userRole", "patient");
+  }
+
   await fetch("/api/auth/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -106,7 +120,26 @@ export const authStateListener = (callback) =>
 
 export function requireAuth() {
   if (!sessionStorage.getItem("firebaseToken")) {
+    sessionStorage.setItem("intendedPage", window.location.pathname + window.location.search);
     window.location.replace("/html/Login.html");
+  }
+}
+
+export function requireRole(allowedRoles) {
+  if (!sessionStorage.getItem("firebaseToken")) {
+    sessionStorage.setItem("intendedPage", window.location.pathname + window.location.search);
+    window.location.replace("/html/Login.html");
+    return;
+  }
+  const role = sessionStorage.getItem("userRole");
+  if (!allowedRoles.includes(role)) {
+    if (role === "staff") {
+      window.location.replace("/html/dashboard.html");
+    } else if (role === "admin") {
+      window.location.replace("/html/admin_dashboard.html");
+    } else {
+      window.location.replace("/html/home.html");
+    }
   }
 }
 
@@ -116,5 +149,6 @@ export function getCurrentUser() {
     name: sessionStorage.getItem("userName"),
     photo: sessionStorage.getItem("userPhoto"),
     token: sessionStorage.getItem("firebaseToken"),
+    role: sessionStorage.getItem("userRole")
   };
 }

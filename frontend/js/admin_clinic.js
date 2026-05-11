@@ -1,3 +1,6 @@
+import { requireRole } from '/js/auth.js';
+requireRole(['admin']);
+
 // TEMP: hardcoded clinic ID — replace with admin's assigned clinic from auth
 const CLINIC_ID = 4;
 

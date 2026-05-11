@@ -1,4 +1,4 @@
-import { signIn, googleSignIn } from "./auth.js";
+import { signIn, googleSignIn, getCurrentUser } from "./auth.js";
 
 const emailLoginForm = document.getElementById("emailLoginForm");
 const googleSignInBtn = document.getElementById("googleSignInBtn");
@@ -6,7 +6,7 @@ const errorMsg = document.getElementById("errorMsg");
 const authStatus = document.getElementById("authStatus");
 
 if (sessionStorage.getItem("firebaseToken")) {
-  window.location.replace("/html/home.html");
+  redirectByRole();
 }
 
 function showError(msg) {
@@ -24,7 +24,26 @@ function setLoading(btn, loading) {
   btn.style.opacity = loading ? "0.6" : "1";
 }
 
-let justLoggedIn = false;
+function redirectByRole() {
+  const role = sessionStorage.getItem("userRole");
+  const intendedPage = sessionStorage.getItem("intendedPage");
+
+  // Clear intended page after reading it
+  sessionStorage.removeItem("intendedPage");
+
+  if (intendedPage) {
+    window.location.replace(intendedPage);
+    return;
+  }
+
+  if (role === "staff") {
+    window.location.replace("/html/dashboard.html");
+  } else if (role === "admin") {
+    window.location.replace("/html/admin_dashboard.html");
+  } else {
+    window.location.replace("/html/home.html");
+  }
+}
 
 emailLoginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -35,10 +54,9 @@ emailLoginForm.addEventListener("submit", async (e) => {
   setLoading(submitBtn, true);
   try {
     await signIn(email, password);
-    // Redirect directly here
     authStatus.textContent = `Signed in — redirecting…`;
     setTimeout(() => {
-      window.location.replace("/html/home.html");
+      redirectByRole();
     }, 800);
   } catch (error) {
     setLoading(submitBtn, false);
@@ -58,10 +76,9 @@ googleSignInBtn.addEventListener("click", async () => {
   setLoading(googleSignInBtn, true);
   try {
     await googleSignIn();
-    // Redirect directly here instead of relying on authStateListener
     authStatus.textContent = `Signed in — redirecting…`;
     setTimeout(() => {
-      window.location.replace("/html/home.html");
+      redirectByRole();
     }, 800);
   } catch (error) {
     setLoading(googleSignInBtn, false);

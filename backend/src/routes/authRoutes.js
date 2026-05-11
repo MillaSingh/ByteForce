@@ -96,13 +96,14 @@ router.post("/register", async (req, res) => {
 });
 
 // ─── GET /api/auth/me ── fetch logged-in user's Postgres record ───────────────
-router.get("/me", requireAuth, async (req, res) => {
+router.get("/me", async (req, res) => {
+  const email = req.headers['x-user-email'];
+  if (!email) return res.status(400).json({ error: "Email required" });
   try {
-    const { uid } = req.body;
     const result = await pool.query(
       `SELECT user_id, first_name, last_name, email, role, id_number, date_of_birth, created_at
-       FROM "user" WHERE external_auth_id = \$1`,
-      [uid],
+       FROM "user" WHERE email = $1`,
+      [email]
     );
     if (result.rowCount === 0)
       return res.status(404).json({ error: "User not found" });

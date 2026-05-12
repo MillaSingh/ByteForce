@@ -1,3 +1,6 @@
+import { requireRole } from '/js/auth.js';
+requireRole(['staff']);
+
 // GLOBAL VARIABLE
 // Stores data from backend
 let patients = [];

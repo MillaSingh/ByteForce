@@ -8,6 +8,7 @@ const getQueuePatients = async () => {
       q.queue_position,
       q.status,
       q.clinic_id,
+      q.patient_id,
       c.clinic_name,
       u.first_name,
       u.last_name,
@@ -44,16 +45,32 @@ const getClinics = async () => {
 };
 // UPDATE STATUS
 const updateQueueStatus = async (id, status) => {
-  const result = await pool.query(
-    `UPDATE queue_entry 
-     SET status = $1 
-     WHERE queue_id = $2
-     RETURNING *`,
-    [status, id]
-  );
+
+  let query = `
+    UPDATE queue_entry
+    SET status = $1
+  `;
+
+  // If patient is moved to consultation
+  if (status === "in_consultation") {
+    query += `, called_time = CURRENT_TIMESTAMP`;
+  }
+
+  // If patient is marked complete
+  if (status === "complete") {
+    query += `, complete_time = CURRENT_TIMESTAMP`;
+  }
+
+  query += `
+    WHERE queue_id = $2
+    RETURNING *
+  `;
+
+  const result = await pool.query(query, [status, id]);
 
   return result.rows[0];
 };
+
 
 // ADD WALK-IN PATIENT
 const addWalkInPatient = async (first_name, last_name, email, clinic_id, phone_number) => {

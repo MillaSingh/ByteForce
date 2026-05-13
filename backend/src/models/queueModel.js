@@ -1,5 +1,6 @@
 const pool = require("../db");
 
+// GET CURRENT QUEUE ENTRY FOR USER
 const getMyQueueByUserId = async (email) => {
   const query = `
     SELECT 
@@ -29,22 +30,48 @@ const getMyQueueByUserId = async (email) => {
       ON qe.clinic_id = c.clinic_id
 
     WHERE u.email = $1
-    AND LOWER(qe.status) IN (
-      'waiting',
-      'called',
-      'in_progress',
-      'in consultation',
-      'in_consultation'
-    )
+      AND LOWER(qe.status) IN (
+        'waiting',
+        'called',
+        'in_progress',
+        'in consultation',
+        'in_consultation'
+      )
 
-    ORDER BY qe.check_in_time DESC
+    ORDER BY qe.check_in_time DESC NULLS LAST
     LIMIT 1;
   `;
-// replaced with email
+
   const result = await pool.query(query, [email]);
+  return result.rows[0];
+};
+
+// GET QUEUE ENTRY BY APPOINTMENT
+const getQueueEntryByAppointment = async (appointment_id) => {
+  const result = await pool.query(
+    `SELECT * FROM queue_entry WHERE appointment_id = $1`,
+    [appointment_id]
+  );
+
+  return result.rows[0];
+};
+
+// CHECK IN (UPDATE QUEUE ENTRY)
+const checkInQueueEntry = async (appointment_id) => {
+  const result = await pool.query(
+    `UPDATE queue_entry
+     SET check_in_time = NOW(),
+         status = 'waiting'
+     WHERE appointment_id = $1
+     RETURNING *`,
+    [appointment_id]
+  );
+
   return result.rows[0];
 };
 
 module.exports = {
   getMyQueueByUserId,
+  getQueueEntryByAppointment,
+  checkInQueueEntry
 };

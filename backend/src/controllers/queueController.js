@@ -1,45 +1,91 @@
-// Import the function that gets a user's queue entry from the queue model
-const { getMyQueueByUserId } = require("../models/queueModel");
+const queueModel = require("../models/queueModel");
 
-// Get the logged-in user's queue entry
+// GET MY QUEUE ENTRY
 const getMyQueueEntry = async (req, res) => {
   try {
-// Get the user's email
+
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+      return res.status(400).json({
+        error: "Email is required"
+      });
     }
 
-    // Use the email to find the user's current queue entry in the database
-    const queueEntry = await getMyQueueByUserId(email);
+    const queueEntry =
+      await queueModel.getMyQueueByUserId(email);
 
-    // If the user is not currently in the queue, return null
     if (!queueEntry) {
       return res.json(null);
     }
 
-    const averageMinutesPerPatient = 10;
-
-    // Calculate the estimated waiting time
-    // Math.max makes sure the wait time never goes below 0
     const estimatedWaitMinutes = Math.max(
       0,
-      (queueEntry.queue_position - 1) * averageMinutesPerPatient
+      (queueEntry.queue_position - 1) * 10
     );
 
-    // Send back the user's queue entry together with the estimated wait time
     return res.json({
       ...queueEntry,
-      estimated_wait_minutes: estimatedWaitMinutes,
+      estimated_wait_minutes: estimatedWaitMinutes
     });
-  } catch (err) {
-    console.error("Patient queue error:", err);
 
-    return res.status(500).json({ error: "Failed to fetch queue position" });
+  } catch (err) {
+
+    console.error("QUEUE ERROR:", err);
+
+    return res.status(500).json({
+      error: "Failed to fetch queue position"
+    });
+  }
+};
+
+// CHECK IN
+const checkIn = async (req, res) => {
+
+  try {
+
+    const appointment_id = req.params.appointment_id;
+
+    if (!appointment_id) {
+      return res.status(400).json({
+        error: "Missing appointment_id"
+      });
+    }
+
+    const queueEntry =
+      await queueModel.getQueueEntryByAppointment(appointment_id);
+
+    if (!queueEntry) {
+      return res.status(404).json({
+        error: "Queue entry not found"
+      });
+    }
+
+    if (queueEntry.check_in_time) {
+      return res.status(400).json({
+        error: "Already checked in"
+      });
+    }
+
+    const updated =
+      await queueModel.checkInQueueEntry(appointment_id);
+
+    return res.json({
+      success: true,
+      queue: updated
+    });
+
+  } catch (err) {
+
+    console.error("CHECKIN ERROR:", err);
+
+    return res.status(500).json({
+      error: "Server error"
+    });
   }
 };
 
 module.exports = {
   getMyQueueEntry,
+  checkIn
 };

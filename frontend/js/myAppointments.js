@@ -219,6 +219,12 @@ function loadAppointmentsByData(data) {
                   data-id="${app.appointment_id}">
                   Cancel
                 </button>
+
+                <button
+                class="checkin-btn"
+                data-id="${app.appointment_id}">
+                Check In
+              </button>
               `
 
               : ""
@@ -357,6 +363,44 @@ function loadAppointmentsByData(data) {
           }
         );
       }
+
+      const checkInBtn =
+      card.querySelector(".checkin-btn");
+    
+    if (checkInBtn) {
+    
+      checkInBtn.addEventListener(
+        "click",
+        async () => {
+    
+          try {
+    
+            const res = await fetch(
+              `/api/queue/checkin/${app.appointment_id}`,
+              {
+                method: "POST",
+                credentials: "include"
+              }
+            );
+    
+            const data = await res.json();
+    
+            if (!res.ok) {
+              throw new Error(data.error);
+            }
+    
+            alert("Checked in successfully!");
+    
+            loadMyAppointments();
+    
+          } catch (err) {
+    
+            console.error(err);
+            alert(err.message);
+          }
+        }
+      );
+    }
 
       if (isUpcoming) {
 

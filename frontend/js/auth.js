@@ -5,6 +5,9 @@ import {
   signInWithPopup,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  verifyPasswordResetCode,
+  confirmPasswordReset as firebaseConfirmPasswordReset,
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
 async function storeSession(user) {
@@ -152,4 +155,32 @@ export function getCurrentUser() {
     role: sessionStorage.getItem("userRole"),
     clinicId: sessionStorage.getItem("clinicId")
   };
+}
+
+// ─── Password Reset ───────────────────────────────────────────────────────────
+
+export async function sendPasswordReset(email) {
+  await sendPasswordResetEmail(auth, email);
+}
+
+
+export async function verifyResetCode(oobCode) {
+  const email = await verifyPasswordResetCode(auth, oobCode);
+  return email;
+}
+
+export async function confirmPasswordReset(oobCode, newPassword, email) {
+  await firebaseConfirmPasswordReset(auth, oobCode, newPassword);
+
+
+  const response = await fetch("/api/auth/sync-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, newPassword }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    console.warn("Password sync to DB failed:", err.error || "Unknown error");
+  }
 }

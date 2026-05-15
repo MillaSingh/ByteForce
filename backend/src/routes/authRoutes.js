@@ -60,7 +60,7 @@ router.post("/register", async (req, res) => {
 
   try {
     const existing = await pool.query(
-      `SELECT user_id FROM "user" WHERE external_auth_id = \$1`,
+      `SELECT user_id FROM "user" WHERE external_auth_id = $1`,
       [uid],
     );
 
@@ -75,7 +75,7 @@ router.post("/register", async (req, res) => {
 
     await pool.query(
       `INSERT INTO "user" (first_name, last_name, email, external_auth_id, role, id_number, date_of_birth, password_hash, created_at)
-       VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, NOW())`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
       [
         firstName || "",
         lastName || "",
@@ -97,7 +97,7 @@ router.post("/register", async (req, res) => {
 
 // ─── GET /api/auth/me ── fetch logged-in user's Postgres record ───────────────
 router.get("/me", async (req, res) => {
-  const email = req.headers['x-user-email'];
+  const email = req.headers["x-user-email"];
   if (!email) return res.status(400).json({ error: "Email required" });
   try {
     const result = await pool.query(
@@ -107,7 +107,7 @@ router.get("/me", async (req, res) => {
        FROM "user" u
        LEFT JOIN staff_profile sp ON u.user_id = sp.user_id
        WHERE u.email = $1`,
-      [email]
+      [email],
     );
     if (result.rowCount === 0)
       return res.status(404).json({ error: "User not found" });
@@ -118,6 +118,51 @@ router.get("/me", async (req, res) => {
   }
 });
 
+router.post("/sync-password", async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res
+      .status(400)
+      .json({ error: "email and newPassword are required" });
+  }
+
+  if (newPassword.length < 8) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 8 characters" });
+  }
+
+  try {
+    // Check the user exists in our database
+    const existing = await pool.query(
+      `SELECT user_id FROM "user" WHERE email = $1`,
+      [email],
+    );
+
+    if (existing.rowCount === 0) {
+      // User is in Firebase but not in our DB — not a hard error, just log it
+      console.warn(`sync-password: no DB record for email ${email}`);
+      return res.status(404).json({ error: "User not found in database" });
+    }
+
+    // Hash the new password before storing
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    await pool.query(`UPDATE "user" SET password_hash = $1 WHERE email = $2`, [
+      passwordHash,
+      email,
+    ]);
+
+    console.log(`sync-password: password updated for ${email}`);
+    return res.json({ status: "ok" });
+  } catch (err) {
+    console.error("sync-password error:", err);
+    return res.status(500).json({ error: "Failed to update password" });
+  }
+});
+
+// ─── Middleware: requireAuth ──────────────────────────────────────────────────
 function requireAuth(req, res, next) {
   const token = req.cookies?.firebaseToken;
   if (!token || !activeSessions.has(token)) {

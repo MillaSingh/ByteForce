@@ -44,31 +44,49 @@ const checkIn = async (req, res) => {
 
   try {
 
-    const appointment_id = req.params.appointment_id;
+    const appointment_id =
+      req.params.appointment_id;
 
     if (!appointment_id) {
+
       return res.status(400).json({
         error: "Missing appointment_id"
       });
     }
 
-    const queueEntry =
-      await queueModel.getQueueEntryByAppointment(appointment_id);
+    // Check existing queue entry
+    let queueEntry =
+      await queueModel.getQueueEntryByAppointment(
+        appointment_id
+      );
 
+    // CREATE queue entry if it doesn't exist
     if (!queueEntry) {
-      return res.status(404).json({
-        error: "Queue entry not found"
+
+      queueEntry =
+        await queueModel.createQueueEntry(
+          appointment_id
+        );
+
+      return res.json({
+        success: true,
+        queue: queueEntry
       });
     }
 
+    // Already checked in
     if (queueEntry.check_in_time) {
+
       return res.status(400).json({
         error: "Already checked in"
       });
     }
 
+    // Update existing entry
     const updated =
-      await queueModel.checkInQueueEntry(appointment_id);
+      await queueModel.checkInQueueEntry(
+        appointment_id
+      );
 
     return res.json({
       success: true,
@@ -77,7 +95,10 @@ const checkIn = async (req, res) => {
 
   } catch (err) {
 
-    console.error("CHECKIN ERROR:", err);
+    console.error(
+      "CHECKIN ERROR:",
+      err
+    );
 
     return res.status(500).json({
       error: "Server error"

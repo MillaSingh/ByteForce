@@ -205,31 +205,28 @@ function loadAppointmentsByData(data) {
 
           ${
             isUpcoming
-
               ? `
-                <button>
+                <button
                   class="reschedule-btn"
                   data-id="${app.appointment_id || app.appointmentId}"
                   data-clinic="${app.clinic_id}">
                   Reschedule
                 </button>
-
-                <button>
+          
+                <button
                   class="cancel-btn"
-                  data-id="${app.appointment_id || app.appointmentId}"
+                  data-id="${app.appointment_id || app.appointmentId}">
                   Cancel
                 </button>
-
-                <button>
-                class="checkin-btn"
-                data-id="${app.appointment_id || app.appointmentId}"
-                Check In
-              </button>
+          
+                <button
+                  class="checkin-btn"
+                  data-id="${app.appointment_id || app.appointmentId}">
+                  Check In
+                </button>
               `
-
               : ""
           }
-
         </div>
       `;
 

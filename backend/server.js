@@ -2,7 +2,6 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const admin = require("firebase-admin");
-const serviceAccount = require("./byteforce-87933-firebase-adminsdk-fbsvc-5f0c8bf4ba.json");
 require("dotenv").config({ path: "../.env" });
 
 const clinicsRouter = require("./src/routes/clinics");
@@ -11,11 +10,13 @@ const appointmentRouter = require("./src/routes/appointments");
 const authRouter = require("./src/routes/authRoutes");
 const otpRouter = require("./src/routes/otpRoutes");
 const queueRoutes = require("./src/routes/queueRoutes");
-const operatingHoursRouter = require('./src/routes/operatingHoursRoutes');
-const staffRouter = require('./src/routes/staffRoutes');
+const operatingHoursRouter = require("./src/routes/operatingHoursRoutes");
+const staffRouter = require("./src/routes/staffRoutes");
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
+
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -36,8 +37,8 @@ app.use("/api/queue", dashboardRouter);
 app.use("/api/appointments", appointmentRouter);
 app.use("/api/otp", otpRouter);
 app.use("/api/patient-queue", queueRoutes);
-app.use('/api/clinics', operatingHoursRouter);
-app.use('/api/staff', staffRouter);
+app.use("/api/clinics", operatingHoursRouter);
+app.use("/api/staff", staffRouter);
 
 // Only start server if NOT testing
 if (process.env.NODE_ENV !== "test") {

@@ -14,7 +14,6 @@ async function storeSession(user) {
   sessionStorage.setItem("userName", user.displayName || "");
   sessionStorage.setItem("userPhoto", user.photoURL || "");
 
-  // Fetch role from PostgreSQL and store it
   try {
     const response = await fetch("/api/auth/me", {
       headers: { "x-user-email": user.email }
@@ -22,6 +21,7 @@ async function storeSession(user) {
     if (response.ok) {
       const data = await response.json();
       sessionStorage.setItem("userRole", data.role || "patient");
+      sessionStorage.setItem("clinicId", data.clinic_id || "");
     }
   } catch (err) {
     console.error("Failed to fetch user role:", err);
@@ -149,6 +149,7 @@ export function getCurrentUser() {
     name: sessionStorage.getItem("userName"),
     photo: sessionStorage.getItem("userPhoto"),
     token: sessionStorage.getItem("firebaseToken"),
-    role: sessionStorage.getItem("userRole")
+    role: sessionStorage.getItem("userRole"),
+    clinicId: sessionStorage.getItem("clinicId")
   };
 }

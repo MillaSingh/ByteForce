@@ -101,8 +101,12 @@ router.get("/me", async (req, res) => {
   if (!email) return res.status(400).json({ error: "Email required" });
   try {
     const result = await pool.query(
-      `SELECT user_id, first_name, last_name, email, role, id_number, date_of_birth, created_at
-       FROM "user" WHERE email = $1`,
+      `SELECT u.user_id, u.first_name, u.last_name, u.email, u.role, 
+              u.id_number, u.date_of_birth, u.created_at,
+              sp.clinic_id, sp.job_title, sp.specialties
+       FROM "user" u
+       LEFT JOIN staff_profile sp ON u.user_id = sp.user_id
+       WHERE u.email = $1`,
       [email]
     );
     if (result.rowCount === 0)

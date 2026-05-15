@@ -1,10 +1,9 @@
-
 # DIY OTP + Firebase Complete ✅
 
 **EmailJS + sessionStorage + Firebase flow:**
 
 1. **register.html** ✓ EmailJS OTP send (`service_3ezcsxj`, `template_8tcz8ka`)
-2. **verify-otp.html** ✓ 6-digit squares UI + Firebase createUser after OTP match  
+2. **verify-otp.html** ✓ 6-digit squares UI + Firebase createUser after OTP match
 3. **Login.html** ✓ Firebase email/Google (already updated)
 
 **Test:** `npx live-server frontend` → register → OTP email → verify → dashboard.
@@ -14,3 +13,5 @@ Session staging → Firebase permanent auth/doc.
 
 Dashboard/Login fully synced.
 
+1. Frontend Link Deployment: https://byteforce-87933.web.app
+2. Backend Link Deployment:

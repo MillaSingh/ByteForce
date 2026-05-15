@@ -46,6 +46,79 @@ const getMyQueueByUserId = async (email) => {
   return result.rows[0];
 };
 
+// CREATE QUEUE ENTRY
+const createQueueEntry = async (
+  appointment_id
+) => {
+
+  // Get appointment details
+  const appointmentResult =
+    await pool.query(
+      `
+      SELECT
+        appointment_id,
+        clinic_id,
+        patient_id
+      FROM appointment
+      WHERE appointment_id = $1
+      `,
+      [appointment_id]
+    );
+
+  const appointment =
+    appointmentResult.rows[0];
+
+  if (!appointment) {
+    throw new Error(
+      "Appointment not found"
+    );
+  }
+
+  // Get next queue number
+  const queueCount =
+    await pool.query(
+      `
+      SELECT COUNT(*) AS total
+      FROM queue_entry
+      WHERE clinic_id = $1
+      `,
+      [appointment.clinic_id]
+    );
+
+  const nextPosition =
+    parseInt(
+      queueCount.rows[0].total
+    ) + 1;
+
+  // Insert queue entry
+  const result =
+    await pool.query(
+      `
+      INSERT INTO queue_entry
+      (
+        clinic_id,
+        patient_id,
+        appointment_id,
+        queue_position,
+        status,
+        check_in_time
+      )
+
+      VALUES ($1,$2,$3,$4,'waiting',NOW())
+
+      RETURNING *
+      `,
+      [
+        appointment.clinic_id,
+        appointment.patient_id,
+        appointment.appointment_id,
+        nextPosition
+      ]
+    );
+
+  return result.rows[0];
+};
+
 // GET QUEUE ENTRY BY APPOINTMENT
 const getQueueEntryByAppointment = async (appointment_id) => {
   const result = await pool.query(
@@ -73,5 +146,6 @@ const checkInQueueEntry = async (appointment_id) => {
 module.exports = {
   getMyQueueByUserId,
   getQueueEntryByAppointment,
-  checkInQueueEntry
+  checkInQueueEntry,
+  createQueueEntry
 };

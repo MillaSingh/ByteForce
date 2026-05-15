@@ -361,55 +361,54 @@ function loadAppointmentsByData(data) {
         );
       }
 
-      const checkInBtn =
-  card.querySelector(".checkin-btn");
+      const checkInBtn = card.querySelector(".checkin-btn");
 
-if (checkInBtn) {
-
-  checkInBtn.addEventListener(
-    "click",
-    async () => {
-
-      const appointmentId =
-        app.appointment_id || app.appointmentId;
-
-      if (!appointmentId) {
-
-        console.error("Missing appointment ID", app);
-
-        alert("Appointment ID missing");
-
-        return;
-      }
-
-      try {
-
-        const res = await fetch(
-          `/api/queue/checkin/${appointmentId}`,
-          {
-            method: "POST",
-            credentials: "include"
+      if (checkInBtn) {
+      
+        checkInBtn.addEventListener("click", async () => {
+      
+          const rawId =
+            checkInBtn.dataset.id;
+      
+          const appointmentId =
+            Number(rawId);
+      
+          if (!appointmentId || isNaN(appointmentId)) {
+      
+            console.error("BAD APPOINTMENT ID:", rawId);
+      
+            alert("Invalid appointment ID");
+      
+            return;
           }
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error);
-        }
-
-        alert("Checked in successfully!");
-
-        loadMyAppointments();
-
-      } catch (err) {
-
-        console.error(err);
-        alert(err.message);
+      
+          try {
+      
+            const res = await fetch(
+              `/api/queue/checkin/${appointmentId}`,
+              {
+                method: "POST",
+                credentials: "include"
+              }
+            );
+      
+            const data = await res.json();
+      
+            if (!res.ok) {
+              throw new Error(data.error);
+            }
+      
+            alert("Checked in successfully!");
+      
+            loadMyAppointments();
+      
+          } catch (err) {
+      
+            console.error(err);
+            alert(err.message);
+          }
+        });
       }
-    }
-  );
-}
 
       if (isUpcoming) {
 

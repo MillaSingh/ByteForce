@@ -209,20 +209,20 @@ function loadAppointmentsByData(data) {
               ? `
                 <button
                   class="reschedule-btn"
-                  data-id="${app.appointment_id}"
+                  data-id="${app.appointment_id || app.appointmentId}"
                   data-clinic="${app.clinic_id}">
                   Reschedule
                 </button>
 
                 <button
                   class="cancel-btn"
-                  data-id="${app.appointment_id}">
+                  data-id="${app.appointment_id || app.appointmentId}"
                   Cancel
                 </button>
 
                 <button
                 class="checkin-btn"
-                data-id="${app.appointment_id}">
+                data-id="${app.appointment_id || app.appointmentId}"
                 Check In
               </button>
               `
@@ -365,42 +365,54 @@ function loadAppointmentsByData(data) {
       }
 
       const checkInBtn =
-      card.querySelector(".checkin-btn");
-    
-    if (checkInBtn) {
-    
-      checkInBtn.addEventListener(
-        "click",
-        async () => {
-    
-          try {
-    
-            const res = await fetch(
-              `/api/queue/checkin/${app.appointment_id}`,
-              {
-                method: "POST",
-                credentials: "include"
-              }
-            );
-    
-            const data = await res.json();
-    
-            if (!res.ok) {
-              throw new Error(data.error);
-            }
-    
-            alert("Checked in successfully!");
-    
-            loadMyAppointments();
-    
-          } catch (err) {
-    
-            console.error(err);
-            alert(err.message);
+  card.querySelector(".checkin-btn");
+
+if (checkInBtn) {
+
+  checkInBtn.addEventListener(
+    "click",
+    async () => {
+
+      const appointmentId =
+        app.appointment_id || app.appointmentId;
+
+      if (!appointmentId) {
+
+        console.error("Missing appointment ID", app);
+
+        alert("Appointment ID missing");
+
+        return;
+      }
+
+      try {
+
+        const res = await fetch(
+          `/api/queue/checkin/${appointmentId}`,
+          {
+            method: "POST",
+            credentials: "include"
           }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error);
         }
-      );
+
+        alert("Checked in successfully!");
+
+        loadMyAppointments();
+
+      } catch (err) {
+
+        console.error(err);
+        alert(err.message);
+      }
     }
+  );
+}
 
       if (isUpcoming) {
 

@@ -237,3 +237,19 @@ footer {
   border-radius: 8px;
   border: 1px solid var(--border);
 }
+
+.checkin-btn {
+  background: #1f9d55;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: 0.2s ease;
+}
+
+.checkin-btn:hover {
+  background: #157347;
+  transform: translateY(-1px);
+}

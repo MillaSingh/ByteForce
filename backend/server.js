@@ -15,8 +15,13 @@ const staffRouter = require("./src/routes/staffRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+var serviceAccount = "";
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+if (process.env.NODE_ENV == "development") {
+  serviceAccount = require("./byteforce-87933-firebase-adminsdk-fbsvc-5f0c8bf4ba.json");
+} else {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

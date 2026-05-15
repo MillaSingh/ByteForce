@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select Your Role - MEDIQUEUE</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: #f0eae8;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      nav {
+        display: flex;
+        align-items: center;
+        padding: 14px 32px;
+        background: #fff;
+        border-bottom: 1px solid #e0d8d8;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-logo {
+        font-family: "Playfair Display", serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #222;
+        letter-spacing: 0.04em;
+      }
+      .nav-logo span {
+        color: #4285f4;
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 40px 16px 60px;
+      }
+
+      /* ── The card ── */
+      #role-select-card {
+        background: #ede7e3;
+        border-radius: 16px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        width: 100%;
+        max-width: 700px;
+        /* No fixed height — let content grow naturally inside */
+        overflow: hidden; /* ensures rounded corners clip all children */
+        padding: 44px 40px 40px;
+      }
+
+      #role-select-card h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.6rem;
+        color: #222;
+        text-align: center;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 32px;
+      }
+
+      /* ── Role card grid ── */
+      .role-card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 0;
+      }
+
+      @media (max-width: 580px) {
+        .role-card-grid {
+          grid-template-columns: 1fr;
+        }
+        #role-select-card {
+          padding: 28px 20px 28px;
+        }
+      }
+
+      .role-card {
+        background: #fff;
+        border: 2px solid #ddd5d0;
+        border-radius: 12px;
+        padding: 26px 14px;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s,
+          transform 0.15s;
+        user-select: none;
+      }
+      .role-card:hover {
+        border-color: #4285f4;
+        box-shadow: 0 4px 18px rgba(66, 133, 244, 0.14);
+        transform: translateY(-2px);
+      }
+      .role-card.selected {
+        border-color: #4285f4;
+        box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+      }
+      .role-card .role-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+      .role-card .role-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 6px;
+      }
+      .role-card .role-desc {
+        font-size: 12px;
+        color: #888;
+        line-height: 1.45;
+      }
+
+      /* ── Divider ── */
+      .divider {
+        border: none;
+        border-top: 1px solid #d8d0cc;
+        margin: 28px 0;
+        display: none;
+      }
+
+      /* ── Sub-panels ── */
+      .sub-panel {
+        display: none;
+      }
+      .sub-panel.active {
+        display: block;
+      }
+
+      .sub-panel h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        color: #222;
+        margin-bottom: 6px;
+      }
+      .sub-panel .sub-desc {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      /* ── Form elements ── */
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #444;
+        margin-bottom: 5px;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 13px;
+        border: 1.5px solid #ddd5d0;
+        border-radius: 8px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        color: #333;
+        background: #fff;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        outline: none;
+      }
+      input[type="text"]:focus,
+      input[type="password"]:focus,
+      select:focus,
+      textarea:focus {
+        border-color: #4285f4;
+        box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.12);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+      @media (max-width: 500px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+      .form-row .full {
+        grid-column: 1 / -1;
+      }
+
+      /* ── Specialty chips ── */
+      .chip-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+      }
+      .chip {
+        padding: 5px 13px;
+        border-radius: 20px;
+        border: 1.5px solid #cec8c4;
+        font-size: 12px;
+        cursor: pointer;
+        background: #fff;
+        color: #555;
+        font-family: "DM Sans", sans-serif;
+        transition: all 0.15s;
+      }
+      .chip:hover {
+        border-color: #4285f4;
+        color: #4285f4;
+      }
+      .chip.on {
+        border-color: #4285f4;
+        background: #e8f0fe;
+        color: #1a73e8;
+      }
+
+      /* ── Admin warning ── */
+      .admin-warn {
+        background: #fff3f3;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #b00020;
+        margin-bottom: 16px;
+      }
+
+      /* ── Code input eye toggle ── */
+      .code-wrap {
+        position: relative;
+        margin-bottom: 16px;
+      }
+      .code-wrap input {
+        padding-right: 44px;
+        letter-spacing: 0.1em;
+      }
+      .code-eye {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #999;
+        padding: 0;
+      }
+      .code-eye:hover {
+        color: #333;
+      }
+
+      /* ── Alerts ── */
+      .alert {
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+        margin-bottom: 14px;
+        display: none;
+      }
+      .alert.show {
+        display: block;
+      }
+      .alert.error {
+        background: #fdecea;
+        color: #b00020;
+        border: 1px solid #f5c6cb;
+      }
+      .alert.ok {
+        background: #e6f4ea;
+        color: #1e7e34;
+        border: 1px solid #c3e6cb;
+      }
+
+      /* ── Buttons ── */
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: #4285f4;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 11px 24px;
+        font-size: 14px;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          opacity 0.2s;
+        margin-top: 4px;
+      }
+      button:hover {
+        background: #2b6be0;
+      }
+      button:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+
+      .btn-spinner {
+        display: none;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        flex-shrink: 0;
+      }
+      button.loading .btn-spinner {
+        display: inline-block;
+      }
+      button.loading .btn-text {
+        opacity: 0.7;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ── Back link ── */
+      #back-wrap {
+        text-align: center;
+        display: none;
+        margin-top: 18px;
+      }
+      .back-link {
+        font-size: 13px;
+        color: #666;
+        text-decoration: none;
+      }
+      .back-link:hover {
+        color: #333;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav>
+      <div class="nav-brand">
+        <img
+          src="/images/logo.jpeg"
+          alt="MEDIQUEUE"
+          width="44"
+          height="44"
+          style="border-radius: 8px; object-fit: cover"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="nav-logo">MEDI<span>QUEUE</span></div>
+      </div>
+    </nav>
+
+    <main>
+      <section id="role-select-card">
+        <h2>One last step</h2>
+        <p class="subtitle">Tell us how you'll be using MEDIQUEUE</p>
+
+        <!-- Role cards -->
+        <div class="role-card-grid">
+          <div
+            class="role-card"
+            id="card-patient"
+            onclick="pickRole('patient')"
+          >
+            <div class="role-icon">🏥</div>
+            <div class="role-title">Patient</div>
+            <div class="role-desc">
+              Book appointments and manage your health records
+            </div>
+          </div>
+          <div class="role-card" id="card-staff" onclick="pickRole('staff')">
+            <div class="role-icon">👨‍⚕️</div>
+            <div class="role-title">Healthcare Staff</div>
+            <div class="role-desc">
+              Manage patients, queues and clinic schedules
+            </div>
+          </div>
+          <div class="role-card" id="card-admin" onclick="pickRole('admin')">
+            <div class="role-icon">🛡️</div>
+            <div class="role-title">Administrator</div>
+            <div class="role-desc">
+              Full system access — clinics, staff and settings
+            </div>
+          </div>
+        </div>
+
+        <!-- Top-level alert -->
+        <div id="main-alert" class="alert"></div>
+
+        <hr class="divider" id="panel-divider" />
+
+        <!-- ── Patient panel ── -->
+        <div class="sub-panel" id="panel-patient">
+          <h3>👋 Welcome, Patient</h3>
+          <p class="sub-desc">
+            You'll be able to browse clinics, book appointments, and manage your
+            health profile.
+          </p>
+          <div id="patient-alert" class="alert"></div>
+          <button id="btn-patient" onclick="saveRole('patient')">
+            <span class="btn-spinner"></span>
+            <span class="btn-text">Continue →</span>
+          </button>
+        </div>
+
+        <!-- ── Staff panel ── -->
+        <div class="sub-panel" id="panel-staff">
+          <h3>👨‍⚕️ Staff Details</h3>
+          <p class="sub-desc">
+            Fill in your professional information. These details will appear on
+            your clinic profile.
+          </p>
+          <div id="staff-alert" class="alert"></div>
+
+          <div class="form-row">
+            <div>
+              <label for="staff-clinic"
+                >Clinic <span style="color: red">*</span></label
+              >
+              <select id="staff-clinic">
+                <option value="">Loading…</option>
+              </select>
+            </div>
+            <div>
+              <label for="staff-job"
+                >Job Title <span style="color: red">*</span></label
+              >
+              <input
+                type="text"
+                id="staff-job"
+                placeholder="e.g. General Practitioner"
+                autocomplete="off"
+              />
+            </div>
+            <div class="full">
+              <label for="staff-quals">Qualifications</label>
+              <input
+                type="text"
+                id="staff-quals"
+                placeholder="e.g. MBChB, BCur, BPharm"
+                autocomplete="off"
+              />
+            </div>
+            <div class="full">
+              <label
+                >Specialties
+                <span style="color: #888; font-weight: 300; font-size: 12px"
+                  >(select all that apply)</span
+                >
+              </label>
+              <div class="chip-wrap" id="specialty-chips"></div>
+            </div>
+            <div class="full">
+              <label for="staff-bio">Bio</label>
+              <textarea
+                id="staff-bio"
+                rows="3"
+                placeholder="A short description shown to patients…"
+                style="resize: vertical"
+              ></textarea>
+            </div>
+          </div>
+
+          <button id="btn-staff" onclick="saveRole('staff')">
+            <span class="btn-spinner"></span>
+            <span class="btn-text">Save & Continue →</span>
+          </button>
+        </div>
+
+        <!-- ── Admin panel ── -->
+        <div class="sub-panel" id="panel-admin">
+          <h3>🛡️ Admin Verification</h3>
+          <div class="admin-warn">
+            ⚠️ Admin accounts have full system access. Enter the invite code
+            provided by your organisation.
+          </div>
+          <div id="admin-alert" class="alert"></div>
+          <label for="admin-code"
+            >Invite Code <span style="color: red">*</span></label
+          >
+          <div class="code-wrap">
+            <input
+              type="password"
+              id="admin-code"
+              placeholder="Enter your invite code"
+              autocomplete="off"
+            />
+            <button class="code-eye" type="button" onclick="toggleCode()">
+              👁
+            </button>
+          </div>
+          <button id="btn-admin" onclick="verifyAdmin()">
+            <span class="btn-spinner"></span>
+            <span class="btn-text">Verify & Continue →</span>
+          </button>
+        </div>
+
+        <!-- Back link -->
+        <div id="back-wrap">
+          <a
+            href="#"
+            class="back-link"
+            onclick="
+              resetRoles();
+              return false;
+            "
+            >← Choose a different role</a
+          >
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      import { requireAuth, getCurrentUser } from "/js/auth.js";
+      requireAuth();
+
+      const SPECIALTIES = [
+        "General Practice",
+        "Paediatrics",
+        "Obstetrics",
+        "Gynaecology",
+        "Surgery",
+        "Nursing",
+        "Pharmacy",
+        "Radiology",
+        "Orthopaedics",
+        "Cardiology",
+        "Dermatology",
+        "Psychiatry",
+        "Physiotherapy",
+        "Dentistry",
+        "Ophthalmology",
+        "Emergency Medicine",
+        "Other",
+      ];
+
+      let selectedSpecialties = [];
+
+      const chipWrap = document.getElementById("specialty-chips");
+      SPECIALTIES.forEach((sp) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.textContent = sp;
+        btn.addEventListener("click", () => {
+          btn.classList.toggle("on");
+          selectedSpecialties = btn.classList.contains("on")
+            ? [...selectedSpecialties, sp]
+            : selectedSpecialties.filter((s) => s !== sp);
+        });
+        chipWrap.appendChild(btn);
+      });
+
+      async function loadClinics() {
+        try {
+          const res = await fetch("/api/clinics");
+          const data = await res.json();
+          const sel = document.getElementById("staff-clinic");
+          sel.innerHTML = '<option value="">Select your clinic…</option>';
+          (data.clinics || data).forEach((c) => {
+            const opt = document.createElement("option");
+            opt.value = c.clinic_id;
+            opt.textContent = c.clinic_name;
+            sel.appendChild(opt);
+          });
+        } catch {
+          document.getElementById("staff-clinic").innerHTML =
+            '<option value="">⚠ Could not load clinics</option>';
+        }
+      }
+
+      window.pickRole = function (role) {
+        ["patient", "staff", "admin"].forEach((r) =>
+          document.getElementById(`card-${r}`).classList.remove("selected"),
+        );
+        document.getElementById(`card-${role}`).classList.add("selected");
+        document
+          .querySelectorAll(".sub-panel")
+          .forEach((p) => p.classList.remove("active"));
+        clearAlerts();
+        document.getElementById(`panel-${role}`).classList.add("active");
+        document.getElementById("panel-divider").style.display = "block";
+        document.getElementById("back-wrap").style.display = "block";
+        if (role === "staff") loadClinics();
+      };
+
+      window.resetRoles = function () {
+        ["patient", "staff", "admin"].forEach((r) =>
+          document.getElementById(`card-${r}`).classList.remove("selected"),
+        );
+        document
+          .querySelectorAll(".sub-panel")
+          .forEach((p) => p.classList.remove("active"));
+        document.getElementById("panel-divider").style.display = "none";
+        document.getElementById("back-wrap").style.display = "none";
+        clearAlerts();
+      };
+
+      window.saveRole = async function (role) {
+        const alertId = `${role}-alert`;
+        const btnId = `btn-${role}`;
+        clearAlerts();
+        setLoading(btnId, true);
+
+        const user = getCurrentUser();
+        if (!user.token) {
+          showAlert(
+            "main-alert",
+            "error",
+            "Session expired. Please log in again.",
+          );
+          setTimeout(() => (window.location.href = "/html/Login.html"), 2000);
+          return;
+        }
+
+        try {
+          const body = { role };
+          if (role === "staff") {
+            const clinic = document.getElementById("staff-clinic").value;
+            const job = document.getElementById("staff-job").value.trim();
+            const quals = document.getElementById("staff-quals").value.trim();
+            const bio = document.getElementById("staff-bio").value.trim();
+            if (!clinic || !job) {
+              showAlert(
+                alertId,
+                "error",
+                "Please select a clinic and enter your job title.",
+              );
+              setLoading(btnId, false);
+              return;
+            }
+            body.staffProfile = {
+              clinic_id: clinic,
+              job_title: job,
+              qualifications: quals,
+              specialties: selectedSpecialties,
+              bio,
+            };
+          }
+
+          const res = await fetch("/api/auth/set-role", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-user-email": user.email,
+            },
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (!res.ok)
+            throw new Error(
+              data.message || data.error || "Failed to save role.",
+            );
+
+          sessionStorage.setItem("userRole", role);
+          if (role === "staff" && body.staffProfile?.clinic_id) {
+            sessionStorage.setItem("clinicId", body.staffProfile.clinic_id);
+          }
+
+          showAlert(alertId, "ok", "All set! Redirecting you now…");
+          setTimeout(() => {
+            if (role === "patient") window.location.href = "/html/home.html";
+            if (role === "staff") window.location.href = "/html/dashboard.html";
+            if (role === "admin")
+              window.location.href = "/html/admin_dashboard.html";
+          }, 1200);
+        } catch (err) {
+          showAlert(alertId, "error", err.message);
+        } finally {
+          setLoading(btnId, false);
+        }
+      };
+
+      window.verifyAdmin = async function () {
+        clearAlerts();
+        const code = document.getElementById("admin-code").value.trim();
+        if (!code) {
+          showAlert("admin-alert", "error", "Please enter the invite code.");
+          return;
+        }
+        setLoading("btn-admin", true);
+        const user = getCurrentUser();
+        if (!user.token) {
+          showAlert(
+            "admin-alert",
+            "error",
+            "Session expired. Please log in again.",
+          );
+          setTimeout(() => (window.location.href = "/html/Login.html"), 2000);
+          return;
+        }
+        try {
+          const res = await fetch("/api/auth/verify-admin-code", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-user-email": user.email,
+            },
+            body: JSON.stringify({ code }),
+          });
+          const data = await res.json();
+          if (!res.ok)
+            throw new Error(data.message || data.error || "Invalid code.");
+          await saveRole("admin");
+        } catch (err) {
+          showAlert("admin-alert", "error", err.message);
+          setLoading("btn-admin", false);
+        }
+      };
+
+      window.toggleCode = function () {
+        const inp = document.getElementById("admin-code");
+        inp.type = inp.type === "password" ? "text" : "password";
+      };
+
+      function setLoading(btnId, on) {
+        const btn = document.getElementById(btnId);
+        btn.disabled = on;
+        btn.classList.toggle("loading", on);
+      }
+      function showAlert(id, type, msg) {
+        const el = document.getElementById(id);
+        el.className = `alert ${type} show`;
+        el.textContent = msg;
+      }
+      function clearAlerts() {
+        document
+          .querySelectorAll(".alert")
+          .forEach((a) => a.classList.remove("show"));
+      }
+    </script>
+  </body>
+</html>

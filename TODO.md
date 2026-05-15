@@ -14,4 +14,4 @@ Session staging → Firebase permanent auth/doc.
 Dashboard/Login fully synced.
 
 1. Frontend Link Deployment: https://byteforce-87933.web.app
-2. Backend Link Deployment:
+2. Backend Link Deployment: https://byteforce-vv36.onrender.com

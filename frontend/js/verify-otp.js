@@ -30,7 +30,7 @@ function updateCountdown() {
 updateCountdown();
 document.getElementById("countdown").style.display = "block";
 
-//////////// OTP input handling
+// ── OTP input handling ──────────────────────────────────────────────────────
 const otpInputs = document.querySelectorAll(".otp-input");
 otpInputs[0].focus();
 
@@ -43,10 +43,7 @@ otpInputs.forEach((input, index) => {
     let val = this.value.replace(/[^0-9]/g, "");
     if (val.length > 1) val = val.slice(0, 1);
     this.value = val;
-
-    if (this.value && index < 5) {
-      otpInputs[index + 1].focus();
-    }
+    if (this.value && index < 5) otpInputs[index + 1].focus();
   });
 
   input.addEventListener("keydown", function (e) {
@@ -68,8 +65,7 @@ otpInputs.forEach((input, index) => {
   });
 });
 
-/////////// Form submission and OTP verification
-
+// ── Form submission ─────────────────────────────────────────────────────────
 document
   .getElementById("verifyForm")
   .addEventListener("submit", async function (e) {
@@ -83,7 +79,7 @@ document
     const successMsg = document.getElementById("successMsg");
 
     if (!/^\d{6}$/.test(enteredOtp)) {
-      errorMsg.textContent = "Please enter valid 6-digit OTP";
+      errorMsg.textContent = "Please enter a valid 6-digit OTP.";
       errorMsg.style.display = "block";
       otpInputs.forEach((i) => i.classList.add("error"));
       otpInputs[0].focus();
@@ -106,21 +102,25 @@ document
         {
           idNumber: pendingUser.idNumber,
           dateOfBirth: pendingUser.dateOfBirth,
-          role: pendingUser.role,
+          // role intentionally omitted — set by the user on select_role.html
         },
       );
 
-      sessionStorage.clear();
-      successMsg.textContent =
-        "Email verified! Registration complete. Redirecting...";
+      // CHANGED: only clear the OTP staging data, NOT the whole session.
+      // The firebaseToken stored by signUp → storeSession is needed on
+      // select_role.html so requireAuth() passes and set-role can authenticate.
+      sessionStorage.removeItem("pendingUser");
+      sessionStorage.removeItem("currentOTP");
+
+      successMsg.textContent = "Email verified! Setting up your profile…";
       successMsg.style.display = "block";
       errorMsg.style.display = "none";
 
       setTimeout(() => {
-        window.location.replace("/html/Login.html");
+        window.location.replace("/html/select_role.html");
       }, 1500);
     } catch (error) {
-      errorMsg.textContent = "Firebase registration failed: " + error.message;
+      errorMsg.textContent = "Registration failed: " + error.message;
       errorMsg.style.display = "block";
     }
   });

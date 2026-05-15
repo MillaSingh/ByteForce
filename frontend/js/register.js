@@ -1,3 +1,9 @@
+// ─── register.js ─────────────────────────────────────────────────────────────
+// Handles the registration form. Validates inputs, stages user data in
+// sessionStorage, sends OTP via EmailJS, then redirects to verify-otp.html.
+// Role is intentionally NOT set here — it's chosen on select_role.html.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const idInput = document.getElementById("idNumber");
 const dobField = document.getElementById("dobField");
 const registerForm = document.getElementById("registerForm");
@@ -7,27 +13,26 @@ const successMsg = document.getElementById("successMsg");
 // Initialize EmailJS
 emailjs.init("vi1AV9hQmg6Ud4qWs");
 
+// ── Auto-fill DOB from SA ID number ──────────────────────────────────────────
 idInput.addEventListener("input", function () {
   const idNumber = this.value.replace(/\D/g, "").slice(0, 13);
   this.value = idNumber;
+
   if (idNumber.length === 13) {
     const yy = parseInt(idNumber.slice(0, 2));
     const mm = idNumber.slice(2, 4);
     const dd = idNumber.slice(4, 6);
-    let fullYear;
-    if (yy >= 0 && yy <= 21) {
-      fullYear = 2000 + yy;
-    } else {
-      fullYear = 1900 + yy;
-    }
+    const fullYear = yy >= 0 && yy <= 25 ? 2000 + yy : 1900 + yy;
     dobField.value = `${fullYear}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
   } else {
     dobField.value = "";
   }
 });
 
+// ── Form submission ───────────────────────────────────────────────────────────
 registerForm.addEventListener("submit", async function (e) {
   e.preventDefault();
+  clearMessages();
 
   const firstName = document.getElementById("firstName").value.trim();
   const surname = document.getElementById("surname").value.trim();
@@ -40,9 +45,7 @@ registerForm.addEventListener("submit", async function (e) {
     "detailsConfirmation",
   ).checked;
 
-  clearMessages();
-
-  // Validation
+  // ── Validation ─────────────────────────────────────────────────────────────
   if (
     !firstName ||
     !surname ||
@@ -54,28 +57,25 @@ registerForm.addEventListener("submit", async function (e) {
     showError("Please fill all fields and confirm details.");
     return;
   }
-
   if (!/^\d{13}$/.test(idNumber)) {
     showError("ID must be exactly 13 digits.");
     return;
   }
-
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showError("Please enter a valid email address.");
     return;
   }
-
   if (password.length < 6) {
     showError("Password must be at least 6 characters.");
     return;
   }
-
   if (password !== confirmPassword) {
     showError("Passwords do not match.");
     return;
   }
 
-  // Generate OTP and stage user data
+  // ── Stage user data ────────────────────────────────────────────────────────
+  // role is intentionally omitted — chosen by the user on select_role.html
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const userData = {
     fullName: `${firstName} ${surname}`,
@@ -83,22 +83,20 @@ registerForm.addEventListener("submit", async function (e) {
     password,
     idNumber,
     dateOfBirth,
-    role: "patient",
+    // ✅ NO role field here — select_role.html sets it
   };
 
-  // Save to sessionStorage (staging)
   sessionStorage.setItem("pendingUser", JSON.stringify(userData));
   sessionStorage.setItem("currentOTP", otp);
 
-  // Send OTP via EmailJS
+  // ── Send OTP ───────────────────────────────────────────────────────────────
   try {
-    const templateParams = {
+    await emailjs.send("service_3ezcsxj", "template_8tcz8ka", {
       email: email,
       firstName: firstName,
       passcode: otp,
       time: new Date(Date.now() + 30 * 60 * 1000).toLocaleTimeString(),
-    };
-    await emailjs.send("service_3ezcsxj", "template_8tcz8ka", templateParams);
+    });
 
     showSuccess("OTP sent to your email! Check your inbox.");
     setTimeout(() => {
@@ -114,12 +112,10 @@ function showError(msg) {
   errorMsg.textContent = msg;
   errorMsg.style.display = "block";
 }
-
 function showSuccess(msg) {
   successMsg.textContent = msg;
   successMsg.style.display = "block";
 }
-
 function clearMessages() {
   errorMsg.style.display = "none";
   successMsg.style.display = "none";

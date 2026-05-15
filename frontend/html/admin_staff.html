@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Staff | MEDIQUEUE Admin</title>
+  <link rel="stylesheet" href="/css/admin_staff.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-brand">
+      <img src="/images/logo.jpeg" alt="MEDIQUEUE" width="45" height="45">
+      <div class="nav-logo">MEDI<span>QUEUE</span></div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="/html/admin_dashboard.html">Dashboard</a></li>
+      <li><a href="/html/admin_clinic.html">Manage Clinic</a></li>
+      <li><a href="/html/admin_hours.html">Operating Hours</a></li>
+      <li><a class="active" href="/html/admin_staff.html">Manage Staff</a></li>
+    </ul>
+    <button class="nav-cta" onclick="window.location.href='/html/account.html'">Account</button>
+  </nav>
+
+  <main>
+
+    <header class="page-header">
+      <h1>Manage Staff</h1>
+      <p>Add and manage staff members assigned to your clinic.</p>
+    </header>
+
+    <!-- CURRENT STAFF -->
+    <section class="staff-section" aria-label="Current staff">
+      <header class="section-header">
+        <h2>Current Staff</h2>
+        <p>Staff members currently assigned to your clinic.</p>
+      </header>
+      <ul class="staff-list" id="staffList" role="list">
+        <li class="staff-loading">Loading staff...</li>
+      </ul>
+    </section>
+
+    <!-- ADD STAFF FORM -->
+    <section class="staff-section" aria-label="Add new staff member">
+      <header class="section-header">
+        <h2>Add New Staff Member</h2>
+        <p>Create a new staff account and assign them to your clinic.</p>
+      </header>
+
+      <form id="staffForm" novalidate>
+
+        <fieldset>
+          <legend>Personal Details</legend>
+
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" name="firstName" placeholder="e.g. Thabo" required />
+
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" name="lastName" placeholder="e.g. Nkosi" required />
+
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="e.g. thabo.nkosi@clinic.co.za" required />
+
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Minimum 6 characters" required />
+
+        </fieldset>
+
+        <fieldset>
+          <legend>Professional Details</legend>
+
+          <label for="jobTitle">Job Title</label>
+          <select id="jobTitle" name="jobTitle" required>
+            <option value="">Select a title</option>
+            <option value="Dr">Dr</option>
+            <option value="Nurse">Nurse</option>
+            <option value="None">None</option>
+          </select>
+
+          <label for="specialties">Specialties</label>
+          <textarea id="specialties" name="specialties" rows="3" placeholder="e.g. Cardiology, Paediatrics, TB Treatment (optional)"></textarea>
+          <small>List any specialties separated by commas. This field is optional.</small>
+
+        </fieldset>
+
+        <section class="form-actions" aria-label="Submit form">
+          <button type="submit" class="btn-save" id="submitBtn">Create Staff Account</button>
+          <p class="form-status" id="formStatus" hidden></p>
+        </section>
+
+      </form>
+
+    </section>
+
+  </main>
+
+  <footer>
+        © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy
+            Policy</a>
+    </footer>
+
+  <script type="module" src="/js/admin_staff.js"></script>
+
+</body>
+</html>

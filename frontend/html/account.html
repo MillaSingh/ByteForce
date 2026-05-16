@@ -3,67 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <title>Account</title>
+
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/account.css" />
   <link rel="stylesheet" href="/css/navigation.css" />
 </head>
+
 <body>
   <nav>
-  <section class="nav-brand">
-    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
-    <span class="nav-logo">MEDI<span>QUEUE</span></span>
-  </section>
+    <section class="nav-brand">
+      <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
+      <span class="nav-logo">MEDI<span>QUEUE</span></span>
+    </section>
 
-  <ul class="nav-links">
-    <li><a href="/html/home.html">Home</a></li>
-    <li><a href= "/html/clinics.html">Clinics</a></li>
-    <li><a href="/html/myAppointments.html">My Appointments</a></li>
-    <li><a href= "/html/queue.html">Queue</a></li>
-  </ul>
-  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">Account</button>
-</nav>
+    <ul class="nav-links">
+      <li><a href="/html/home.html">Home</a></li>
+      <li><a href="/html/clinics.html">Clinics</a></li>
+      <li><a href="/html/myAppointments.html">My Appointments</a></li>
+      <li><a href="/html/queue.html">Queue</a></li>
+    </ul>
 
-    <main class="account-container">
-      <h1>My Account</h1>
-      <p class="account-subtitle">
-        Manage your profile, settings, and sessions
-      </p>
+    <button 
+      class="nav-cta account-btn"
+      onclick="window.location.href='/html/account.html'">
+      Account
+    </button>
+  </nav>
 
-      <section class="account-box">
-        <button class="account-btn"onclick="window.location.href='/html/profile.html'">Profile</button>
-        <button class="account-btn logout">Log Out</button>
-        <button id="deleteBtn" class="account-btn delete">
-          Delete Account
-        </button>
-      </section>
+  <main class="account-container">
+    <h1>My Account</h1>
 
-      <dialog id="deletePopup">
-        <!-- Step 1 -->
-        <div id="step1">
-          <p>
-            <b
-              >Warning! You are about to delete your account. This cannot be
-              undone.</b
-            >
-          </p>
-          <button id="confirmDelete">Yes, delete</button>
-          <button id="cancelDelete">Cancel</button>
-        </div>
+    <p class="account-subtitle">
+      Manage your profile, settings, and sessions
+    </p>
 
-        <!-- Step 2 -->
-        <div id="step2" style="display: none">
-          <p><b>Please enter your password to confirm:</b></p>
-          <input
-            type="password"
-            id="passwordInput"
-            placeholder="Enter password"
-          />
-          <button id="finalDelete">Delete Account</button>
-          <button id="backBtn">Back</button>
-        </div>
-      </dialog>
-    </main>
+    <section class="account-box">
+      <button 
+        class="account-btn"
+        onclick="window.location.href='/html/profile.html'">
+        Profile
+      </button>
 
-    <script type="module" src="/js/account.js"></script>
-  </body>
+      <button class="account-btn logout">
+        Log Out
+      </button>
+    </section>
+  </main>
+
+  <script type="module" src="/js/account.js"></script>
+</body>
 </html>

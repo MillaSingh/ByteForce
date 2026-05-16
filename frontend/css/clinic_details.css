@@ -4,10 +4,12 @@
   --green-mid: #2d6a4f;
   --green-light: #52b788;
   --green-pale: #d8f3dc;
-  --text-dark: #111f14;
+  --text-dark: #11131f;
   --text-mid: #3d5245;
   --text-light: #6b8c74;
   --bg: #f7faf8;
+  --accent-light: #52a0b7;
+  --accent-med: #1085b7;
   --accent: #204e86;
   --ink: #1a1a2e;
   --muted: #6b7280;
@@ -37,7 +39,7 @@ html {
 body {
   font-family: var(--font-body);
   background-color: var(--bg);
-  color: var(--text-dark);
+  color: var(--accent);
   font-size: 1rem;
   line-height: 1.6;
   min-height: 100vh;
@@ -56,7 +58,7 @@ ul {
 
 /* ── Header / Nav ── */
 header {
-  background-color: var(--green-dark);
+  background-color: var(--accent);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -71,7 +73,7 @@ header {
 }
 
 .logo span {
-  color: var(--green-light);
+  color: var(--accent-light);
 }
 
 /* NAV */
@@ -152,7 +154,7 @@ nav {
   position: relative;
   height: 420px;
   overflow: hidden;
-  background-color: var(--green-dark);
+  background-color: #204e86;
   width: 100%
 }
 
@@ -177,7 +179,13 @@ nav {
   align-items: flex-start;
   justify-content: flex-end;
   padding: 2.5rem 3rem;
-  background: linear-gradient(to top, rgba(26, 60, 46, 0.85) 0%, transparent 60%);
+  background: linear-gradient(
+    to top,
+    rgba(32, 108, 134, 0.85) 0%,
+    rgba(32, 78, 134, 0.55) 45%,
+    transparent 100%
+  );
+  
 }
 
 .clinic-hero__overlay h1 {
@@ -198,8 +206,8 @@ nav {
   letter-spacing: 0.06em;
   padding: 0.3rem 0.85rem;
   border-radius: 999px;
-  background-color: var(--green-pale);
-  color: var(--green-mid);
+  background-color: var(--accent-light);
+  color: var(--accent-med);
 }
 
 /* ── Clinic Body ── */
@@ -212,14 +220,14 @@ nav {
   grid-column: 1 / -1;
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--green-pale);
+  border-bottom: 2px solid var(--accent-light);
   background: none;
 }
 
 .clinic-info__header h2 {
   font-family: var(--font-display);
   font-size: 1.6rem;
-  color: var(--green-dark);
+  color: var(--accent);
   font-weight: 400;
   background: none;
   padding: 0;
@@ -240,7 +248,7 @@ nav {
 /* ── Clinic Info ── */
 .clinic-description {
   font-size: 1rem;
-  color: var(--text-mid);
+  color: var(--accent-med);
   line-height: 1.8;
   margin-bottom: 2rem;
   font-weight: 300;
@@ -263,14 +271,14 @@ nav {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-light);
+  color: var(--accent-light);
   display: flex;
   align-items: center;
 }
 
 .clinic-meta dd {
   font-size: 0.95rem;
-  color: var(--text-dark);
+  color: var(--accent);
   font-weight: 400;
 }
 
@@ -292,14 +300,14 @@ nav {
 .sidebar-card h2 {
   font-family: var(--font-display);
   font-size: 1.2rem;
-  color: var(--green-dark);
+  color: var(--accent);
   font-weight: 400;
   margin-bottom: 0.75rem;
 }
 
 .sidebar-card p {
   font-size: 0.9rem;
-  color: var(--text-mid);
+  color: var(--accent-med);
   margin-bottom: 1.25rem;
   line-height: 1.6;
 }
@@ -310,7 +318,7 @@ nav {
   width: 100%;
   text-align: center;
   padding: 0.85rem 1rem;
-  background-color: var(--green-mid);
+  background-color: var(--accent-med);
   color: var(--white);
   border-radius: var(--radius-sm);
   font-weight: 600;
@@ -319,7 +327,7 @@ nav {
 }
 
 .btn-book:hover {
-  background-color: var(--green-dark);
+  background-color: var(--accent);
   transform: translateY(-1px);
 }
 
@@ -332,9 +340,9 @@ nav {
 
 .services-list li {
   font-size: 0.9rem;
-  color: var(--text-mid);
+  color: var(--accent-med);
   padding: 0.5rem 0.75rem;
-  background-color: var(--green-pale);
+  background-color: var(--accent-light);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -343,7 +351,7 @@ nav {
 
 .services-list li::before {
   content: '✓';
-  color: var(--green-mid);
+  color: var(--accent-med);
   font-weight: 700;
   font-size: 0.8rem;
   flex-shrink: 0;
@@ -351,7 +359,7 @@ nav {
 
 .services-list .no-services {
   background: none;
-  color: var(--text-light);
+  color: var(--accent-light);
   font-style: italic;
 }
 
@@ -361,7 +369,7 @@ nav {
 
 /* ── Footer ── */
 footer {
-  background-color: var(--green-dark);
+  background-color: var(--accent);
   color: rgba(255, 255, 255, 0.6);
   text-align: center;
   padding: 1.5rem 2rem;
@@ -369,8 +377,9 @@ footer {
 }
 
 footer a {
-  color: var(--green-light);
+  color: var(--accent-light);
 }
+
 
 /* ── Responsive ── */
 @media (max-width: 900px) {

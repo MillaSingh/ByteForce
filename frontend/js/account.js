@@ -36,34 +36,3 @@ logoutBtn.addEventListener("click", async () => {
   }
 });
 
-const deleteBtn = document.getElementById("deleteBtn");
-
-deleteBtn.addEventListener("click", async () => {
-  deleteBtn.disabled = true;
-  deleteBtn.textContent = "Deleting…";
-
-  try {
-    const token = sessionStorage.getItem("firebaseToken");
-
-    const res = await fetch("/api/auth/delete-account", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Delete failed");
-    }
-
-    alert("Account deleted successfully.");
-    await logOut();
-  } catch (error) {
-    console.error("Delete account error:", error);
-    alert(error.message || "Failed to delete account. Please try again.");
-    deleteBtn.disabled = false;
-    deleteBtn.textContent = "Delete Account";
-  }
-});

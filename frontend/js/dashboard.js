@@ -1,4 +1,5 @@
-import { requireRole } from '/js/auth.js';
+//import { requireRole } from '/js/auth.js';
+import { requireRole, getCurrentUser } from '/js/auth.js';
 requireRole(['staff']);
 
 // GLOBAL VARIABLE
@@ -7,13 +8,44 @@ let patients = [];
 
 
 // LOAD DATA FROM BACKEND
+// const loadPatients = async () => {
+//   try {
+//     const response = await fetch('/api/queue');
+
+//     if (!response.ok) throw new Error("Failed to fetch data");
+
+//     patients = await response.json();
+//     renderPatients();
+
+//   } catch (error) {
+//     console.error("Error fetching patients:", error);
+//   }
+// };
+
 const loadPatients = async () => {
   try {
-    const response = await fetch('/api/queue');
+    const currentUser = getCurrentUser();
+    const clinicId = currentUser.clinicId;
+
+    console.log("CURRENT USER:", currentUser);
+    console.log("DASHBOARD CLINIC ID:", clinicId);
+
+    if (!clinicId) {
+      console.error("No clinicId found for this staff user");
+      alert("No clinic assigned to this staff profile.");
+      return;
+    }
+
+    const response = await fetch(`/api/queue?clinic_id=${clinicId}`);
+
+    console.log("QUEUE RESPONSE STATUS:", response.status);
 
     if (!response.ok) throw new Error("Failed to fetch data");
 
     patients = await response.json();
+
+    console.log("PATIENTS RETURNED:", patients);
+
     renderPatients();
 
   } catch (error) {
@@ -88,9 +120,6 @@ const renderPatients = () => {
             </option>
           </select>
         </td>
-
-        <td>${patient.clinic_name ?? "-"}</td>
-
         <td>
           ${
             patient.status === "waiting"
@@ -306,46 +335,6 @@ document
 // INITIAL LOAD
 loadPatients();
 
-
-// LOAD CLINICS FROM BACKEND
-const loadClinics = async () => {
-
-  const clinicSelect =
-    document.getElementById("clinicSelect");
-
-  try {
-
-    const response =
-      await fetch("/api/queue/clinics");
-
-    if (!response.ok)
-      throw new Error("Failed to fetch clinics");
-
-    const clinics = await response.json();
-
-    clinicSelect.innerHTML =
-      `<option value="">Select clinic</option>`;
-
-    clinics.forEach((clinic) => {
-
-      const option =
-        document.createElement("option");
-
-      option.value = clinic.clinic_id;
-
-      option.textContent =
-        clinic.clinic_name;
-
-      clinicSelect.appendChild(option);
-    });
-
-  } catch (error) {
-
-    console.error("Error loading clinics:", error);
-  }
-};
-
-
 // ADD PATIENT FUNCTIONALITY
 
 // When the "Add Patient" button is clicked,
@@ -353,8 +342,6 @@ const loadClinics = async () => {
 document
   .getElementById("addPatientBtn")
   .addEventListener("click", () => {
-
-    loadClinics();
 
     document
       .getElementById("patientDialog")
@@ -374,7 +361,6 @@ function closeDialog() {
 // Function to submit a new patient
 async function submitPatient() {
 
-  // Get values entered by the user
   const first_name =
     document.getElementById("firstName").value;
 
@@ -387,28 +373,25 @@ async function submitPatient() {
   const phone_number =
     document.getElementById("phoneNumber").value;
 
-  const clinic_id =
-    document.getElementById("clinicSelect").value;
+  const clinic_id = getCurrentUser().clinicId;
 
-  // Check if any field is empty
   if (
     !first_name ||
     !last_name ||
     !email ||
-    !phone_number ||
-    !clinic_id
+    !phone_number
   ) {
+    alert("Please fill in all fields");
+    return;
+  }
 
-    alert(
-      "Please fill in all fields and select a clinic"
-    );
-
+  if (!clinic_id) {
+    alert("No clinic is linked to this staff account.");
     return;
   }
 
   try {
 
-    // Send patient data to backend
     const response = await fetch(
       "/api/queue/add-walkin",
       {
@@ -426,16 +409,13 @@ async function submitPatient() {
       }
     );
 
-    // If request fails
     if (!response.ok)
       throw new Error("Failed to add patient");
 
-    // Close dialog
     document
       .getElementById("patientDialog")
       .close();
 
-    // Reload patient list
     loadPatients();
 
   } catch (error) {

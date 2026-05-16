@@ -81,10 +81,42 @@ const deleteQueuePatient = async (req, res) => {
   }
 };
 
+// PATCH /api/queue/reschedule/:id
+const rescheduleAppointment = async (req, res) => {
+
+  const { id } = req.params;
+
+  const {
+    appointment_date,
+    appointment_time
+  } = req.body;
+
+  try {
+
+    const updated =
+      await dashboardModel.rescheduleAppointment(
+        id,
+        appointment_date,
+        appointment_time
+      );
+
+    res.json(updated);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to reschedule appointment"
+    });
+  }
+};
+
 module.exports = {
   getQueue,
   updateStatus,
   addWalkInPatient,
   getClinics,
-  deleteQueuePatient
+  deleteQueuePatient,
+  rescheduleAppointment
 };

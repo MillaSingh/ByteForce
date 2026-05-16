@@ -17,5 +17,10 @@ router.delete('/:id', dashboardController.deleteQueuePatient);
 
 // add walk-in patient
 router.post('/add-walkin', dashboardController.addWalkInPatient);
+// RESCHEDULE APPOINTMENT
+router.patch(
+  '/reschedule/:id',
+  dashboardController.rescheduleAppointment
+);
 
 module.exports = router;

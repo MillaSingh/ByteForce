@@ -1,25 +1,68 @@
 const dashboardModel = require('../models/dashboardModel');
 
+// // GET /api/queue
+// const getQueue = async (req, res) => {
+//   try {
+//     const data = await dashboardModel.getQueuePatients();
+//     res.json(data);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// };
+
+
 // GET /api/queue
 const getQueue = async (req, res) => {
   try {
-    const data = await dashboardModel.getQueuePatients();
+    const clinicId = req.query.clinic_id;
+
+    console.log("CLINIC ID RECEIVED BY DASHBOARD:", clinicId);
+
+    if (!clinicId) {
+      return res.status(400).json({
+        error: "clinic_id is required"
+      });
+    }
+
+    const data = await dashboardModel.getQueuePatients(clinicId);
+
     res.json(data);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching queue:", error);
     res.status(500).json({ error: "Server error" });
   }
 };
 
+
 const getClinics = async (req, res) => {
   try {
-    const clinics = await dashboardModel.getClinics();
+    const clinicId = req.query.clinic_id;
+
+    if (!clinicId) {
+      return res.status(400).json({
+        error: "clinic_id is required"
+      });
+    }
+
+    const clinics = await dashboardModel.getClinics(clinicId);
+
     res.json(clinics);
   } catch (error) {
     console.error("Error fetching clinics:", error);
     res.status(500).json({ error: "Failed to fetch clinics" });
   }
 };
+
+// const getClinics = async (req, res) => {
+//   try {
+//     const clinics = await dashboardModel.getClinics();
+//     res.json(clinics);
+//   } catch (error) {
+//     console.error("Error fetching clinics:", error);
+//     res.status(500).json({ error: "Failed to fetch clinics" });
+//   }
+// };
 
 
 // PATCH /api/queue/:id

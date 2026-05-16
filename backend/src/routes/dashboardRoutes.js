@@ -1,3 +1,4 @@
+const { requireAuth } = require('./authRoutes');
 const express = require('express');
 const router = express.Router();
 
@@ -7,7 +8,8 @@ const dashboardController = require('../controllers/dashboardController');
 router.get('/clinics', dashboardController.getClinics);
 
 // GET queue data
-router.get('/', dashboardController.getQueue);
+//router.get('/', dashboardController.getQueue);
+router.get('/', requireAuth, dashboardController.getQueue);
 
 // UPDATE status
 router.patch('/:id', dashboardController.updateStatus);

@@ -12,6 +12,7 @@ const otpRouter = require("./src/routes/otpRoutes");
 const queueRoutes = require("./src/routes/queueRoutes");
 const operatingHoursRouter = require("./src/routes/operatingHoursRoutes");
 const staffRouter = require("./src/routes/staffRoutes");
+const analyticsRouter = require("./src/routes/analyticsRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,6 +45,7 @@ app.use("/api/otp", otpRouter);
 app.use("/api/patient-queue", queueRoutes);
 app.use("/api/clinics", operatingHoursRouter);
 app.use("/api/staff", staffRouter);
+app.use("/api/dashboard/analytics", analyticsRouter);
 
 // Only start server if NOT testing
 if (process.env.NODE_ENV !== "test") {

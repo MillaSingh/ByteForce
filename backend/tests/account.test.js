@@ -1,9 +1,12 @@
 // account.test.js
 
+const mockVerifyIdToken = jest.fn();
+const mockDeleteUser = jest.fn();
+
 jest.mock("firebase-admin", () => ({
   auth: jest.fn(() => ({
-    verifyIdToken: jest.fn(),
-    deleteUser: jest.fn(),
+    verifyIdToken: mockVerifyIdToken,
+    deleteUser: mockDeleteUser,
   })),
 }));
 
@@ -18,15 +21,16 @@ jest.mock("pg", () => {
   };
 });
 
-const admin = require("firebase-admin");
 const pg = require("pg");
 const { deleteAccount } = require("../src/controllers/authController.js");
 
 const mockResponse = () => {
   const res = {};
+
   res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn().mockReturnValue(res);
   res.clearCookie = jest.fn().mockReturnValue(res);
+
   return res;
 };
 
@@ -79,24 +83,26 @@ describe("Delete Account Controller", () => {
 
     const res = mockResponse();
 
-    admin.auth().verifyIdToken.mockResolvedValue({
+    mockVerifyIdToken.mockResolvedValue({
       uid: "firebase-user-123",
     });
 
-    pg.__mockPool.query.mockResolvedValue({ rowCount: 1 });
+    pg.__mockPool.query.mockResolvedValue({
+      rowCount: 1,
+    });
 
-    admin.auth().deleteUser.mockResolvedValue();
+    mockDeleteUser.mockResolvedValue();
 
     await deleteAccount(req, res);
 
-    expect(admin.auth().verifyIdToken).toHaveBeenCalledWith("fake-token");
+    expect(mockVerifyIdToken).toHaveBeenCalledWith("fake-token");
 
     expect(pg.__mockPool.query).toHaveBeenCalledWith(
       `DELETE FROM "user" WHERE external_auth_id = $1`,
       ["firebase-user-123"]
     );
 
-    expect(admin.auth().deleteUser).toHaveBeenCalledWith("firebase-user-123");
+    expect(mockDeleteUser).toHaveBeenCalledWith("firebase-user-123");
 
     expect(res.clearCookie).toHaveBeenCalledWith("firebaseToken");
 
@@ -115,7 +121,7 @@ describe("Delete Account Controller", () => {
 
     const res = mockResponse();
 
-    admin.auth().verifyIdToken.mockRejectedValue(new Error("Invalid token"));
+    mockVerifyIdToken.mockRejectedValue(new Error("Invalid token"));
 
     await deleteAccount(req, res);
 

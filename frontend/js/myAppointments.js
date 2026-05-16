@@ -174,38 +174,36 @@ function loadAppointmentsByData(data) {
             •
 
             ${dateTime.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
+        hour: "2-digit",
+        minute: "2-digit"
+      })}
           </div>
 
         </div>
 
         <div>
 
-          ${
-            status === "cancelled"
+          ${status === "cancelled"
 
-              ? `
+          ? `
                 <span class="status cancelled">
                   Cancelled
                 </span>
               `
 
-              : status === "completed"
+          : status === "completed"
 
-              ? `
+            ? `
                 <span class="status completed">
                   Completed
                 </span>
               `
 
-              : ""
-          }
+            : ""
+        }
 
-          ${
-            isUpcoming
-              ? `
+          ${isUpcoming
+          ? `
                 <button
                   class="reschedule-btn"
                   data-id="${app.appointment_id || app.appointmentId}"
@@ -225,8 +223,8 @@ function loadAppointmentsByData(data) {
                   Check In
                 </button>
               `
-              : ""
-          }
+          : ""
+        }
         </div>
       `;
 
@@ -364,46 +362,51 @@ function loadAppointmentsByData(data) {
       const checkInBtn = card.querySelector(".checkin-btn");
 
       if (checkInBtn) {
-      
+
         checkInBtn.addEventListener("click", async () => {
-      
+
           const rawId =
             checkInBtn.dataset.id;
-      
+
           const appointmentId =
             Number(rawId);
-      
+
           if (!appointmentId || isNaN(appointmentId)) {
-      
+
             console.error("BAD APPOINTMENT ID:", rawId);
-      
+
             alert("Invalid appointment ID");
-      
+
             return;
           }
-      
+
           try {
-      
+
+            const userEmail = sessionStorage.getItem("userEmail");
+
             const res = await fetch(
-              `/api/queue/checkin/${appointmentId}`,
+              `/api/patient-queue/checkin/${appointmentId}`,
               {
                 method: "POST",
-                credentials: "include"
+                credentials: "include",
+                headers: {
+                  "x-user-email": userEmail
+                }
               }
             );
-      
+
             const data = await res.json();
-      
+
             if (!res.ok) {
               throw new Error(data.error);
             }
-      
+
             alert("Checked in successfully!");
-      
+
             loadMyAppointments();
-      
+
           } catch (err) {
-      
+
             console.error(err);
             alert(err.message);
           }

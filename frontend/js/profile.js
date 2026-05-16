@@ -101,3 +101,10 @@ if (logoutBtn) {
     await logOut();
   });
 }
+const backBtn = document.getElementById("backBtn");
+
+if (backBtn) {
+  backBtn.addEventListener("click", () => {
+    window.location.href = "/html/account.html";
+  });
+}

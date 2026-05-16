@@ -25,7 +25,9 @@
             <li><a href="/html/myAppointments.html">My Appointments</a></li>
             <li><a href="/html/queue.html">Queue</a></li>
         </ul>
-        <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">Account</button>
+        <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
     </nav>
 
     <main id="ClinicMain">
@@ -83,5 +85,15 @@
         </footer>
 
         <script src="/js/clinic_details.js"></script>
+          <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
     </main>
 </body>

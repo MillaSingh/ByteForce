@@ -21,7 +21,9 @@
       <li><a href="/html/admin_hours.html">Operating Hours</a></li>
       <li><a class="active" href="/html/admin_staff.html">Manage Staff</a></li>
     </ul>
-    <button class="nav-cta" onclick="window.location.href='/html/account.html'">Account</button>
+    <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
   </nav>
 
   <main>
@@ -102,6 +104,16 @@
     </footer>
 
   <script type="module" src="/js/admin_staff.js"></script>
+    <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
 
 </body>
 </html>

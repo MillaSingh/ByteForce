@@ -27,9 +27,9 @@
       <li><a class="active" href="/html/queue.html">Queue</a></li>
     </ul>
 
-    <button class="nav-cta" onclick="window.location.href='/html/account.html'">
-      Account
-    </button>
+    <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
   </nav>
 
   <!-- HERO -->
@@ -59,6 +59,16 @@
   </main>
 
   <script type="module" src="/js/queue.js"></script>
+    <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
 
 
 <footer>

@@ -5,7 +5,7 @@
   justify-content: center;
   flex: 1;
   padding: 2rem;
-  background: linear-gradient(to bottom, var(--accent-light), var(--cream));
+  background: linear-gradient(to bottom, var(--accent-light), var(--accent));
 }
 
 .nav-brand {
@@ -24,7 +24,7 @@
 }
 
 .account-subtitle {
-  color: var(--muted);
+  color: var(--cream);
   margin-bottom: 2rem;
   font-size: 0.95rem;
 }
@@ -67,4 +67,20 @@
 
 .logout:hover {
   background: #b0221d;
+}
+
+.back-btn {
+  padding: 0.7rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--white);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #1085b7;
+  transform: scale(1.03);
 }

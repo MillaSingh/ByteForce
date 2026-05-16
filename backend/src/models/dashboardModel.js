@@ -1,7 +1,45 @@
 const pool = require('../db');
 
 // GET QUEUE DATA
-const getQueuePatients = async () => {
+// const getQueuePatients = async () => {
+//   const result = await pool.query(`
+//     SELECT 
+//       q.queue_id,
+//       q.queue_position,
+//       q.status,
+//       q.clinic_id,
+//       q.patient_id,
+//       c.clinic_name,
+//       u.first_name,
+//       u.last_name,
+//       u.email,
+//       a.appointment_id,
+//       a.phone_number,
+//       a.appointment_date,
+//       a.appointment_time
+//     FROM queue_entry q
+//     LEFT JOIN "user" u 
+//       ON q.patient_id = u.user_id
+//     LEFT JOIN clinic c
+//       ON q.clinic_id = c.clinic_id
+//     LEFT JOIN LATERAL (
+//     SELECT 
+//       appointment_id,
+//       phone_number,
+//       appointment_date,
+//       appointment_time
+//     FROM appointment
+//     WHERE patient_id = u.user_id
+//     AND clinic_id = q.clinic_id
+//     ORDER BY appointment_date DESC, appointment_time DESC
+//     LIMIT 1
+//   ) a ON true
+//     ORDER BY q.queue_position ASC;
+//   `);
+
+//   return result.rows;
+// };
+const getQueuePatients = async (clinicId) => {
   const result = await pool.query(`
     SELECT 
       q.queue_id,
@@ -18,35 +56,30 @@ const getQueuePatients = async () => {
       a.appointment_date,
       a.appointment_time
     FROM queue_entry q
+
     LEFT JOIN "user" u 
       ON q.patient_id = u.user_id
+
     LEFT JOIN clinic c
       ON q.clinic_id = c.clinic_id
+
     LEFT JOIN LATERAL (
-    SELECT 
-      appointment_id,
-      phone_number,
-      appointment_date,
-      appointment_time
-    FROM appointment
-    WHERE patient_id = u.user_id
-    AND clinic_id = q.clinic_id
-    ORDER BY appointment_date DESC, appointment_time DESC
-    LIMIT 1
-  ) a ON true
+      SELECT 
+        appointment_id,
+        phone_number,
+        appointment_date,
+        appointment_time
+      FROM appointment
+      WHERE patient_id = u.user_id
+      AND clinic_id = q.clinic_id
+      ORDER BY appointment_date DESC, appointment_time DESC
+      LIMIT 1
+    ) a ON true
+
+    WHERE q.clinic_id = $1
+
     ORDER BY q.queue_position ASC;
-  `);
-
-  return result.rows;
-};
-
-// GET CLINICS
-const getClinics = async () => {
-  const result = await pool.query(`
-    SELECT clinic_id, clinic_name
-    FROM clinic
-    ORDER BY clinic_name ASC;
-  `);
+  `, [clinicId]);
 
   return result.rows;
 };
@@ -200,6 +233,17 @@ const deleteQueuePatient = async (id) => {
   );
 
   return result.rows[0];
+};
+
+const getClinics = async (clinicId) => {
+  const result = await pool.query(`
+    SELECT clinic_id, clinic_name
+    FROM clinic
+    WHERE clinic_id = $1
+    ORDER BY clinic_name ASC;
+  `, [clinicId]);
+
+  return result.rows;
 };
 
 module.exports = {

@@ -152,12 +152,28 @@ main {
   line-height: 1.6;
 }
 
+.back-btn {
+  padding: 0.7rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--white);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #1085b7;
+  transform: scale(1.03);
+}
+
 /* FOOTER */
 footer {
   margin-top: auto;
   text-align: center;
   padding: 1.5rem 2rem;
-  background: var(--green-dark);
+  background: var(--accent);
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
 }

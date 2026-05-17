@@ -23,15 +23,15 @@
   <ul class="nav-links">
     <li><a href="#" class="active">Dashboard</a></li>
   </ul>
-  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">
-    Account
-  </button>
+  <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
 </nav>
 
 <!-- Header -->
 <header class="hero">
   <span class="hero-badge">Clinic Staff</span>
-  <h1>Patient Queue Dashboard</h1>
+  <h1 id="dashboardTitle">Patient Queue Dashboard</h1>
   <p>Manage patient flow and update consultation status in real-time</p>
 </header>
 
@@ -95,11 +95,21 @@
 
 <!-- Footer -->
 <footer>
-  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
+  © 2026 MediQueue · All rights reserved · <a href="#" style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy Policy</a>
 </footer>
 
 <!-- LINK TO YOUR JS FILE -->
 <script type="module" src="/js/dashboard.js"></script>
+  <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
 
 </body>
 </html>

@@ -6,8 +6,94 @@ requireRole(['staff']);
 // Stores data from backend
 let patients = [];
 
+// const loadDashboardClinicName = async () => {
+//   try {
+//     const currentUser = getCurrentUser();
+//     const clinicId = currentUser.clinicId;
+
+//     if (!clinicId) return;
+
+//     const response = await fetch(`/api/queue/clinics?clinic_id=${clinicId}`);
+
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch clinic");
+//     }
+
+//     const clinics = await response.json();
+
+//     const clinicName = clinics[0]?.clinic_name;
+
+//     if (clinicName) {
+//       document.getElementById("dashboardTitle").textContent =
+//         `Patient Queue Dashboard - ${clinicName}`;
+//     }
+
+//   } catch (error) {
+//     console.error("Error loading dashboard clinic name:", error);
+//   }
+// };
 
 
+
+<<<<<<< HEAD
+=======
+//     if (!response.ok) throw new Error("Failed to fetch data");
+
+//     patients = await response.json();
+//     renderPatients();
+
+//   } catch (error) {
+//     console.error("Error fetching patients:", error);
+//   }
+// };
+const loadDashboardClinicName = async () => {
+  try {
+    const currentUser = getCurrentUser();
+    const clinicId = currentUser.clinicId;
+
+    console.log("TITLE CURRENT USER:", currentUser);
+    console.log("TITLE CLINIC ID:", clinicId);
+
+    if (!clinicId) {
+      console.error("No clinicId found for title");
+      return;
+    }
+
+    const response = await fetch(`/api/queue/clinics?clinic_id=${clinicId}`);
+
+    console.log("TITLE CLINIC RESPONSE STATUS:", response.status);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch clinic");
+    }
+
+    const clinics = await response.json();
+
+    console.log("TITLE CLINICS RETURNED:", clinics);
+
+    const clinicName = clinics[0]?.clinic_name;
+    const dashboardTitle =
+      document.getElementById("dashboardTitle") ||
+      document.querySelector(".hero h1");
+
+    if (!dashboardTitle) {
+      console.error("Dashboard title element not found");
+      return;
+    }
+
+    if (clinicName) {
+      dashboardTitle.textContent =
+        `Patient Queue Dashboard - ${clinicName}`;
+    }
+    else {
+      console.error("No clinic name returned");
+    }
+
+  } catch (error) {
+    console.error("Error loading dashboard clinic name:", error);
+  }
+};
+>>>>>>> 69413b4ea5d9bf692c898c48d8fe47545a86c7db
 
 const loadPatients = async () => {
   try {
@@ -208,10 +294,6 @@ document
   .getElementById("filterStatus")
   .addEventListener("change", renderPatients);
 
-
-// INITIAL LOAD
-loadPatients();
-
 // ADD PATIENT FUNCTIONALITY
 
 // When the "Add Patient" button is clicked,
@@ -293,8 +375,6 @@ async function submitPatient() {
       .getElementById("patientDialog")
       .close();
 
-    loadPatients();
-
   } catch (error) {
 
     console.error(error);
@@ -302,7 +382,9 @@ async function submitPatient() {
     alert("Error adding patient");
   }
 }
-
+// INITIAL LOAD
+loadDashboardClinicName();
+loadPatients();
 
 // MAKE FUNCTIONS GLOBAL
 

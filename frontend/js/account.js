@@ -22,6 +22,20 @@ if (user.name || user.email) {
 
 const logoutBtn = document.querySelector(".account-btn.logout");
 
+const backBtn = document.getElementById("backBtn");
+
+if (backBtn) {
+  backBtn.addEventListener("click", () => {
+    const previousPage = sessionStorage.getItem("previousPageBeforeAccount");
+
+    if (previousPage) {
+      window.location.href = previousPage;
+    } else {
+      window.history.back();
+    }
+  });
+}
+
 logoutBtn.addEventListener("click", async () => {
   logoutBtn.disabled = true;
   logoutBtn.textContent = "Logging out…";

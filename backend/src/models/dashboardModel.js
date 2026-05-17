@@ -139,10 +139,17 @@ const addWalkInPatient = async (first_name, last_name, email, clinic_id, phone_n
     );
 
     // 4. Get next queue position across the whole dashboard
-    const positionResult = await client.query(`
-      SELECT COALESCE(MAX(queue_position), 0) + 1 AS next_position
-      FROM queue_entry
-    `);
+    // const positionResult = await client.query(`
+    //   SELECT COALESCE(MAX(queue_position), 0) + 1 AS next_position
+    //   FROM queue_entry
+    // `);
+    // 4. Get next queue position for this clinic only
+  const positionResult = await client.query(`
+    SELECT COALESCE(MAX(queue_position), 0) + 1 AS next_position
+    FROM queue_entry
+    WHERE clinic_id = $1
+    AND status != 'complete'
+  `, [clinic_id]);
 
     const queue_position = positionResult.rows[0].next_position;
 

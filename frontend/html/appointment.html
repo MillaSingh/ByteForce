@@ -22,7 +22,9 @@
     <li><a href="/html/myAppointments.html">My Appointments</a></li>
     <li><a href= "/html/queue.html">Queue</a></li>
   </ul>
-  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">Account</button>
+  <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
 </nav>
 
 <!-- HERO -->
@@ -199,11 +201,21 @@
 </main>
 
 <footer>
-  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
+  © 2026 MediQueue · All rights reserved · <a href="#" style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy Policy</a>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script src="/js/appointment.js"></script>
+  <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
 </body>
 </html>

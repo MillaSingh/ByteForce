@@ -25,7 +25,9 @@
             <li><a class="active" href="/html/admin_hours.html">Operating Hours</a></li>
             <li><a href="/html/admin_staff.html">Manage Staff</a></li>
         </ul>
-        <button class="nav-cta" onclick="window.location.href='/html/account.html'">Account</button>
+        <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
     </nav>
 
     <main>
@@ -121,11 +123,21 @@
     </main>
 
     <footer>
-        © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy
+        © 2026 MediQueue · All rights reserved · <a href="#" style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy
             Policy</a>
     </footer>
 
     <script type="module" src="/js/admin_hours.js"></script>
+      <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
 
 </body>
 

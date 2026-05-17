@@ -5,14 +5,14 @@ requireRole(['admin']);
 const { clinicId } = getCurrentUser();
 const CLINIC_ID = clinicId;
 
-// ── Chart instances ────────────────────────────────────────────────────────
+// Chart instances
 let appointmentsChart = null;
 let statusChart = null;
 
-// ── All appointments data (for CSV export) ─────────────────────────────────
+// All appointments data (for CSV export)
 let allAppointments = [];
 
-// ── Fetch all dashboard data ───────────────────────────────────────────────
+// Fetch all dashboard data
 async function loadDashboard() {
     if (!CLINIC_ID) {
         document.getElementById('clinicNameHeader').textContent =
@@ -34,7 +34,7 @@ async function loadDashboard() {
     }
 }
 
-// ── Summary cards ──────────────────────────────────────────────────────────
+// Summary cards
 function renderSummaryCards(data) {
     document.getElementById('appointmentsToday').textContent =
         data.appointmentsToday ?? '—';
@@ -58,60 +58,51 @@ function renderSummaryCards(data) {
     }
 }
 
-// ── Weekly appointments bar chart ──────────────────────────────────────────
 function renderWeeklyChart(weeklyData) {
-    const labels = weeklyData.map(d => {
-        const rawDate = appt.appointment_date
-            ? appt.appointment_date.toString().split('T')[0]
-            : null;
+  const labels = weeklyData.map(d => {
+    const date = new Date(d.day + 'T00:00:00');
+    return date.toLocaleDateString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short' });
+  });
+  const counts = weeklyData.map(d => d.count);
 
-        const formattedDate = rawDate
-            ? new Date(rawDate + 'T00:00:00').toLocaleDateString('en-ZA', {
-                day: 'numeric', month: 'short', year: 'numeric'
-            })
-            : '—';
-        return date.toLocaleDateString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short' });
-    });
-    const counts = weeklyData.map(d => d.count);
+  const ctx = document.getElementById('appointmentsChart').getContext('2d');
 
-    const ctx = document.getElementById('appointmentsChart').getContext('2d');
+  if (appointmentsChart) appointmentsChart.destroy();
 
-    if (appointmentsChart) appointmentsChart.destroy();
-
-    appointmentsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Appointments',
-                data: counts,
-                backgroundColor: 'rgba(82, 183, 136, 0.7)',
-                borderColor: '#2d6a4f',
-                borderWidth: 1.5,
-                borderRadius: 6
-            }]
+  appointmentsChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Appointments',
+        data: counts,
+        backgroundColor: 'rgba(82, 183, 136, 0.7)',
+        borderColor: '#2d6a4f',
+        borderWidth: 1.5,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 },
+          grid: { color: 'rgba(0,0,0,0.05)' }
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 },
-                    grid: { color: 'rgba(0,0,0,0.05)' }
-                },
-                x: {
-                    grid: { display: false }
-                }
-            }
+        x: {
+          grid: { display: false }
         }
-    });
+      }
+    }
+  });
 }
 
-// ── Status breakdown doughnut chart ───────────────────────────────────────
+// Status breakdown doughnut chart
 function renderStatusChart(statusData) {
     const labels = statusData.map(s => s.status.charAt(0).toUpperCase() + s.status.slice(1));
     const counts = statusData.map(s => s.count);
@@ -154,7 +145,7 @@ function renderStatusChart(statusData) {
     });
 }
 
-// ── Recent appointments table ──────────────────────────────────────────────
+// Recent appointments table
 function renderRecentAppointments(appointments) {
     const tbody = document.getElementById('appointmentsTableBody');
     tbody.innerHTML = '';
@@ -174,9 +165,6 @@ function renderRecentAppointments(appointments) {
                 day: 'numeric', month: 'short', year: 'numeric'
             })
             : '—';
-        const formattedDate = date.toLocaleDateString('en-ZA', {
-            day: 'numeric', month: 'short', year: 'numeric'
-        });
         const formattedTime = appt.appointment_time
             ? appt.appointment_time.slice(0, 5)
             : '—';
@@ -193,7 +181,7 @@ function renderRecentAppointments(appointments) {
     });
 }
 
-// ── CSV Export ─────────────────────────────────────────────────────────────
+// CSV Export
 document.getElementById('exportBtn').addEventListener('click', () => {
     if (!allAppointments.length) {
         alert('No appointments to export.');
@@ -223,5 +211,5 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     URL.revokeObjectURL(url);
 });
 
-// ── Initialise ─────────────────────────────────────────────────────────────
+// Initialise
 loadDashboard();

@@ -2,22 +2,52 @@ import { requireRole, getCurrentUser } from '/js/auth.js';
 
 requireRole(['staff']);
 
-// GLOBAL VARIABLE
 let patients = [];
 
-// LOAD CLINIC NAME INTO DASHBOARD TITLE
+/* ELEMENTS*/
+
+const patientTable = document.getElementById("patientTable");
+
+const searchInput = document.getElementById("searchInput");
+const filterStatus = document.getElementById("filterStatus");
+
+const addPatientBtn = document.getElementById("addPatientBtn");
+const rescheduleBtn = document.getElementById("rescheduleBtn");
+
+const patientDialog = document.getElementById("patientDialog");
+const rescheduleDialog = document.getElementById("rescheduleDialog");
+
+const submitPatientBtn = document.getElementById("submitPatientBtn");
+const closePatientDialogBtn = document.getElementById("closePatientDialogBtn");
+
+const saveRescheduleBtn = document.getElementById("saveRescheduleBtn");
+const closeRescheduleDialogBtn = document.getElementById("closeRescheduleDialogBtn");
+
+const accountBtn = document.getElementById("accountBtn");
+
+/* ACCOUNT BUTTON */
+
+accountBtn.addEventListener("click", () => {
+
+  sessionStorage.setItem(
+    "previousPageBeforeAccount",
+    window.location.pathname + window.location.search
+  );
+
+  window.location.href = "/html/account.html";
+});
+
+/* LOAD DASHBOARD TITLE*/
+
 const loadDashboardClinicName = async () => {
 
   try {
 
     const currentUser = getCurrentUser();
-    const clinicId = currentUser.clinicId;
-
-    console.log("TITLE CURRENT USER:", currentUser);
-    console.log("TITLE CLINIC ID:", clinicId);
+    const clinicId = currentUser?.clinicId;
 
     if (!clinicId) {
-      console.error("No clinicId found for title");
+      console.error("No clinicId found");
       return;
     }
 
@@ -25,63 +55,42 @@ const loadDashboardClinicName = async () => {
       `/api/queue/clinics?clinic_id=${clinicId}`
     );
 
-    console.log("TITLE CLINIC RESPONSE STATUS:", response.status);
-
     if (!response.ok) {
       throw new Error("Failed to fetch clinic");
     }
 
     const clinics = await response.json();
 
-    console.log("TITLE CLINICS RETURNED:", clinics);
-
     const clinicName = clinics[0]?.clinic_name;
 
     const dashboardTitle =
-      document.getElementById("dashboardTitle") ||
-      document.querySelector(".hero h1");
-
-    if (!dashboardTitle) {
-      console.error("Dashboard title element not found");
-      return;
-    }
+      document.getElementById("dashboardTitle");
 
     if (clinicName) {
 
       dashboardTitle.textContent =
         `Patient Queue Dashboard - ${clinicName}`;
-
-    } else {
-
-      console.error("No clinic name returned");
     }
 
   } catch (error) {
 
     console.error(
-      "Error loading dashboard clinic name:",
+      "Error loading clinic name:",
       error
     );
   }
 };
 
+/* LOAD PATIENTS*/
 
-// LOAD PATIENTS
 const loadPatients = async () => {
 
   try {
 
     const currentUser = getCurrentUser();
-    const clinicId = currentUser.clinicId;
-
-    console.log("CURRENT USER:", currentUser);
-    console.log("DASHBOARD CLINIC ID:", clinicId);
+    const clinicId = currentUser?.clinicId;
 
     if (!clinicId) {
-
-      console.error(
-        "No clinicId found for this staff user"
-      );
 
       alert(
         "No clinic assigned to this staff profile."
@@ -94,18 +103,11 @@ const loadPatients = async () => {
       `/api/queue?clinic_id=${clinicId}`
     );
 
-    console.log(
-      "QUEUE RESPONSE STATUS:",
-      response.status
-    );
-
     if (!response.ok) {
-      throw new Error("Failed to fetch data");
+      throw new Error("Failed to fetch patients");
     }
 
     patients = await response.json();
-
-    console.log("PATIENTS RETURNED:", patients);
 
     renderPatients();
 
@@ -118,8 +120,8 @@ const loadPatients = async () => {
   }
 };
 
+/* FORMAT STATUS*/
 
-// FORMAT STATUS
 const formatStatus = (status) => {
 
   const map = {
@@ -128,32 +130,31 @@ const formatStatus = (status) => {
     complete: "Complete"
   };
 
-  return map[status] ?? "";
+  return map[status] || "";
 };
 
+/*RENDER PATIENTS*/
 
-// RENDER PATIENT TABLE
 const renderPatients = () => {
 
-  const table =
-    document.getElementById("patientTable");
-
   const search =
-    document.getElementById("searchInput")
-      .value
-      .toLowerCase();
+    searchInput.value.toLowerCase();
 
   const filter =
-    document.getElementById("filterStatus")
-      .value;
+    filterStatus.value;
 
-  table.innerHTML = "";
+  patientTable.innerHTML = "";
 
-  patients
-    .filter(({ first_name = "", last_name = "", status }) => {
+  const filteredPatients = patients.filter(
+    ({
+      first_name = "",
+      last_name = "",
+      status = ""
+    }) => {
 
       const fullName =
-        `${first_name} ${last_name}`.toLowerCase();
+        `${first_name} ${last_name}`
+          .toLowerCase();
 
       return (
         fullName.includes(search) &&
@@ -162,80 +163,87 @@ const renderPatients = () => {
           formatStatus(status) === filter
         )
       );
-    })
+    }
+  );
 
-    .forEach((patient) => {
+  filteredPatients.forEach((patient) => {
 
-      const fullName =
-        `${patient.first_name ?? ""} ${patient.last_name ?? ""}`.trim();
+    const row = document.createElement("tr");
 
-      const row =
-        document.createElement("tr");
+    const fullName =
+      `${patient.first_name || ""} ${patient.last_name || ""}`.trim();
 
-      row.innerHTML = `
-        <td>${patient.queue_position ?? "-"}</td>
+    row.innerHTML = `
+      <td>${patient.queue_position || "-"}</td>
 
-        <td>${fullName}</td>
+      <td>${fullName}</td>
 
-        <td>${patient.email ?? "-"}</td>
+      <td>${patient.email || "-"}</td>
 
-        <td>${patient.phone_number ?? "-"}</td>
+      <td>${patient.phone_number || "-"}</td>
 
-        <td>
-          <select data-id="${patient.queue_id}">
-            
-            <option value="Waiting"
-              ${patient.status === "waiting" ? "selected" : ""}>
-              Waiting
-            </option>
+      <td>
+        <select class="statusSelect" data-id="${patient.queue_id}">
 
-            <option value="In Consultation"
-              ${patient.status === "in_consultation" ? "selected" : ""}>
-              In Consultation
-            </option>
+          <option value="Waiting"
+            ${patient.status === "waiting" ? "selected" : ""}>
+            Waiting
+          </option>
 
-            <option value="Complete"
-              ${patient.status === "complete" ? "selected" : ""}>
-              Complete
-            </option>
+          <option value="In Consultation"
+            ${patient.status === "in_consultation" ? "selected" : ""}>
+            In Consultation
+          </option>
 
-            <option value="Delete">
-              Delete
-            </option>
+          <option value="Complete"
+            ${patient.status === "complete" ? "selected" : ""}>
+            Complete
+          </option>
 
-          </select>
-        </td>
-      `;
+          <option value="Delete">
+            Delete
+          </option>
 
-      row
-        .querySelector("select")
-        .addEventListener("change", (e) => {
+        </select>
+      </td>
+    `;
 
-          const id = e.target.dataset.id;
-          const value = e.target.value;
+    const statusSelect =
+      row.querySelector(".statusSelect");
 
-          if (value === "Delete") {
+    statusSelect.addEventListener(
+      "change",
+      async (e) => {
 
-            deletePatient(id);
+        const id =
+          e.target.dataset.id;
 
-          } else {
+        const value =
+          e.target.value;
 
-            updateStatus(id, value);
-          }
-        });
+        if (value === "Delete") {
 
-      table.appendChild(row);
-    });
+          await deletePatient(id);
+
+        } else {
+
+          await updateStatus(id, value);
+        }
+      }
+    );
+
+    patientTable.appendChild(row);
+  });
 };
 
+/* UPDATE STATUS*/
 
-// UPDATE STATUS
 const updateStatus = async (id, value) => {
 
-  const dbStatus =
-    value.toLowerCase().replace(/\s+/g, "_");
-
   try {
+
+    const dbStatus =
+      value.toLowerCase().replace(/\s+/g, "_");
 
     const response = await fetch(
       `/api/queue/${id}`,
@@ -267,8 +275,8 @@ const updateStatus = async (id, value) => {
   }
 };
 
+/*DELETE PATIENT*/
 
-// DELETE PATIENT
 const deletePatient = async (id) => {
 
   const confirmDelete = confirm(
@@ -291,9 +299,7 @@ const deletePatient = async (id) => {
     );
 
     if (!response.ok) {
-      throw new Error(
-        "Failed to delete patient"
-      );
+      throw new Error("Failed to delete patient");
     }
 
     await loadPatients();
@@ -311,145 +317,34 @@ const deletePatient = async (id) => {
   }
 };
 
+/*DIALOG CONTROLS*/
 
-// EVENT LISTENERS
-document
-  .getElementById("searchInput")
-  .addEventListener("input", renderPatients);
+const closeDialog = () => {
+  patientDialog.close();
+};
 
-document
-  .getElementById("filterStatus")
-  .addEventListener("change", renderPatients);
+const closeRescheduleDialog = () => {
+  rescheduleDialog.close();
+};
 
+/* ADD PATIENT*/
 
-// OPEN ADD PATIENT DIALOG
-document
-  .getElementById("addPatientBtn")
-  .addEventListener("click", () => {
-
-    document
-      .getElementById("patientDialog")
-      .showModal();
-  });
-
-
-// OPEN RESCHEDULE DIALOG
-document
-  .getElementById("rescheduleBtn")
-  .addEventListener("click", () => {
-
-    const dropdown =
-      document.getElementById(
-        "appointmentSelect"
-      );
-
-    dropdown.innerHTML = `
-      <option value="">
-        Select Patient
-      </option>
-    `;
-
-    // ONLY SHOW WAITING PATIENTS
-    const waitingPatients =
-      patients.filter(
-        patient =>
-          patient.status === "waiting" &&
-          patient.appointment_id
-      );
-
-    waitingPatients.forEach((patient) => {
-
-      const option =
-        document.createElement("option");
-
-      option.value =
-        patient.appointment_id;
-
-      // STORE EXTRA DATA
-      option.dataset.patientName =
-        `${patient.first_name} ${patient.last_name}`;
-
-      option.dataset.currentDate =
-        patient.appointment_date || "";
-
-      option.dataset.currentTime =
-        patient.appointment_time || "";
-
-      option.textContent =
-        `${patient.first_name} ${patient.last_name}`;
-
-      dropdown.appendChild(option);
-    });
-
-    // UPDATE DETAILS WHEN SELECT CHANGES
-    dropdown.onchange = () => {
-
-      const selectedOption =
-        dropdown.options[
-          dropdown.selectedIndex
-        ];
-
-      document.getElementById(
-        "selectedPatientName"
-      ).value =
-        selectedOption.dataset.patientName || "";
-
-      document.getElementById(
-        "currentAppointmentDate"
-      ).value =
-        selectedOption.dataset.currentDate || "";
-
-      document.getElementById(
-        "newAppointmentTime"
-      ).value =
-        selectedOption.dataset.currentTime || "";
-    };
-
-    document
-      .getElementById("rescheduleDialog")
-      .showModal();
-  });
-
-
-// CLOSE ADD PATIENT DIALOG
-function closeDialog() {
-
-  document
-    .getElementById("patientDialog")
-    .close();
-}
-
-
-// CLOSE RESCHEDULE DIALOG
-function closeRescheduleDialog() {
-
-  document
-    .getElementById("rescheduleDialog")
-    .close();
-}
-
-
-// ADD WALK-IN PATIENT
-async function submitPatient() {
+const submitPatient = async () => {
 
   const first_name =
-    document.getElementById("firstName")
-      .value;
+    document.getElementById("firstName").value.trim();
 
   const last_name =
-    document.getElementById("lastName")
-      .value;
+    document.getElementById("lastName").value.trim();
 
   const email =
-    document.getElementById("email")
-      .value;
+    document.getElementById("email").value.trim();
 
   const phone_number =
-    document.getElementById("phoneNumber")
-      .value;
+    document.getElementById("phoneNumber").value.trim();
 
   const clinic_id =
-    getCurrentUser().clinicId;
+    getCurrentUser()?.clinicId;
 
   if (
     !first_name ||
@@ -459,15 +354,6 @@ async function submitPatient() {
   ) {
 
     alert("Please fill in all fields");
-    return;
-  }
-
-  if (!clinic_id) {
-
-    alert(
-      "No clinic is linked to this staff account."
-    );
-
     return;
   }
 
@@ -493,14 +379,10 @@ async function submitPatient() {
     );
 
     if (!response.ok) {
-      throw new Error(
-        "Failed to add patient"
-      );
+      throw new Error("Failed to add patient");
     }
 
-    document
-      .getElementById("patientDialog")
-      .close();
+    closeDialog();
 
     await loadPatients();
 
@@ -510,12 +392,79 @@ async function submitPatient() {
 
     alert("Error adding patient");
   }
-}
+};
 
+/* OPEN RESCHEDULE DIALOG*/
 
+const openRescheduleDialog = () => {
 
-// SUBMIT RESCHEDULE
-async function submitReschedule() {
+  const dropdown =
+    document.getElementById("appointmentSelect");
+
+  dropdown.innerHTML = `
+    <option value="">
+      Select Patient
+    </option>
+  `;
+
+  const waitingPatients = patients.filter(
+    patient =>
+      patient.status === "waiting" &&
+      patient.appointment_id
+  );
+
+  waitingPatients.forEach((patient) => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      patient.appointment_id;
+
+    option.dataset.patientName =
+      `${patient.first_name} ${patient.last_name}`;
+
+    option.dataset.currentDate =
+      patient.appointment_date || "";
+
+    option.dataset.currentTime =
+      patient.appointment_time || "";
+
+    option.textContent =
+      `${patient.first_name} ${patient.last_name}`;
+
+    dropdown.appendChild(option);
+  });
+
+  dropdown.onchange = () => {
+
+    const selectedOption =
+      dropdown.options[
+        dropdown.selectedIndex
+      ];
+
+    document.getElementById(
+      "selectedPatientName"
+    ).value =
+      selectedOption.dataset.patientName || "";
+
+    document.getElementById(
+      "currentAppointmentDate"
+    ).value =
+      selectedOption.dataset.currentDate || "";
+
+    document.getElementById(
+      "newAppointmentTime"
+    ).value =
+      selectedOption.dataset.currentTime || "";
+  };
+
+  rescheduleDialog.showModal();
+};
+
+/*SUBMIT RESCHEDULE*/
+
+const submitReschedule = async () => {
 
   try {
 
@@ -535,31 +484,19 @@ async function submitReschedule() {
       ).value;
 
     if (!appointmentId) {
-
       alert("Please select a patient");
-
       return;
     }
 
     if (!appointment_date) {
-
       alert("Please select a new date");
-
       return;
     }
 
     if (!appointment_time) {
-
       alert("Please select a time");
-
       return;
     }
-
-    console.log("PATCHING APPOINTMENT:", {
-      appointmentId,
-      appointment_date,
-      appointment_time
-    });
 
     const response = await fetch(
       `/api/queue/appointments/${appointmentId}`,
@@ -580,11 +517,6 @@ async function submitReschedule() {
     const data =
       await response.json();
 
-    console.log(
-      "PATCH RESPONSE:",
-      data
-    );
-
     if (!response.ok) {
 
       throw new Error(
@@ -599,13 +531,12 @@ async function submitReschedule() {
 
     closeRescheduleDialog();
 
-    // REFRESH DATA
     await loadPatients();
 
   } catch (error) {
 
     console.error(
-      "RESCHEDULE ERROR:",
+      "Reschedule error:",
       error
     );
 
@@ -613,20 +544,53 @@ async function submitReschedule() {
       "Error rescheduling appointment"
     );
   }
-}
+};
 
+/*EVENT LISTENERS*/
 
-// INITIAL LOAD
+searchInput.addEventListener(
+  "input",
+  renderPatients
+);
+
+filterStatus.addEventListener(
+  "change",
+  renderPatients
+);
+
+addPatientBtn.addEventListener(
+  "click",
+  () => {
+    patientDialog.showModal();
+  }
+);
+
+rescheduleBtn.addEventListener(
+  "click",
+  openRescheduleDialog
+);
+
+submitPatientBtn.addEventListener(
+  "click",
+  submitPatient
+);
+
+closePatientDialogBtn.addEventListener(
+  "click",
+  closeDialog
+);
+
+saveRescheduleBtn.addEventListener(
+  "click",
+  submitReschedule
+);
+
+closeRescheduleDialogBtn.addEventListener(
+  "click",
+  closeRescheduleDialog
+);
+
+/* INITIAL LOAD*/
+
 loadDashboardClinicName();
 loadPatients();
-
-
-// GLOBAL FUNCTIONS
-window.submitPatient = submitPatient;
-window.closeDialog = closeDialog;
-
-window.submitReschedule =
-  submitReschedule;
-
-window.closeRescheduleDialog =
-  closeRescheduleDialog;

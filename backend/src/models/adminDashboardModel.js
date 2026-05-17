@@ -70,7 +70,6 @@ const getAnalytics = async (clinicId) => {
     )
   ]);
 
-  // Rest of the processing code stays the same
   const noShows = parseInt(noShowResult.rows[0].no_shows);
   const totalResolved = parseInt(noShowResult.rows[0].total_resolved);
   const noShowRate = totalResolved > 0

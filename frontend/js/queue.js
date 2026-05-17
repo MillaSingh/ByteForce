@@ -3,6 +3,8 @@ import { requireAuth, getCurrentUser } from "./auth.js";
 // Makes sure only logged-in users can access this page
 requireAuth();
 
+let callSoonEmailSent = false;
+
 async function loadQueue() {
   const loading = document.getElementById("loading");
   const empty = document.getElementById("empty");
@@ -66,7 +68,32 @@ async function loadQueue() {
       ? new Date(queue.check_in_time)
       : null;
 
-    const estimatedWaitTime = formatWaitTime(queue.estimated_wait_minutes);
+      const waitMinutes = queue.estimated_wait_minutes;
+      const estimatedWaitTime = formatWaitTime(waitMinutes);
+
+      if (waitMinutes <= 0 && !callSoonEmailSent) {
+
+        callSoonEmailSent = true;
+      
+        emailjs.send(
+          "service_5cctkza",
+          "template_ink02da",
+          {
+            email: getCurrentUser().email,
+            patient_name: getCurrentUser().email,
+            clinic_name: queue.clinic_name,
+            appointment_date: new Date().toISOString().split("T")[0],
+            appointment_time: "Soon",
+            reason: "Queue update: You are next"
+          }
+        )
+        .then(() => {
+          console.log("Call-soon email sent");
+        })
+        .catch(err => {
+          console.error("Email failed:", err);
+        });
+      }
 
     summaryText.innerText =
       `You are number ${queuePosition} in the queue at ${clinicName}`;

@@ -161,7 +161,7 @@ describe("Dashboard routes", () => {
 
   test("PATCH /api/queue/reschedule/:id reschedules appointment", async () => {
     const res = await request(app)
-      .patch("/api/queue/reschedule/5")
+      .patch("/api/queue/appointments/5")
       .send({
         appointment_date: "2026-05-01",
         appointment_time: "10:00",

@@ -1,62 +1,58 @@
-const { requireAuth } = require('./authRoutes');
-
 const express = require('express');
-
 const router = express.Router();
 
-const dashboardController =
-  require('../controllers/dashboardController');
+const { requireAuth } = require('./authRoutes');
 
+const dashboardController = require(
+  '../controllers/dashboardController'
+);
 
-
-// APPOINTMENT ROUTES
+/*APPOINTMENT ROUTES*/
 
 // RESCHEDULE APPOINTMENT
 router.patch(
   '/appointments/:id',
+  requireAuth,
   dashboardController.rescheduleAppointment
 );
 
+/*CLINIC ROUTES*/
 
-
-// CLINIC ROUTES
-
-
-// GET clinics
+// GET CLINICS
 router.get(
   '/clinics',
+  requireAuth,
   dashboardController.getClinics
 );
 
+/*QUEUE ROUTES */
 
-
-// QUEUE ROUTES
-
-
-// GET queue data
+// GET QUEUE DATA
 router.get(
   '/',
   requireAuth,
   dashboardController.getQueue
 );
 
-// ADD walk-in patient
+// ADD WALK-IN PATIENT
 router.post(
   '/add-walkin',
+  requireAuth,
   dashboardController.addWalkInPatient
 );
 
-// UPDATE queue status
+// UPDATE QUEUE STATUS
 router.patch(
   '/:id',
+  requireAuth,
   dashboardController.updateStatus
 );
 
-// DELETE patient from queue
+// DELETE PATIENT FROM QUEUE
 router.delete(
   '/:id',
+  requireAuth,
   dashboardController.deleteQueuePatient
 );
-
 
 module.exports = router;

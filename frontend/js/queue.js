@@ -1,5 +1,7 @@
 import { requireAuth, getCurrentUser } from "./auth.js";
+import emailjs from "emailjs-com";
 
+emailjs.init("It5nWm42g6-DChkm5");
 // Makes sure only logged-in users can access this page
 requireAuth();
 

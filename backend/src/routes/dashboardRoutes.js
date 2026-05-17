@@ -8,7 +8,7 @@ const dashboardController = require('../controllers/dashboardController');
 router.get('/clinics', dashboardController.getClinics);
 
 // GET queue data
-//router.get('/', dashboardController.getQueue);
+
 router.get('/', requireAuth, dashboardController.getQueue);
 
 // UPDATE status
@@ -19,10 +19,6 @@ router.delete('/:id', dashboardController.deleteQueuePatient);
 
 // add walk-in patient
 router.post('/add-walkin', dashboardController.addWalkInPatient);
-// RESCHEDULE APPOINTMENT
-router.patch(
-  '/reschedule/:id',
-  dashboardController.rescheduleAppointment
-);
+
 
 module.exports = router;

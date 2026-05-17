@@ -1,4 +1,4 @@
-//import { requireRole } from '/js/auth.js';
+
 import { requireRole, getCurrentUser } from '/js/auth.js';
 requireRole(['staff']);
 
@@ -7,20 +7,7 @@ requireRole(['staff']);
 let patients = [];
 
 
-// LOAD DATA FROM BACKEND
-// const loadPatients = async () => {
-//   try {
-//     const response = await fetch('/api/queue');
 
-//     if (!response.ok) throw new Error("Failed to fetch data");
-
-//     patients = await response.json();
-//     renderPatients();
-
-//   } catch (error) {
-//     console.error("Error fetching patients:", error);
-//   }
-// };
 
 const loadPatients = async () => {
   try {
@@ -120,22 +107,7 @@ const renderPatients = () => {
             </option>
           </select>
         </td>
-        <td>
-          ${
-            patient.status === "waiting"
-              ? `
-                <button 
-                  class="reschedule-btn"
-                  data-appointment-id="${patient.appointment_id}"
-                  data-date="${patient.appointment_date ?? ""}"
-                  data-time="${patient.appointment_time ?? ""}"
-                >
-                  Reschedule
-                </button>
-              `
-              : "-"
-          }
-        </td>
+        
       `;
 
       row.querySelector("select").addEventListener("change", (e) => {
@@ -153,34 +125,7 @@ const renderPatients = () => {
         }
       });
 
-      // RESCHEDULE BUTTON EVENT LISTENER
-      const rescheduleBtn =
-        row.querySelector(".reschedule-btn");
-
-      if (rescheduleBtn) {
-
-        rescheduleBtn.addEventListener("click", () => {
-
-          document.getElementById(
-            "rescheduleAppointmentId"
-          ).value =
-            rescheduleBtn.dataset.appointmentId;
-
-          document.getElementById(
-            "rescheduleDate"
-          ).value =
-            rescheduleBtn.dataset.date;
-
-          document.getElementById(
-            "rescheduleTime"
-          ).value =
-            rescheduleBtn.dataset.time;
-
-          document.getElementById(
-            "rescheduleDialog"
-          ).showModal();
-        });
-      }
+      
 
       table.appendChild(row);
     });
@@ -252,74 +197,6 @@ const deletePatient = async (id) => {
 };
 
 
-// RESCHEDULE APPOINTMENT
-async function submitReschedule() {
-
-  const appointment_id =
-    document.getElementById(
-      "rescheduleAppointmentId"
-    ).value;
-
-  const appointment_date =
-    document.getElementById(
-      "rescheduleDate"
-    ).value;
-
-  const appointment_time =
-    document.getElementById(
-      "rescheduleTime"
-    ).value;
-
-  if (!appointment_date || !appointment_time) {
-
-    alert("Please select date and time");
-
-    return;
-  }
-
-  try {
-
-    const response = await fetch(
-      `/api/queue/reschedule/${appointment_id}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          appointment_date,
-          appointment_time
-        })
-      }
-    );
-
-    if (!response.ok) {
-
-      throw new Error("Failed to reschedule");
-    }
-
-    document
-      .getElementById("rescheduleDialog")
-      .close();
-
-    await loadPatients();
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert("Error rescheduling appointment");
-  }
-}
-
-
-// CLOSE RESCHEDULE DIALOG
-function closeRescheduleDialog() {
-
-  document
-    .getElementById("rescheduleDialog")
-    .close();
-}
 
 
 // EVENT LISTENERS
@@ -428,7 +305,6 @@ async function submitPatient() {
 
 
 // MAKE FUNCTIONS GLOBAL
-window.submitReschedule = submitReschedule;
-window.closeRescheduleDialog = closeRescheduleDialog;
+
 window.submitPatient = submitPatient;
 window.closeDialog = closeDialog;

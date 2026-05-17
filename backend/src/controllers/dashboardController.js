@@ -1,17 +1,5 @@
 const dashboardModel = require('../models/dashboardModel');
 
-// // GET /api/queue
-// const getQueue = async (req, res) => {
-//   try {
-//     const data = await dashboardModel.getQueuePatients();
-//     res.json(data);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// };
-
-
 // GET /api/queue
 const getQueue = async (req, res) => {
   try {
@@ -54,15 +42,7 @@ const getClinics = async (req, res) => {
   }
 };
 
-// const getClinics = async (req, res) => {
-//   try {
-//     const clinics = await dashboardModel.getClinics();
-//     res.json(clinics);
-//   } catch (error) {
-//     console.error("Error fetching clinics:", error);
-//     res.status(500).json({ error: "Failed to fetch clinics" });
-//   }
-// };
+
 
 
 // PATCH /api/queue/:id
@@ -124,42 +104,13 @@ const deleteQueuePatient = async (req, res) => {
   }
 };
 
-// PATCH /api/queue/reschedule/:id
-const rescheduleAppointment = async (req, res) => {
 
-  const { id } = req.params;
-
-  const {
-    appointment_date,
-    appointment_time
-  } = req.body;
-
-  try {
-
-    const updated =
-      await dashboardModel.rescheduleAppointment(
-        id,
-        appointment_date,
-        appointment_time
-      );
-
-    res.json(updated);
-
-  } catch (error) {
-
-    console.error(error);
-
-    res.status(500).json({
-      error: "Failed to reschedule appointment"
-    });
-  }
-};
 
 module.exports = {
   getQueue,
   updateStatus,
   addWalkInPatient,
   getClinics,
-  deleteQueuePatient,
-  rescheduleAppointment
+  deleteQueuePatient
+  
 };

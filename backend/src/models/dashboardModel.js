@@ -1,44 +1,6 @@
 const pool = require('../db');
 
-// GET QUEUE DATA
-// const getQueuePatients = async () => {
-//   const result = await pool.query(`
-//     SELECT 
-//       q.queue_id,
-//       q.queue_position,
-//       q.status,
-//       q.clinic_id,
-//       q.patient_id,
-//       c.clinic_name,
-//       u.first_name,
-//       u.last_name,
-//       u.email,
-//       a.appointment_id,
-//       a.phone_number,
-//       a.appointment_date,
-//       a.appointment_time
-//     FROM queue_entry q
-//     LEFT JOIN "user" u 
-//       ON q.patient_id = u.user_id
-//     LEFT JOIN clinic c
-//       ON q.clinic_id = c.clinic_id
-//     LEFT JOIN LATERAL (
-//     SELECT 
-//       appointment_id,
-//       phone_number,
-//       appointment_date,
-//       appointment_time
-//     FROM appointment
-//     WHERE patient_id = u.user_id
-//     AND clinic_id = q.clinic_id
-//     ORDER BY appointment_date DESC, appointment_time DESC
-//     LIMIT 1
-//   ) a ON true
-//     ORDER BY q.queue_position ASC;
-//   `);
 
-//   return result.rows;
-// };
 const getQueuePatients = async (clinicId) => {
   const result = await pool.query(`
     SELECT 
@@ -203,26 +165,7 @@ const addWalkInPatient = async (first_name, last_name, email, clinic_id, phone_n
     client.release();
   }
 };
-// RESCHEDULE APPOINTMENT
-const rescheduleAppointment = async (
-  appointment_id,
-  appointment_date,
-  appointment_time
-) => {
 
-  const result = await pool.query(
-    `
-    UPDATE appointment
-    SET appointment_date = $1,
-        appointment_time = $2
-    WHERE appointment_id = $3
-    RETURNING *
-    `,
-    [appointment_date, appointment_time, appointment_id]
-  );
-
-  return result.rows[0];
-};
 // DELETE PATIENT FROM QUEUE
 const deleteQueuePatient = async (id) => {
   const result = await pool.query(
@@ -251,6 +194,5 @@ module.exports = {
   updateQueueStatus,
   addWalkInPatient,
   getClinics,
-  rescheduleAppointment,
   deleteQueuePatient
 };

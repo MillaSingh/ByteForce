@@ -1,4 +1,8 @@
 import { requireAuth, getCurrentUser } from "./auth.js";
+emailjs.init("It5nWm42g6-DChkm5");
+if (!sessionStorage.getItem("callSoonEmailSent")) {
+  sessionStorage.setItem("callSoonEmailSent", "false");
+}
 // Makes sure only logged-in users can access this page
 requireAuth();
 
@@ -126,6 +130,31 @@ async function loadQueue() {
     loading.innerText = "Failed to load your queue position";
     summaryText.innerText = "You are currently not in the queue";
   }
+
+  const waitMinutes = queue.estimated_wait_minutes;
+
+// read memory
+const alreadySent = sessionStorage.getItem("callSoonEmailSent") === "true";
+
+if (waitMinutes <= 0 && !alreadySent) {
+
+  sessionStorage.setItem("callSoonEmailSent", "true");
+
+  emailjs.send(
+    "service_5cctkza",
+    "template_ink02da",
+    {
+      email: user.email,
+      patient_name: user.email,
+      clinic_name: clinicName,
+      appointment_date: new Date().toISOString().split("T")[0],
+      appointment_time: "Soon",
+      reason: "You should be called soon"
+    }
+  )
+  .then(() => console.log("Call soon email sent"))
+  .catch(err => console.error(err));
+}
 }
 
 // Changes wait time from minutes into a more readable message

@@ -104,13 +104,68 @@ const deleteQueuePatient = async (req, res) => {
   }
 };
 
+// GET UPCOMING APPOINTMENTS
+const getUpcomingAppointments = async (req, res) => {
 
+  try {
+
+    const clinicId = req.query.clinic_id;
+
+    const appointments =
+      await dashboardModel.getUpcomingAppointments(
+        clinicId
+      );
+
+    res.json(appointments);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to fetch appointments"
+    });
+  }
+};
+
+
+// PATCH RESCHEDULE APPOINTMENT
+const rescheduleAppointment = async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const {
+      appointment_date,
+      appointment_time
+    } = req.body;
+
+    const updated =
+      await dashboardModel.rescheduleAppointment(
+        id,
+        appointment_date,
+        appointment_time
+      );
+
+    res.json(updated);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to reschedule appointment"
+    });
+  }
+};
 
 module.exports = {
   getQueue,
   updateStatus,
   addWalkInPatient,
   getClinics,
-  deleteQueuePatient
-  
+  deleteQueuePatient,
+  getUpcomingAppointments,
+  rescheduleAppointment
 };

@@ -55,6 +55,8 @@
       </select>
       <!-- ADD PATIENT BUTTON -->
       <button id="addPatientBtn">Add Patient</button>
+      <!-- RESCHEDULE PATIENT BUTTON -->
+      <button id="rescheduleBtn">Reschedule Appointment</button>
     </section>
 
     <!-- Table -->
@@ -91,6 +93,78 @@
   </section>
   </dialog>
 
+ <!-- RESCHEDULE APPOINTMENT DIALOG -->
+<dialog id="rescheduleDialog">
+
+  <h3>Reschedule Appointment</h3>
+
+  <!-- SELECT PATIENT -->
+  <label>Select Patient</label>
+
+  <select id="appointmentSelect">
+    <option value="">
+      Select Patient
+    </option>
+  </select>
+
+  <br><br>
+
+  <!-- PATIENT NAME -->
+  <label>Patient Name</label>
+
+  <input
+    type="text"
+    id="selectedPatientName"
+    readonly
+  />
+
+  <br><br>
+
+  <!-- CURRENT DATE -->
+  <label>Current Appointment Date</label>
+
+  <input
+    type="text"
+    id="currentAppointmentDate"
+    readonly
+  />
+
+  <br><br>
+
+  <!-- NEW DATE -->
+  <label>New Appointment Date</label>
+
+  <input
+    type="date"
+    id="newAppointmentDate"
+  />
+
+  <br><br>
+
+  <!-- NEW TIME -->
+  <label>New Appointment Time</label>
+
+  <input
+    type="time"
+    id="newAppointmentTime"
+  />
+
+  <br><br>
+
+  <section class="dialog-buttons">
+
+    <button onclick="submitReschedule()">
+      Save
+    </button>
+
+    <button onclick="closeRescheduleDialog()">
+      Cancel
+    </button>
+
+  </section>
+
+</dialog>
+
 
 
 <!-- Footer -->
@@ -98,7 +172,7 @@
   © 2026 MediQueue · All rights reserved · <a href="#" style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy Policy</a>
 </footer>
 
-<!-- LINK TO YOUR JS FILE -->
+<!-- LINK TO JS FILE -->
 <script type="module" src="/js/dashboard.js"></script>
   <script>
   function goToAccount() {

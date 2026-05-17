@@ -196,10 +196,72 @@ const getClinics = async (clinicId) => {
   return result.rows;
 };
 
+// GET UPCOMING APPOINTMENTS
+const getUpcomingAppointments = async (clinicId) => {
+
+  const result = await pool.query(
+    `
+    SELECT
+      a.appointment_id,
+      a.appointment_date,
+      a.appointment_time,
+      u.first_name,
+      u.last_name
+
+    FROM appointment a
+
+    JOIN "user" u
+      ON a.patient_id = u.user_id
+
+    WHERE a.clinic_id = $1
+    AND a.appointment_date >= CURRENT_DATE
+    AND a.status != 'cancelled'
+
+    ORDER BY
+      a.appointment_date ASC,
+      a.appointment_time ASC
+    `,
+    [clinicId]
+  );
+
+  return result.rows;
+};
+
+
+// RESCHEDULE APPOINTMENT
+const rescheduleAppointment = async (
+  appointmentId,
+  appointmentDate,
+  appointmentTime
+) => {
+
+  const result = await pool.query(
+    `
+    UPDATE appointment
+    SET
+      appointment_date = $1,
+      appointment_time = $2
+
+    WHERE appointment_id = $3
+
+    RETURNING *
+    `,
+    [
+      appointmentDate,
+      appointmentTime,
+      appointmentId
+    ]
+  );
+
+  return result.rows[0];
+};
+
 module.exports = {
   getQueuePatients,
   updateQueueStatus,
   addWalkInPatient,
   getClinics,
-  deleteQueuePatient
+  deleteQueuePatient,
+  getUpcomingAppointments,
+  rescheduleAppointment
 };

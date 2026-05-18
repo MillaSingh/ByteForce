@@ -1,20 +1,30 @@
-jest.mock('../src/models/userModel', () => ({
-  findUserByEmail: jest.fn()
+jest.mock("firebase-admin", () => ({
+  auth: () => ({
+    verifyIdToken: jest.fn(),
+    deleteUser: jest.fn(),
+  }),
 }));
 
-jest.mock('../src/services/firebaseService', () => ({
-  verifyFirebaseToken: jest.fn()
+jest.mock("../src/db", () => ({
+  query: jest.fn(),
 }));
 
-const { findUserByEmail } = require('../src/models/userModel');
-const { verifyFirebaseToken } = require('../src/services/firebaseService');
-const { loginUser } = require('../src/controllers/authController');
+const admin = require("firebase-admin");
+const pool = require("../src/db");
 
-const mockReq = (body = {}) => ({ body });
+const { deleteAccount } = require("../src/controllers/authController");
+
+const mockReq = (headers = {}) => ({
+  headers,
+});
+
 const mockRes = () => {
   const res = {};
-  res.json = jest.fn().mockReturnValue(res);
+
   res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  res.clearCookie = jest.fn().mockReturnValue(res);
+
   return res;
 };
 
@@ -22,113 +32,131 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('loginUser', () => {
+describe("deleteAccount controller", () => {
 
-  const fakeAdmin = {
-    id: '1',
-    email: 'admin@clinic.com',
-    role: 'admin',
-    clinicId: '42'
-  };
+  test("returns 401 when authorization header is missing", async () => {
 
-  const fakeStaff = {
-    id: '2',
-    email: 'staff@clinic.com',
-    role: 'staff',
-    clinicId: '42'
-  };
+    const req = mockReq();
 
-  const fakePatient = {
-    id: '3',
-    email: 'patient@clinic.com',
-    role: 'patient',
-    clinicId: null
-  };
-
-  test('returns user data and redirect path for a valid admin login', async () => {
-    findUserByEmail.mockResolvedValueOnce(fakeAdmin);
-
-    const req = mockReq({ email: 'admin@clinic.com', password: 'password123' });
     const res = mockRes();
 
-    await loginUser(req, res);
-
-    expect(findUserByEmail).toHaveBeenCalledWith('admin@clinic.com');
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ role: 'admin', redirect: '/admin/dashboard' })
-    );
-  });
-
-  test('returns user data and redirect path for a valid staff login', async () => {
-    findUserByEmail.mockResolvedValueOnce(fakeStaff);
-
-    const req = mockReq({ email: 'staff@clinic.com', password: 'password123' });
-    const res = mockRes();
-
-    await loginUser(req, res);
-
-    expect(findUserByEmail).toHaveBeenCalledWith('staff@clinic.com');
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ role: 'staff', redirect: '/staff/dashboard' })
-    );
-  });
-
-  test('returns user data and redirect path for a valid patient login', async () => {
-    findUserByEmail.mockResolvedValueOnce(fakePatient);
-
-    const req = mockReq({ email: 'patient@clinic.com', password: 'password123' });
-    const res = mockRes();
-
-    await loginUser(req, res);
-
-    expect(findUserByEmail).toHaveBeenCalledWith('patient@clinic.com');
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ role: 'patient', redirect: '/patient/dashboard' })
-    );
-  });
-
-  test('returns 400 when email is missing', async () => {
-    const req = mockReq({ password: 'password123' });
-    const res = mockRes();
-
-    await loginUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Email and password are required' });
-  });
-
-  test('returns 400 when password is missing', async () => {
-    const req = mockReq({ email: 'admin@clinic.com' });
-    const res = mockRes();
-
-    await loginUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Email and password are required' });
-  });
-
-  test('returns 401 when user is not found', async () => {
-    findUserByEmail.mockResolvedValueOnce(null);
-
-    const req = mockReq({ email: 'ghost@clinic.com', password: 'password123' });
-    const res = mockRes();
-
-    await loginUser(req, res);
+    await deleteAccount(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid credentials' });
+
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Unauthorized",
+    });
   });
 
-  test('returns 500 when model throws', async () => {
-    findUserByEmail.mockRejectedValueOnce(new Error('Database error'));
+  test("deletes account successfully", async () => {
 
-    const req = mockReq({ email: 'admin@clinic.com', password: 'password123' });
+    admin.auth().verifyIdToken.mockResolvedValue({
+      uid: "firebase-uid-123",
+    });
+
+    admin.auth().deleteUser.mockResolvedValue();
+
+    pool.query.mockResolvedValue({});
+
+    const req = mockReq({
+      authorization: "Bearer valid-token",
+    });
+
     const res = mockRes();
 
-    await loginUser(req, res);
+    await deleteAccount(req, res);
+
+    expect(admin.auth().verifyIdToken)
+      .toHaveBeenCalledWith("valid-token");
+
+    expect(pool.query).toHaveBeenCalledWith(
+      `DELETE FROM "user" WHERE external_auth_id = $1`,
+      ["firebase-uid-123"]
+    );
+
+    expect(admin.auth().deleteUser)
+      .toHaveBeenCalledWith("firebase-uid-123");
+
+    expect(res.clearCookie)
+      .toHaveBeenCalledWith("firebaseToken");
+
+    expect(res.json).toHaveBeenCalledWith({
+      status: "Account deleted successfully",
+    });
+  });
+
+  test("returns 500 when verifyIdToken fails", async () => {
+
+    admin.auth().verifyIdToken.mockRejectedValue(
+      new Error("Invalid token")
+    );
+
+    const req = mockReq({
+      authorization: "Bearer invalid-token",
+    });
+
+    const res = mockRes();
+
+    await deleteAccount(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Login failed' });
+
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Invalid token",
+    });
+  });
+
+  test("returns 500 when database delete fails", async () => {
+
+    admin.auth().verifyIdToken.mockResolvedValue({
+      uid: "firebase-uid-123",
+    });
+
+    pool.query.mockRejectedValue(
+      new Error("Database error")
+    );
+
+    const req = mockReq({
+      authorization: "Bearer valid-token",
+    });
+
+    const res = mockRes();
+
+    await deleteAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Database error",
+    });
+  });
+
+  test("returns 500 when Firebase deleteUser fails", async () => {
+
+    admin.auth().verifyIdToken.mockResolvedValue({
+      uid: "firebase-uid-123",
+    });
+
+    pool.query.mockResolvedValue({});
+
+    admin.auth().deleteUser.mockRejectedValue(
+      new Error("Firebase delete failed")
+    );
+
+    const req = mockReq({
+      authorization: "Bearer valid-token",
+    });
+
+    const res = mockRes();
+
+    await deleteAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Firebase delete failed",
+    });
   });
 
 });

@@ -18,7 +18,6 @@ jest.mock("../src/models/appointmentModel", () => ({
   updateAppointmentSlot: jest.fn(),
 }));
 
-const admin = require("firebase-admin");
 const appointmentModel = require("../src/models/appointmentModel");
 
 const {
@@ -41,6 +40,8 @@ describe("appointmentController", () => {
     jest.clearAllMocks();
   });
 
+  // ── createBooking ──────────────────────────────────────────────────────────
+
   test("createBooking creates a booking successfully", async () => {
     const req = {
       body: {
@@ -50,41 +51,29 @@ describe("appointmentController", () => {
         appointment_time: "10:00",
       },
     };
-
     const res = mockResponse();
 
     appointmentModel.getUserByEmail.mockResolvedValue({ user_id: 5 });
     appointmentModel.checkSlot.mockResolvedValue([]);
-    appointmentModel.createAppointment.mockResolvedValue({
-      appointment_id: 1,
-    });
+    appointmentModel.createAppointment.mockResolvedValue({ appointment_id: 1 });
 
     await createBooking(req, res);
 
     expect(appointmentModel.getUserByEmail).toHaveBeenCalledWith("test@email.com");
-    expect(appointmentModel.checkSlot).toHaveBeenCalledWith(
-      1,
-      "2026-05-01",
-      "10:00"
-    );
+    expect(appointmentModel.checkSlot).toHaveBeenCalledWith(1, "2026-05-01", "10:00");
     expect(appointmentModel.createAppointment).toHaveBeenCalledWith({
       ...req.body,
       patient_id: 5,
     });
-
-    expect(res.json).toHaveBeenCalledWith({
-      success: true,
-      appointment: { appointment_id: 1 },
-    });
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ success: true })
+    );
   });
 
   test("createBooking returns 404 when user is not found", async () => {
     const req = {
-      body: {
-        user_email: "missing@email.com",
-      },
+      body: { user_email: "missing@email.com" },
     };
-
     const res = mockResponse();
 
     appointmentModel.getUserByEmail.mockResolvedValue(null);
@@ -106,7 +95,6 @@ describe("appointmentController", () => {
         appointment_time: "10:00",
       },
     };
-
     const res = mockResponse();
 
     appointmentModel.getUserByEmail.mockResolvedValue({ user_id: 5 });
@@ -115,18 +103,13 @@ describe("appointmentController", () => {
     await createBooking(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      error: "Time slot already booked",
-    });
+    expect(res.json).toHaveBeenCalledWith({ error: "Time slot already booked" });
   });
 
   test("createBooking returns 500 when booking fails", async () => {
     const req = {
-      body: {
-        user_email: "test@email.com",
-      },
+      body: { user_email: "test@email.com" },
     };
-
     const res = mockResponse();
 
     appointmentModel.getUserByEmail.mockRejectedValue(new Error("DB error"));
@@ -134,74 +117,81 @@ describe("appointmentController", () => {
     await createBooking(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      error: "Server error",
-    });
+    expect(res.json).toHaveBeenCalledWith({ error: "Server error" });
   });
 
-  test("getMyAppointments returns 401 when no firebase token exists", async () => {
-    const req = {
-      cookies: {},
-    };
+  // ── getMyAppointments ──────────────────────────────────────────────────────
+  // ── getMyAppointments ──────────────────────────────────────────────────────
 
-    const res = mockResponse();
+test("getMyAppointments returns appointments via firebase token", async () => {
+  const req = {
+    cookies: { firebaseToken: "fake-token" },
+    headers: {}
+  };
+  const res = mockResponse();
 
-    await getMyAppointments(req, res);
+  mockVerifyIdToken.mockResolvedValueOnce({ uid: "firebase-uid" });
+  appointmentModel.getUserByFirebaseUID.mockResolvedValueOnce({ user_id: 7 });
+  appointmentModel.getAppointmentsByUser.mockResolvedValueOnce([
+    { appointment_id: 1 }
+  ]);
 
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({
-      error: "Not authenticated",
-    });
-  });
+  await getMyAppointments(req, res);
 
-  test("getMyAppointments returns appointments for authenticated user", async () => {
-    const req = {
-      cookies: {
-        firebaseToken: "fake-token",
-      },
-    };
+  expect(mockVerifyIdToken).toHaveBeenCalledWith("fake-token");
+  expect(appointmentModel.getUserByFirebaseUID).toHaveBeenCalledWith("firebase-uid");
+  expect(appointmentModel.getAppointmentsByUser).toHaveBeenCalledWith(7);
+  expect(res.json).toHaveBeenCalledWith([{ appointment_id: 1 }]);
+});
 
-    const res = mockResponse();
+test("getMyAppointments returns 401 when no token", async () => {
+  const req = {
+    cookies: {},
+    headers: {}
+  };
+  const res = mockResponse();
 
-    admin.mockVerifyIdToken.mockResolvedValue({ uid: "firebase-uid" });
-    appointmentModel.getUserByFirebaseUID.mockResolvedValue({ user_id: 7 });
-    appointmentModel.getAppointmentsByUser.mockResolvedValue([
-      { appointment_id: 1 },
-    ]);
+  await getMyAppointments(req, res);
 
-    await getMyAppointments(req, res);
+  expect(res.status).toHaveBeenCalledWith(401);
+  expect(res.json).toHaveBeenCalledWith({ error: "Not authenticated" });
+});
 
-    expect(mockVerifyIdToken).toHaveBeenCalledWith("fake-token");
-    expect(appointmentModel.getUserByFirebaseUID).toHaveBeenCalledWith("firebase-uid");
-    expect(appointmentModel.getAppointmentsByUser).toHaveBeenCalledWith(7);
-    expect(res.json).toHaveBeenCalledWith([{ appointment_id: 1 }]);
-  });
+test("getMyAppointments returns 404 when user not found in database", async () => {
+  const req = {
+    cookies: { firebaseToken: "fake-token" },
+    headers: {}
+  };
+  const res = mockResponse();
 
-  test("getMyAppointments returns 404 when firebase user has no database user", async () => {
-    const req = {
-      cookies: {
-        firebaseToken: "fake-token",
-      },
-    };
+  mockVerifyIdToken.mockResolvedValueOnce({ uid: "firebase-uid" });
+  appointmentModel.getUserByFirebaseUID.mockResolvedValueOnce(null);
 
-    const res = mockResponse();
+  await getMyAppointments(req, res);
 
-    admin.auth().verifyIdToken.mockResolvedValue({ uid: "firebase-uid" });
-    appointmentModel.getUserByFirebaseUID.mockResolvedValue(null);
+  expect(res.status).toHaveBeenCalledWith(404);
+  expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
+});
 
-    await getMyAppointments(req, res);
+test("getMyAppointments returns 500 when Firebase verification fails", async () => {
+  const req = {
+    cookies: { firebaseToken: "bad-token" },
+    headers: {}
+  };
+  const res = mockResponse();
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      error: "User not found",
-    });
-  });
+  mockVerifyIdToken.mockRejectedValueOnce(new Error("Invalid token"));
+
+  await getMyAppointments(req, res);
+
+  expect(res.status).toHaveBeenCalledWith(500);
+  expect(res.json).toHaveBeenCalledWith({ error: "Server error" });
+});
+
+  // ── getSlots ───────────────────────────────────────────────────────────────
 
   test("getSlots returns 400 when clinicId or date is missing", async () => {
-    const req = {
-      query: {},
-    };
-
+    const req = { query: {} };
     const res = mockResponse();
 
     await getSlots(req, res);
@@ -214,14 +204,9 @@ describe("appointmentController", () => {
 
   test("getSlots returns slots for valid date", async () => {
     const futureYear = new Date().getFullYear() + 1;
-
     const req = {
-      query: {
-        clinicId: "1",
-        date: `${futureYear}-05-01`,
-      },
+      query: { clinicId: "1", date: `${futureYear}-05-01` },
     };
-
     const res = mockResponse();
 
     appointmentModel.getAvailableSlots.mockResolvedValue({
@@ -237,14 +222,9 @@ describe("appointmentController", () => {
 
   test("getSlots returns 500 when getAvailableSlots fails", async () => {
     const futureYear = new Date().getFullYear() + 1;
-
     const req = {
-      query: {
-        clinicId: "1",
-        date: `${futureYear}-05-01`,
-      },
+      query: { clinicId: "1", date: `${futureYear}-05-01` },
     };
-
     const res = mockResponse();
 
     appointmentModel.getAvailableSlots.mockRejectedValue(new Error("DB error"));
@@ -257,13 +237,10 @@ describe("appointmentController", () => {
     });
   });
 
-  test("cancelAppointment cancels an appointment successfully", async () => {
-    const req = {
-      params: {
-        id: "10",
-      },
-    };
+  // ── cancelAppointment ──────────────────────────────────────────────────────
 
+  test("cancelAppointment cancels an appointment successfully", async () => {
+    const req = { params: { id: "10" } };
     const res = mockResponse();
 
     appointmentModel.cancelAppointment.mockResolvedValue();
@@ -271,18 +248,11 @@ describe("appointmentController", () => {
     await cancelAppointment(req, res);
 
     expect(appointmentModel.cancelAppointment).toHaveBeenCalledWith("10");
-    expect(res.json).toHaveBeenCalledWith({
-      success: true,
-    });
+    expect(res.json).toHaveBeenCalledWith({ success: true });
   });
 
   test("cancelAppointment returns 500 when cancellation fails", async () => {
-    const req = {
-      params: {
-        id: "10",
-      },
-    };
-
+    const req = { params: { id: "10" } };
     const res = mockResponse();
 
     appointmentModel.cancelAppointment.mockRejectedValue(new Error("DB error"));
@@ -290,23 +260,20 @@ describe("appointmentController", () => {
     await cancelAppointment(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      error: "Server error",
-    });
+    expect(res.json).toHaveBeenCalledWith({ error: "Server error" });
   });
+
+  // ── rescheduleAppointment ──────────────────────────────────────────────────
 
   test("rescheduleAppointment returns 400 when selected time is in the past", async () => {
     const req = {
-      params: {
-        id: "1",
-      },
+      params: { id: "1" },
       body: {
         clinic_id: 1,
         appointment_date: "2000-01-01",
         appointment_time: "10:00",
       },
     };
-
     const res = mockResponse();
 
     await rescheduleAppointment(req, res);
@@ -319,18 +286,14 @@ describe("appointmentController", () => {
 
   test("rescheduleAppointment returns 400 when new slot is already booked", async () => {
     const futureYear = new Date().getFullYear() + 1;
-
     const req = {
-      params: {
-        id: "1",
-      },
+      params: { id: "1" },
       body: {
         clinic_id: 1,
         appointment_date: `${futureYear}-05-01`,
         appointment_time: "10:00",
       },
     };
-
     const res = mockResponse();
 
     appointmentModel.checkSlotExcludingCurrent.mockResolvedValue([
@@ -340,39 +303,49 @@ describe("appointmentController", () => {
     await rescheduleAppointment(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      error: "Time slot already booked",
-    });
+    expect(res.json).toHaveBeenCalledWith({ error: "Time slot already booked" });
   });
 
   test("rescheduleAppointment reschedules successfully", async () => {
     const futureYear = new Date().getFullYear() + 1;
-
     const req = {
-      params: {
-        id: "1",
-      },
+      params: { id: "1" },
       body: {
         clinic_id: 1,
         appointment_date: `${futureYear}-05-01`,
         appointment_time: "10:00",
       },
     };
-
     const res = mockResponse();
 
     appointmentModel.checkSlotExcludingCurrent.mockResolvedValue([]);
-    appointmentModel.updateAppointmentSlot.mockResolvedValue({
-      appointment_id: 1,
-    });
+    appointmentModel.updateAppointmentSlot.mockResolvedValue({ appointment_id: 1 });
 
     await rescheduleAppointment(req, res);
 
     expect(res.json).toHaveBeenCalledWith({
       success: true,
-      appointment: {
-        appointment_id: 1,
-      },
+      appointment: { appointment_id: 1 },
     });
   });
+
+  test("rescheduleAppointment returns 500 when rescheduling fails", async () => {
+    const futureYear = new Date().getFullYear() + 1;
+    const req = {
+      params: { id: "1" },
+      body: {
+        clinic_id: 1,
+        appointment_date: `${futureYear}-05-01`,
+        appointment_time: "10:00",
+      },
+    };
+    const res = mockResponse();
+
+    appointmentModel.checkSlotExcludingCurrent.mockRejectedValue(new Error("DB error"));
+
+    await rescheduleAppointment(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+
 });

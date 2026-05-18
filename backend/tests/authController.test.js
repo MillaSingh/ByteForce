@@ -1,9 +1,12 @@
-jest.mock('firebase-admin', () => ({
-  auth: () => ({
+jest.mock('firebase-admin', () => {
+  const mockAuth = {
     verifyIdToken: jest.fn(),
     deleteUser: jest.fn()
-  })
-}));
+  };
+  return {
+    auth: jest.fn().mockReturnValue(mockAuth)
+  };
+});
 
 jest.mock('../src/db', () => ({
   query: jest.fn()
@@ -33,11 +36,8 @@ describe('deleteAccount controller', () => {
     pool.query.mockResolvedValue({});
 
     const req = {
-      headers: {
-        authorization: 'Bearer valid-token'
-      }
+      headers: { authorization: 'Bearer valid-token' }
     };
-
     const res = mockRes();
 
     await deleteAccount(req, res);
@@ -45,10 +45,7 @@ describe('deleteAccount controller', () => {
     expect(admin.auth().verifyIdToken).toHaveBeenCalled();
     expect(pool.query).toHaveBeenCalled();
     expect(admin.auth().deleteUser).toHaveBeenCalledWith('uid-123');
-
-    expect(res.json).toHaveBeenCalledWith({
-      status: 'Account deleted successfully'
-    });
+    expect(res.json).toHaveBeenCalledWith({ status: 'Account deleted successfully' });
   });
 
   test('returns 401 when no authorization header', async () => {
@@ -61,13 +58,31 @@ describe('deleteAccount controller', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
   });
 
-  test('returns 500 when firebase verification fails', async () => {
-    admin.auth().verifyIdToken.mockRejectedValue(new Error('fail'));
+  test('returns 401 when authorization does not start with Bearer', async () => {
+    const req = { headers: { authorization: 'Basic sometoken' } };
+    const res = mockRes();
 
-    const req = {
-      headers: { authorization: 'Bearer token' }
-    };
+    await deleteAccount(req, res);
 
+    expect(res.status).toHaveBeenCalledWith(401);
+  });
+
+  test('returns 500 when Firebase verification fails', async () => {
+    admin.auth().verifyIdToken.mockRejectedValue(new Error('Invalid token'));
+
+    const req = { headers: { authorization: 'Bearer bad-token' } };
+    const res = mockRes();
+
+    await deleteAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+
+  test('returns 500 when database query fails', async () => {
+    admin.auth().verifyIdToken.mockResolvedValue({ uid: 'uid-123' });
+    pool.query.mockRejectedValue(new Error('Database error'));
+
+    const req = { headers: { authorization: 'Bearer valid-token' } };
     const res = mockRes();
 
     await deleteAccount(req, res);

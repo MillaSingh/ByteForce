@@ -1,85 +1,153 @@
-jest.mock('../src/models/userModel', () => ({
-  findUserById: jest.fn()
+jest.mock("../src/db", () => ({
+  query: jest.fn(),
 }));
 
-const { findUserById } = require('../src/models/userModel');
-const { requireRole } = require('../src/middleware/authMiddleware');
+const pool = require("../src/db");
 
-const mockReq = (user = {}) => ({ user });
+const { requireAuth } = require("../src/routes/authRoutes");
+
+const mockReq = ({
+  cookies = {},
+  headers = {},
+} = {}) => ({
+  cookies,
+  headers,
+});
+
 const mockRes = () => {
   const res = {};
-  res.json = jest.fn().mockReturnValue(res);
+
   res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+
   return res;
 };
+
 const mockNext = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('requireRole middleware', () => {
+describe("requireAuth middleware", () => {
 
-  test('calls next() when user role matches required role', async () => {
-    findUserById.mockResolvedValueOnce({ id: '1', role: 'admin' });
+  test("calls next when valid x-user-email exists", async () => {
 
-    const req = mockReq({ id: '1', role: 'admin' });
+    pool.query.mockResolvedValue({
+      rows: [
+        {
+          user_id: 1,
+          email: "test@clinic.com",
+        },
+      ],
+    });
+
+    const req = mockReq({
+      headers: {
+        "x-user-email": "test@clinic.com",
+      },
+    });
+
     const res = mockRes();
 
-    await requireRole('admin')(req, res, mockNext);
+    await requireAuth(req, res, mockNext);
+
+    await new Promise(process.nextTick);
+
+    expect(pool.query).toHaveBeenCalledWith(
+      `SELECT user_id, email FROM "user" WHERE email = $1`,
+      ["test@clinic.com"]
+    );
+
+    expect(req.userEmail).toBe("test@clinic.com");
 
     expect(mockNext).toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
   });
 
-  test('returns 403 when user role does not match required role', async () => {
-    findUserById.mockResolvedValueOnce({ id: '2', role: 'staff' });
+  test("returns 401 when email header is missing", async () => {
 
-    const req = mockReq({ id: '2', role: 'staff' });
+    const req = mockReq();
+
     const res = mockRes();
 
-    await requireRole('admin')(req, res, mockNext);
+    await requireAuth(req, res, mockNext);
 
     expect(mockNext).not.toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Access denied' });
-  });
 
-  test('returns 403 when a patient tries to access an admin dashboard', async () => {
-    findUserById.mockResolvedValueOnce({ id: '3', role: 'patient' });
-
-    const req = mockReq({ id: '3', role: 'patient' });
-    const res = mockRes();
-
-    await requireRole('admin')(req, res, mockNext);
-
-    expect(mockNext).not.toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Access denied' });
-  });
-
-  test('returns 401 when no user is attached to the request', async () => {
-    const req = { user: null };
-    const res = mockRes();
-
-    await requireRole('admin')(req, res, mockNext);
-
-    expect(mockNext).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Unauthorized. Please log in.",
+    });
   });
 
-  test('returns 500 when model throws during role lookup', async () => {
-    findUserById.mockRejectedValueOnce(new Error('Database error'));
+  test("returns 401 when user does not exist", async () => {
 
-    const req = mockReq({ id: '1', role: 'admin' });
+    pool.query.mockResolvedValue({
+      rows: [],
+    });
+
+    const req = mockReq({
+      headers: {
+        "x-user-email": "ghost@clinic.com",
+      },
+    });
+
     const res = mockRes();
 
-    await requireRole('admin')(req, res, mockNext);
+    await requireAuth(req, res, mockNext);
+
+    await new Promise(process.nextTick);
 
     expect(mockNext).not.toHaveBeenCalled();
+
+    expect(res.status).toHaveBeenCalledWith(401);
+
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Unauthorized. Please log in.",
+    });
+  });
+
+  test("returns 500 when database query fails", async () => {
+
+    pool.query.mockRejectedValue(
+      new Error("Database error")
+    );
+
+    const req = mockReq({
+      headers: {
+        "x-user-email": "test@clinic.com",
+      },
+    });
+
+    const res = mockRes();
+
+    await requireAuth(req, res, mockNext);
+
+    await new Promise(process.nextTick);
+
+    expect(mockNext).not.toHaveBeenCalled();
+
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Authorization check failed' });
+
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Auth lookup failed.",
+    });
+  });
+
+  test("calls next when valid firebaseToken cookie exists", async () => {
+
+    const req = mockReq({
+      cookies: {
+        firebaseToken: "valid-cookie-token",
+      },
+    });
+
+    const res = mockRes();
+
+    await requireAuth(req, res, mockNext);
+
+    expect(mockNext).not.toHaveBeenCalled();
   });
 
 });

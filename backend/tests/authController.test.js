@@ -15,8 +15,8 @@ const { deleteAccount } = require('../src/controllers/authController');
 
 const mockRes = () => {
   const res = {};
-  res.json = jest.fn().mockReturnValue(res);
-  res.status = jest.fn().mockReturnValue(res);
+  res.status = jest.fn().mockReturnThis();
+  res.json = jest.fn().mockReturnThis();
   res.clearCookie = jest.fn();
   return res;
 };
@@ -25,7 +25,54 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('deleteAccount', () => {
+describe('deleteAccount controller', () => {
 
-  test('successfully deletes account', async () => {
-    admin.auth().verifyIdToken.mockResolvedValue({ uid: '123
+  test('successfully deletes user account', async () => {
+    admin.auth().verifyIdToken.mockResolvedValue({ uid: 'uid-123' });
+    admin.auth().deleteUser.mockResolvedValue(true);
+    pool.query.mockResolvedValue({});
+
+    const req = {
+      headers: {
+        authorization: 'Bearer valid-token'
+      }
+    };
+
+    const res = mockRes();
+
+    await deleteAccount(req, res);
+
+    expect(admin.auth().verifyIdToken).toHaveBeenCalled();
+    expect(pool.query).toHaveBeenCalled();
+    expect(admin.auth().deleteUser).toHaveBeenCalledWith('uid-123');
+
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'Account deleted successfully'
+    });
+  });
+
+  test('returns 401 when no authorization header', async () => {
+    const req = { headers: {} };
+    const res = mockRes();
+
+    await deleteAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+  });
+
+  test('returns 500 when firebase verification fails', async () => {
+    admin.auth().verifyIdToken.mockRejectedValue(new Error('fail'));
+
+    const req = {
+      headers: { authorization: 'Bearer token' }
+    };
+
+    const res = mockRes();
+
+    await deleteAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+
+});

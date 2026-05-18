@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard | MEDIQUEUE</title>
   <link rel="stylesheet" href="/css/admin_dashboard.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
   <nav>
@@ -84,6 +88,28 @@
       </figure>
     </section>
 
+    <!-- No-show rate by day of week -->
+    <section class="chart-section" aria-label="No-show rate by day of week">
+      <header class="chart-header">
+        <h2>No-show Rate by Day of Week</h2>
+        <p>Percentage of confirmed appointments that were not completed per day</p>
+      </header>
+      <figure class="chart-container">
+        <canvas id="noShowByDayChart" aria-label="No-show rate by day chart" role="img"></canvas>
+      </figure>
+    </section>
+
+    <!-- Avg wait time by day of week -->
+    <section class="chart-section" aria-label="Average wait time by day of week">
+      <header class="chart-header">
+        <h2>Average Wait Time by Day of Week</h2>
+        <p>Average time from check-in to consultation per day (open days only)</p>
+      </header>
+      <figure class="chart-container">
+        <canvas id="waitByDayChart" aria-label="Average wait time by day chart" role="img"></canvas>
+      </figure>
+    </section>
+
     <!-- Recent appointments table -->
     <section class="table-section" aria-label="Recent appointments">
       <header class="table-header">
@@ -111,21 +137,23 @@
   </main>
 
   <footer>
-        © 2026 MediQueue · All rights reserved · <a href="#" style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy
-            Policy</a>
-    </footer>
+    © 2026 MediQueue · All rights reserved · <a href="#"
+      style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy
+      Policy</a>
+  </footer>
 
   <script type="module" src="/js/admin_dashboard.js"></script>
-    <script>
-  function goToAccount() {
-    sessionStorage.setItem(
-      "previousPageBeforeAccount",
-      window.location.pathname + window.location.search
-    );
+  <script>
+    function goToAccount() {
+      sessionStorage.setItem(
+        "previousPageBeforeAccount",
+        window.location.pathname + window.location.search
+      );
 
-    window.location.href = "/html/account.html";
-  }
-</script>
+      window.location.href = "/html/account.html";
+    }
+  </script>
 
 </body>
+
 </html>

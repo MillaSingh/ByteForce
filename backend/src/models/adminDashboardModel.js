@@ -10,7 +10,9 @@ const getAnalytics = async (clinicId) => {
     waitResult,
     weeklyResult,
     statusResult,
-    recentResult
+    recentResult,
+    noShowByDayResult,    // NEW
+    waitByDayResult       // NEW
   ] = await Promise.all([
     pool.query(
       `SELECT COUNT(*) FROM appointment
@@ -36,7 +38,9 @@ const getAnalytics = async (clinicId) => {
        FROM queue_entry
        WHERE clinic_id = $1
        AND check_in_time IS NOT NULL
-       AND called_time IS NOT NULL`,
+       AND called_time IS NOT NULL
+       AND called_time > check_in_time
+       AND EXTRACT(EPOCH FROM (called_time - check_in_time)) / 60 < 240`,
       [clinicId]
     ),
     pool.query(
@@ -66,6 +70,43 @@ const getAnalytics = async (clinicId) => {
        WHERE a.clinic_id = $1
        ORDER BY a.appointment_date DESC, a.appointment_time DESC
        LIMIT 20`,
+      [clinicId]
+    ),
+    // NEW: no-show rate per day of week (open days only)
+    pool.query(
+      `SELECT
+         EXTRACT(DOW FROM a.appointment_date) AS day_num,
+         TRIM(TO_CHAR(a.appointment_date, 'Day')) AS day_name,
+         COUNT(*) FILTER (WHERE a.status = 'confirmed' AND a.appointment_date < CURRENT_DATE) AS no_shows,
+         COUNT(*) FILTER (WHERE a.status IN ('confirmed', 'completed', 'cancelled')) AS total
+       FROM appointment a
+       JOIN clinic_operating_hours h
+         ON h.clinic_id = a.clinic_id
+         AND TRIM(TO_CHAR(a.appointment_date, 'Day')) = h.day_of_week
+         AND h.is_closed = false
+       WHERE a.clinic_id = $1
+       GROUP BY EXTRACT(DOW FROM a.appointment_date), TRIM(TO_CHAR(a.appointment_date, 'Day'))
+       ORDER BY EXTRACT(DOW FROM a.appointment_date)`,
+      [clinicId]
+    ),
+    // NEW: avg wait time per day of week (open days only)
+    pool.query(
+      `SELECT
+         EXTRACT(DOW FROM q.check_in_time) AS day_num,
+         TRIM(TO_CHAR(q.check_in_time, 'Day')) AS day_name,
+         ROUND(AVG(EXTRACT(EPOCH FROM (q.called_time - q.check_in_time)) / 60)::numeric, 1) AS avg_wait
+       FROM queue_entry q
+       JOIN clinic_operating_hours h
+         ON h.clinic_id = q.clinic_id
+         AND TRIM(TO_CHAR(q.check_in_time, 'Day')) = h.day_of_week
+         AND h.is_closed = false
+       WHERE q.clinic_id = $1
+       AND q.check_in_time IS NOT NULL
+       AND q.called_time IS NOT NULL
+       AND q.called_time > q.check_in_time
+       AND EXTRACT(EPOCH FROM (q.called_time - q.check_in_time)) / 60 < 240
+       GROUP BY EXTRACT(DOW FROM q.check_in_time), TRIM(TO_CHAR(q.check_in_time, 'Day'))
+       ORDER BY EXTRACT(DOW FROM q.check_in_time)`,
       [clinicId]
     )
   ]);
@@ -101,6 +142,20 @@ const getAnalytics = async (clinicId) => {
     count: parseInt(row.count)
   }));
 
+  // Process no-show by day
+  const noShowByDay = noShowByDayResult.rows.map(row => ({
+    day: row.day_name,
+    rate: row.total > 0
+      ? Math.round((parseInt(row.no_shows) / parseInt(row.total)) * 100)
+      : 0
+  }));
+
+  // Process wait time by day
+  const waitByDay = waitByDayResult.rows.map(row => ({
+    day: row.day_name,
+    avgWait: parseFloat(row.avg_wait) || 0
+  }));
+
   return {
     appointmentsToday: parseInt(todayResult.rows[0].count),
     totalAppointments: parseInt(totalResult.rows[0].count),
@@ -108,7 +163,9 @@ const getAnalytics = async (clinicId) => {
     avgWaitMinutes,
     weeklyAppointments,
     statusBreakdown,
-    recentAppointments: recentResult.rows
+    recentAppointments: recentResult.rows,
+    noShowByDay,
+    waitByDay
   };
 };
 

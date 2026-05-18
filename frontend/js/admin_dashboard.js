@@ -7,30 +7,34 @@ const CLINIC_ID = clinicId;
 // Chart instances
 let appointmentsChart = null;
 let statusChart = null;
+let noShowByDayChart = null;
+let waitByDayChart = null;
 
 // All appointments data (for CSV export)
 let allAppointments = [];
 
 // Fetch all dashboard data
 async function loadDashboard() {
-    if (!CLINIC_ID) {
-        document.getElementById('clinicNameHeader').textContent =
-            'No clinic assigned to your account.';
-        return;
-    }
+  if (!CLINIC_ID) {
+    document.getElementById('clinicNameHeader').textContent =
+      'No clinic assigned to your account.';
+    return;
+  }
 
-    try {
-        const response = await fetch(`/api/dashboard/analytics/${CLINIC_ID}`);
-        if (!response.ok) throw new Error('Failed to fetch analytics');
-        const data = await response.json();
-        renderSummaryCards(data);
-        renderWeeklyChart(data.weeklyAppointments);
-        renderStatusChart(data.statusBreakdown);
-        renderRecentAppointments(data.recentAppointments);
-        allAppointments = data.recentAppointments;
-    } catch (err) {
-        console.error('Failed to load dashboard:', err);
-    }
+  try {
+    const response = await fetch(`/api/dashboard/analytics/${CLINIC_ID}`);
+    if (!response.ok) throw new Error('Failed to fetch analytics');
+    const data = await response.json();
+    renderSummaryCards(data);
+    renderWeeklyChart(data.weeklyAppointments);
+    renderStatusChart(data.statusBreakdown);
+    renderNoShowByDayChart(data.noShowByDay);    // NEW
+    renderWaitByDayChart(data.waitByDay);         // NEW
+    renderRecentAppointments(data.recentAppointments);
+    allAppointments = data.recentAppointments;
+  } catch (err) {
+    console.error('Failed to load dashboard:', err);
+  }
 }
 
 // Summary cards
@@ -142,6 +146,115 @@ function renderStatusChart(statusData) {
             }
         }
     });
+}
+
+// No-show rate by day of week bar chart
+function renderNoShowByDayChart(noShowByDay) {
+  const ctx = document.getElementById('noShowByDayChart').getContext('2d');
+
+  if (noShowByDayChart) noShowByDayChart.destroy();
+
+  if (!noShowByDay || noShowByDay.length === 0) {
+    ctx.canvas.parentElement.innerHTML = '<p style="text-align:center;color:var(--text-light);padding:2rem;">No data available yet.</p>';
+    return;
+  }
+
+  const labels = noShowByDay.map(d => d.day);
+  const rates = noShowByDay.map(d => d.rate);
+
+  noShowByDayChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'No-show Rate (%)',
+        data: rates,
+        backgroundColor: 'rgba(192, 57, 43, 0.7)',
+        borderColor: '#922b21',
+        borderWidth: 1.5,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.parsed.y}% no-show rate`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: (value) => `${value}%`
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// Average wait time by day of week bar chart
+function renderWaitByDayChart(waitByDay) {
+  const ctx = document.getElementById('waitByDayChart').getContext('2d');
+
+  if (waitByDayChart) waitByDayChart.destroy();
+
+  if (!waitByDay || waitByDay.length === 0) {
+    ctx.canvas.parentElement.innerHTML = '<p style="text-align:center;color:var(--text-light);padding:2rem;">No data available yet — check-in tracking may not be active.</p>';
+    return;
+  }
+
+  const labels = waitByDay.map(d => d.day);
+  const waits = waitByDay.map(d => d.avgWait);
+
+  waitByDayChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Avg Wait Time (min)',
+        data: waits,
+        backgroundColor: 'rgba(41, 128, 185, 0.7)',
+        borderColor: '#1a5276',
+        borderWidth: 1.5,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.parsed.y} min avg wait`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: (value) => `${value} min`
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
 }
 
 // Recent appointments table

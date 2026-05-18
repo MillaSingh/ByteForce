@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manage Staff | MEDIQUEUE Admin</title>
   <link rel="stylesheet" href="/css/admin_staff.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
 </head>
+
 <body>
 
   <nav>
@@ -22,8 +26,8 @@
       <li><a class="active" href="/html/admin_staff.html">Manage Staff</a></li>
     </ul>
     <button class="nav-cta account-btn" onclick="goToAccount()">
-  Account
-</button>
+      Account
+    </button>
   </nav>
 
   <main>
@@ -77,11 +81,18 @@
             <option value="">Select a title</option>
             <option value="Dr">Dr</option>
             <option value="Nurse">Nurse</option>
+            <option value="Receptionist">Receptionist</option>
+            <option value="Admin">Admin</option>
+            <option value="Medical Biller">Medical Biller</option>
+            <option value="Psychologist">Psychologist</option>
+            <option value="Dietician">Dietician</option>
+            <option value="Technician">Technician</option>
             <option value="None">None</option>
           </select>
 
           <label for="specialties">Specialties</label>
-          <textarea id="specialties" name="specialties" rows="3" placeholder="e.g. Cardiology, Paediatrics, TB Treatment (optional)"></textarea>
+          <textarea id="specialties" name="specialties" rows="3"
+            placeholder="e.g. Cardiology, Paediatrics, TB Treatment (optional)"></textarea>
           <small>List any specialties separated by commas. This field is optional.</small>
 
         </fieldset>
@@ -98,21 +109,23 @@
   </main>
 
   <footer>
-        © 2026 MediQueue · All rights reserved · <a href="#" style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy
-            Policy</a>
-    </footer>
+    © 2026 MediQueue · All rights reserved · <a href="#"
+      style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy
+      Policy</a>
+  </footer>
 
   <script type="module" src="/js/admin_staff.js"></script>
-    <script>
-  function goToAccount() {
-    sessionStorage.setItem(
-      "previousPageBeforeAccount",
-      window.location.pathname + window.location.search
-    );
+  <script>
+    function goToAccount() {
+      sessionStorage.setItem(
+        "previousPageBeforeAccount",
+        window.location.pathname + window.location.search
+      );
 
-    window.location.href = "/html/account.html";
-  }
-</script>
+      window.location.href = "/html/account.html";
+    }
+  </script>
 
 </body>
+
 </html>

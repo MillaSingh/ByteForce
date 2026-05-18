@@ -24,6 +24,7 @@ body {
   font-family: 'DM Sans', sans-serif; /* Main font */
   background: var(--cream);          /* Background color */
   color: var(--ink);                 /* Text color */
+  visibility: hidden;
 }
 
 

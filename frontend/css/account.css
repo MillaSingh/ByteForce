@@ -14,6 +14,10 @@
   gap: 0.5rem;
 }
 
+body {
+  visibility: hidden;
+}
+
 .account-container h1 {
   margin-bottom: 0.5rem;
   font-size: 2rem;

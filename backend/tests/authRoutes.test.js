@@ -1,139 +1,221 @@
+const express = require('express');
+const request = require('supertest');
+
 jest.mock('../src/db', () => ({
-  query: jest.fn()
+  query: jest.fn(),
+  connect: jest.fn()
 }));
 
 const pool = require('../src/db');
-const router = require('../src/routes/authRoutes');
+const authRoutes = require('../src/routes/authRoutes');
 
-const mockRes = () => {
-  const res = {};
-  res.status = jest.fn().mockReturnThis();
-  res.json = jest.fn().mockReturnThis();
-  res.cookie = jest.fn();
-  res.clearCookie = jest.fn();
-  return res;
-};
-
-const getRouteHandler = (path) => {
-  const layer = router.stack.find(l => l.route?.path === path);
-  return layer?.route?.stack[0]?.handle;
-};
+let app;
 
 beforeEach(() => {
   jest.clearAllMocks();
+
+  app = express();
+  app.use(express.json());
+  app.use('/api/auth', authRoutes);
 });
 
-describe('authRoutes - /me', () => {
+describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
 
-  test('returns user data', async () => {
-    pool.query.mockResolvedValue({
-      rowCount: 1,
-      rows: [{
-        user_id: 1,
-        email: 'test@mail.com',
-        role: 'admin'
-      }]
+  // -----------------------------
+  // /me (ALL BRANCHES)
+  // -----------------------------
+  describe('GET /me', () => {
+
+    test('200 success', async () => {
+      pool.query.mockResolvedValue({
+        rowCount: 1,
+        rows: [{ email: 'a@mail.com', role: 'admin' }]
+      });
+
+      const res = await request(app)
+        .get('/api/auth/me')
+        .set('x-user-email', 'a@mail.com');
+
+      expect(res.statusCode).toBe(200);
     });
 
-    const handler = getRouteHandler('/me');
+    test('400 missing email', async () => {
+      const res = await request(app)
+        .get('/api/auth/me');
 
-    const req = {
-      headers: { 'x-user-email': 'test@mail.com' }
-    };
-
-    const res = mockRes();
-
-    await handler(req, res);
-
-    expect(res.json).toHaveBeenCalled();
-  });
-
-  test('returns 400 when email missing', async () => {
-    const handler = getRouteHandler('/me');
-
-    const req = { headers: {} };
-    const res = mockRes();
-
-    await handler(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
-
-});
-
-describe('authRoutes - /check-role', () => {
-
-  test('redirects to dashboard when role exists', async () => {
-    pool.query.mockResolvedValue({
-      rows: [{ role: 'admin' }]
+      expect(res.statusCode).toBe(400);
     });
 
-    const handler = getRouteHandler('/check-role');
+    test('500 DB error branch', async () => {
+      pool.query.mockRejectedValue(new Error('DB crash'));
 
-    const req = { headers: { 'x-user-email': 'a@mail.com' } };
-    const res = mockRes();
+      const res = await request(app)
+        .get('/api/auth/me')
+        .set('x-user-email', 'a@mail.com');
 
-    await handler(req, res);
-
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        redirect: '/html/admin_dashboard.html'
-      })
-    );
-  });
-
-  test('redirects to select_role when role is null', async () => {
-    pool.query.mockResolvedValue({
-      rows: [{ role: null }]
+      expect(res.statusCode).toBe(500);
     });
 
-    const handler = getRouteHandler('/check-role');
-
-    const req = { headers: { 'x-user-email': 'a@mail.com' } };
-    const res = mockRes();
-
-    await handler(req, res);
-
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        redirect: '/html/select_role.html'
-      })
-    );
   });
 
-});
+  // -----------------------------
+  // /check-role (ALL BRANCHES)
+  // -----------------------------
+  describe('GET /check-role', () => {
 
-describe('authRoutes - /set-role', () => {
+    test('admin redirect', async () => {
+      pool.query.mockResolvedValue({
+        rows: [{ role: 'admin' }]
+      });
 
-  test('returns 400 for invalid role', async () => {
-    const handler = getRouteHandler('/set-role');
+      const res = await request(app)
+        .get('/api/auth/check-role')
+        .set('x-user-email', 'admin@mail.com');
 
-    const req = {
-      body: { role: 'invalid' },
-      headers: { 'x-user-email': 'test@mail.com' }
-    };
+      expect(res.body.redirect).toBe('/html/admin_dashboard.html');
+    });
 
-    const res = mockRes();
+    test('null role redirect', async () => {
+      pool.query.mockResolvedValue({
+        rows: [{ role: null }]
+      });
 
-    await handler(req, res);
+      const res = await request(app)
+        .get('/api/auth/check-role')
+        .set('x-user-email', 'u@mail.com');
 
-    expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.body.redirect).toBe('/html/select_role.html');
+    });
+
+    test('404 user missing', async () => {
+      pool.query.mockResolvedValue({ rows: [] });
+
+      const res = await request(app)
+        .get('/api/auth/check-role')
+        .set('x-user-email', 'x@mail.com');
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('500 DB error branch', async () => {
+      pool.query.mockRejectedValue(new Error('fail'));
+
+      const res = await request(app)
+        .get('/api/auth/check-role')
+        .set('x-user-email', 'x@mail.com');
+
+      expect(res.statusCode).toBe(500);
+    });
+
   });
 
-});
+  // -----------------------------
+  // /set-role (IMPORTANT)
+  // -----------------------------
+  describe('POST /set-role', () => {
 
-describe('authRoutes - /session', () => {
+    test('invalid role → 400', async () => {
+      const res = await request(app)
+        .post('/api/auth/set-role')
+        .set('x-user-email', 'a@mail.com')
+        .send({ role: 'hacker' });
 
-  test('returns 400 when idToken missing', async () => {
-    const layer = router.stack.find(l => l.route?.path === '/session');
-    const handler = layer.route.stack[0].handle;
+      expect(res.statusCode).toBe(400);
+    });
 
-    const req = { body: {} };
-    const res = mockRes();
+    test('user not found → 404', async () => {
+      pool.query.mockResolvedValueOnce({ rows: [] });
 
-    handler(req, res);
+      const res = await request(app)
+        .post('/api/auth/set-role')
+        .set('x-user-email', 'a@mail.com')
+        .send({ role: 'admin' });
 
-    expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('DB failure → 500 branch', async () => {
+      pool.query.mockRejectedValue(new Error('fail'));
+
+      const res = await request(app)
+        .post('/api/auth/set-role')
+        .set('x-user-email', 'a@mail.com')
+        .send({ role: 'admin' });
+
+      expect(res.statusCode).toBe(500);
+    });
+
+  });
+
+  // -----------------------------
+  // /session (FULL BRANCH)
+  // -----------------------------
+  describe('POST /session', () => {
+
+    test('missing token → 400', async () => {
+      const res = await request(app)
+        .post('/api/auth/session')
+        .send({});
+
+      expect(res.statusCode).toBe(400);
+    });
+
+  });
+
+  // -----------------------------
+  // /sync-password (FULL BRANCH)
+  // -----------------------------
+  describe('POST /sync-password', () => {
+
+    test('missing fields → 400', async () => {
+      const res = await request(app)
+        .post('/api/auth/sync-password')
+        .send({ email: 'a@mail.com' });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    test('user not found → 404', async () => {
+      pool.query.mockResolvedValueOnce({ rowCount: 0 });
+
+      const res = await request(app)
+        .post('/api/auth/sync-password')
+        .send({
+          email: 'ghost@mail.com',
+          newPassword: '12345678'
+        });
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('DB crash → 500', async () => {
+      pool.query.mockRejectedValue(new Error('fail'));
+
+      const res = await request(app)
+        .post('/api/auth/sync-password')
+        .send({
+          email: 'a@mail.com',
+          newPassword: '12345678'
+        });
+
+      expect(res.statusCode).toBe(500);
+    });
+
+  });
+
+  // -----------------------------
+  // /verify-admin-code
+  // -----------------------------
+  describe('POST /verify-admin-code', () => {
+
+    test('missing code → 400', async () => {
+      const res = await request(app)
+        .post('/api/auth/verify-admin-code')
+        .send({});
+
+      expect(res.statusCode).toBe(400);
+    });
+
   });
 
 });

@@ -1,7 +1,10 @@
 const pool = require('../db');
 
+/* GET QUEUE PATIENTS */
 
+// Get all queue patients
 const getQueuePatients = async (clinicId) => {
+
   const result = await pool.query(`
     SELECT 
       q.queue_id,
@@ -17,24 +20,32 @@ const getQueuePatients = async (clinicId) => {
       a.phone_number,
       a.appointment_date,
       a.appointment_time
+
     FROM queue_entry q
 
-    LEFT JOIN "user" u 
+    LEFT JOIN "user" u
       ON q.patient_id = u.user_id
 
     LEFT JOIN clinic c
       ON q.clinic_id = c.clinic_id
 
+    -- Get latest appointment
     LEFT JOIN LATERAL (
-      SELECT 
+      SELECT
         appointment_id,
         phone_number,
         appointment_date,
         appointment_time
+
       FROM appointment
+
       WHERE patient_id = u.user_id
       AND clinic_id = q.clinic_id
-      ORDER BY appointment_date DESC, appointment_time DESC
+
+      ORDER BY
+        appointment_date DESC,
+        appointment_time DESC
+
       LIMIT 1
     ) a ON true
 
@@ -45,22 +56,34 @@ const getQueuePatients = async (clinicId) => {
 
   return result.rows;
 };
-// UPDATE STATUS
-const updateQueueStatus = async (id, status) => {
+
+/* UPDATE STATUS */
+
+// Update queue status
+const updateQueueStatus = async (
+  id,
+  status
+) => {
 
   let query = `
     UPDATE queue_entry
     SET status = $1
   `;
 
-  // If patient is moved to consultation
+  // Save consultation time
   if (status === "in_consultation") {
-    query += `, called_time = CURRENT_TIMESTAMP`;
+
+    query += `
+      , called_time = CURRENT_TIMESTAMP
+    `;
   }
 
-  // If patient is marked complete
+  // Save completion time
   if (status === "complete") {
-    query += `, complete_time = CURRENT_TIMESTAMP`;
+
+    query += `
+      , complete_time = CURRENT_TIMESTAMP
+    `;
   }
 
   query += `
@@ -68,136 +91,274 @@ const updateQueueStatus = async (id, status) => {
     RETURNING *
   `;
 
-  const result = await pool.query(query, [status, id]);
+  const result = await pool.query(
+    query,
+    [status, id]
+  );
 
   return result.rows[0];
 };
 
+/* ADD WALK-IN PATIENT */
 
-// ADD WALK-IN PATIENT
-const addWalkInPatient = async (first_name, last_name, email, clinic_id, phone_number) => {
+// Add new patient
+const addWalkInPatient = async (
+  first_name,
+  last_name,
+  email,
+  clinic_id,
+  phone_number
+) => {
+
   const client = await pool.connect();
 
   try {
+
     await client.query("BEGIN");
 
-    // 1. Check if user already exists by email
-    const existingUserResult = await client.query(
-      `SELECT user_id
-       FROM "user"
-       WHERE email = $1`,
-      [email]
-    );
+    // Check if user exists
+    const existingUserResult =
+      await client.query(
+        `
+        SELECT user_id
+        FROM "user"
+        WHERE email = $1
+        `,
+        [email]
+      );
 
     let user_id;
 
+    // Reuse existing user
     if (existingUserResult.rows.length > 0) {
-      // Reuse existing patient
-      user_id = existingUserResult.rows[0].user_id;
 
-      // Optional: update their name in case it changed
+      user_id =
+        existingUserResult.rows[0].user_id;
+
+      // Update patient info
       await client.query(
-        `UPDATE "user"
-         SET first_name = $1,
-             last_name = $2,
-             role = 'patient'
-         WHERE user_id = $3`,
-        [first_name, last_name, user_id]
+        `
+        UPDATE "user"
+        SET
+          first_name = $1,
+          last_name = $2,
+          role = 'patient'
+
+        WHERE user_id = $3
+        `,
+        [
+          first_name,
+          last_name,
+          user_id
+        ]
       );
 
     } else {
-      // Create new patient only if email does not already exist
-      const userResult = await client.query(
-        `INSERT INTO "user" (first_name, last_name, email, role)
-         VALUES ($1, $2, $3, 'patient')
-         RETURNING user_id`,
-        [first_name, last_name, email]
+
+      // Create new user
+      const userResult =
+        await client.query(
+          `
+          INSERT INTO "user"
+          (
+            first_name,
+            last_name,
+            email,
+            role
+          )
+
+          VALUES
+          (
+            $1,
+            $2,
+            $3,
+            'patient'
+          )
+
+          RETURNING user_id
+          `,
+          [
+            first_name,
+            last_name,
+            email
+          ]
+        );
+
+      user_id =
+        userResult.rows[0].user_id;
+    }
+
+    // Check if already in queue
+    const existingQueueResult =
+      await client.query(
+        `
+        SELECT queue_id
+        FROM queue_entry
+
+        WHERE patient_id = $1
+        AND clinic_id = $2
+        AND status != 'complete'
+        `,
+        [
+          user_id,
+          clinic_id
+        ]
       );
 
-      user_id = userResult.rows[0].user_id;
+    // Stop duplicate patient
+    if (
+      existingQueueResult.rows.length > 0
+    ) {
+
+      throw new Error(
+        "Patient is already in this clinic queue"
+      );
     }
 
-    // 2. Prevent adding the same patient twice to the same active queue
-    const existingQueueResult = await client.query(
-      `SELECT queue_id
-       FROM queue_entry
-       WHERE patient_id = $1
-       AND clinic_id = $2
-       AND status != 'complete'`,
-      [user_id, clinic_id]
-    );
-
-    if (existingQueueResult.rows.length > 0) {
-      throw new Error("Patient is already in this clinic queue");
-    }
-
-    // 3. Insert phone number into appointment table
+    // Create appointment
     await client.query(
-      `INSERT INTO appointment (patient_id, clinic_id, appointment_date, appointment_time, phone_number)
-       VALUES ($1, $2, CURRENT_DATE, CURRENT_TIME, $3)`,
-      [user_id, clinic_id, phone_number]
+      `
+      INSERT INTO appointment
+      (
+        patient_id,
+        clinic_id,
+        appointment_date,
+        appointment_time,
+        phone_number
+      )
+
+      VALUES
+      (
+        $1,
+        $2,
+        CURRENT_DATE,
+        CURRENT_TIME,
+        $3
+      )
+      `,
+      [
+        user_id,
+        clinic_id,
+        phone_number
+      ]
     );
 
-    // 4. Get next queue position across the whole dashboard
-    // const positionResult = await client.query(`
-    //   SELECT COALESCE(MAX(queue_position), 0) + 1 AS next_position
-    //   FROM queue_entry
-    // `);
-    // 4. Get next queue position for this clinic only
-  const positionResult = await client.query(`
-    SELECT COALESCE(MAX(queue_position), 0) + 1 AS next_position
-    FROM queue_entry
-    WHERE clinic_id = $1
-    AND status != 'complete'
-  `, [clinic_id]);
+    // Get next queue number
+    const positionResult =
+      await client.query(
+        `
+        SELECT
+          COALESCE(
+            MAX(queue_position),
+            0
+          ) + 1 AS next_position
 
-    const queue_position = positionResult.rows[0].next_position;
+        FROM queue_entry
 
-    // 5. Insert into queue
-    const queueResult = await client.query(
-      `INSERT INTO queue_entry (clinic_id, patient_id, queue_position, status)
-       VALUES ($1, $2, $3, 'waiting')
-       RETURNING *`,
-      [clinic_id, user_id, queue_position]
-    );
+        WHERE clinic_id = $1
+        AND status != 'complete'
+        `,
+        [clinic_id]
+      );
+
+    const queue_position =
+      positionResult.rows[0].next_position;
+
+    // Add patient to queue
+    const queueResult =
+      await client.query(
+        `
+        INSERT INTO queue_entry
+        (
+          clinic_id,
+          patient_id,
+          queue_position,
+          status
+        )
+
+        VALUES
+        (
+          $1,
+          $2,
+          $3,
+          'waiting'
+        )
+
+        RETURNING *
+        `,
+        [
+          clinic_id,
+          user_id,
+          queue_position
+        ]
+      );
 
     await client.query("COMMIT");
 
     return queueResult.rows[0];
 
   } catch (error) {
+
+    // Undo changes if error
     await client.query("ROLLBACK");
+
     throw error;
+
   } finally {
+
+    // Release database client
     client.release();
   }
 };
 
-// DELETE PATIENT FROM QUEUE
+/* DELETE PATIENT */
+
+// Remove patient from queue
 const deleteQueuePatient = async (id) => {
+
   const result = await pool.query(
-    `DELETE FROM queue_entry
-     WHERE queue_id = $1
-     RETURNING *`,
+    `
+    DELETE FROM queue_entry
+
+    WHERE queue_id = $1
+
+    RETURNING *
+    `,
     [id]
   );
 
   return result.rows[0];
 };
 
+/* GET CLINICS */
+
+// Get clinic details
 const getClinics = async (clinicId) => {
-  const result = await pool.query(`
-    SELECT clinic_id, clinic_name
+
+  const result = await pool.query(
+    `
+    SELECT
+      clinic_id,
+      clinic_name
+
     FROM clinic
+
     WHERE clinic_id = $1
+
     ORDER BY clinic_name ASC;
-  `, [clinicId]);
+    `,
+    [clinicId]
+  );
 
   return result.rows;
 };
 
-// GET UPCOMING APPOINTMENTS
-const getUpcomingAppointments = async (clinicId) => {
+/* GET APPOINTMENTS */
+
+// Get future appointments
+const getUpcomingAppointments = async (
+  clinicId
+) => {
 
   const result = await pool.query(
     `
@@ -227,8 +388,9 @@ const getUpcomingAppointments = async (clinicId) => {
   return result.rows;
 };
 
+/* RESCHEDULE APPOINTMENT */
 
-// RESCHEDULE APPOINTMENT
+// Update appointment date/time
 const rescheduleAppointment = async (
   appointmentId,
   appointmentDate,
@@ -238,6 +400,7 @@ const rescheduleAppointment = async (
   const result = await pool.query(
     `
     UPDATE appointment
+
     SET
       appointment_date = $1,
       appointment_time = $2

@@ -1,5 +1,4 @@
 import { requireRole, getCurrentUser } from '/js/auth.js';
-
 requireRole(['admin']);
 
 const { clinicId } = getCurrentUser();
@@ -65,11 +64,11 @@ function renderWeeklyChart(weeklyData) {
   });
   const counts = weeklyData.map(d => d.count);
 
-  const ctx = document.getElementById('appointmentsChart').getContext('2d');
+  const context = document.getElementById('appointmentsChart').getContext('2d');
 
   if (appointmentsChart) appointmentsChart.destroy();
 
-  appointmentsChart = new Chart(ctx, {
+  appointmentsChart = new Chart(context, {
     type: 'bar',
     data: {
       labels,
@@ -114,11 +113,11 @@ function renderStatusChart(statusData) {
         return 'rgba(107, 140, 116, 0.8)';
     });
 
-    const ctx = document.getElementById('statusChart').getContext('2d');
+    const context = document.getElementById('statusChart').getContext('2d');
 
     if (statusChart) statusChart.destroy();
 
-    statusChart = new Chart(ctx, {
+    statusChart = new Chart(context, {
         type: 'doughnut',
         data: {
             labels,
@@ -177,12 +176,15 @@ function renderRecentAppointments(appointments) {
       <td>${appt.reason_for_visit || '—'}</td>
       <td><span class="status-badge ${appt.status}">${appt.status}</span></td>
     `;
+
+        // append the new row to the table body
         tbody.appendChild(tr);
     });
 }
 
 // CSV Export
 document.getElementById('exportBtn').addEventListener('click', () => {
+    // If the appointments table is empty, show a popup instead of exporting a csv file
     if (!allAppointments.length) {
         alert('No appointments to export.');
         return;
@@ -202,12 +204,21 @@ document.getElementById('exportBtn').addEventListener('click', () => {
         .map(row => row.map(cell => `"${cell}"`).join(','))
         .join('\n');
 
+    // create an in-memory file containing the csv content
     const blob = new Blob([csvContent], { type: 'text/csv' });
+
+    // create a temporary URL that can be used to download the file
     const url = URL.createObjectURL(blob);
+
+    // create an invisible link in memory set to the blob URL
     const a = document.createElement('a');
     a.href = url;
     a.download = `clinic_appointments_${new Date().toISOString().split('T')[0]}.csv`;
+
+    // Trigger the browser to download the file
     a.click();
+
+    // Delete the temporary URL from memory after the download is triggered
     URL.revokeObjectURL(url);
 });
 

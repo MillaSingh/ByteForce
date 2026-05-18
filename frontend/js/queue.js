@@ -66,7 +66,7 @@ async function loadQueue() {
       ? new Date(queue.check_in_time)
       : null;
 
-    const estimatedWaitTime = formatWaitTime(queue.estimated_wait_minutes);
+      const estimatedWaitTime = formatWaitTime(queue.estimated_wait_minutes);
 
     summaryText.innerText =
       `You are number ${queuePosition} in the queue at ${clinicName}`;
@@ -127,6 +127,12 @@ async function loadQueue() {
     loading.innerText = "Failed to load your queue position";
     summaryText.innerText = "You are currently not in the queue";
   }
+
+  const waitMinutes = queue.estimated_wait_minutes;
+
+// read memory
+const alreadySent = sessionStorage.getItem("callSoonEmailSent") === "true";
+
 }
 
 // Changes wait time from minutes into a more readable message

@@ -255,42 +255,8 @@ function confirmBooking() {
       alert("Something went wrong.");
     });
 }
-function checkReminders() {
-  const appointments = JSON.parse(localStorage.getItem("appointments") || "[]");
-  const now = new Date();
-
-  appointments.forEach((appt, i) => {
-
-    if (appt.reminderSent) return;
-
-    const apptTime = new Date(`${appt.date}T${appt.time}:00`);
-    const diffHours = (apptTime - now) / (1000 * 60 * 60);
-
-    // only send between 24–48 hours before
-    if (diffHours > 48 || diffHours < 24) return;
-
-    emailjs.send(
-      "service_5cctkza",
-      "template_ink02da",
-      {
-        email: appt.email,
-        patient_name: appt.name,
-        clinic_name: appt.clinic,
-        appointment_date: appt.date,
-        appointment_time: appt.time,
-        reason: appt.reason
-      }
-    ).then(() => {
-      appointments[i].reminderSent = true;
-      localStorage.setItem("appointments", JSON.stringify(appointments));
-    }).catch(err => {
-      console.error("Reminder failed:", err);
-    });
-
-  });
-}
 
 function resetForm() {
   location.reload();
 }
-window.addEventListener("load", checkReminders);
+

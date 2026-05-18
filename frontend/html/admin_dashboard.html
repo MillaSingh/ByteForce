@@ -12,19 +12,17 @@
 <body>
 
   <nav>
-    <div class="nav-brand">
+    <section class="nav-brand">
       <img src="/images/logo.jpeg" alt="MEDIQUEUE" width="45" height="45">
-      <div class="nav-logo">MEDI<span>QUEUE</span></div>
-    </div>
+      <span class="nav-logo">MEDI<span>QUEUE</span></span>
+    </section>
     <ul class="nav-links">
       <li><a class="active" href="/html/admin_dashboard.html">Dashboard</a></li>
       <li><a href="/html/admin_clinic.html">Manage Clinic</a></li>
       <li><a href="/html/admin_hours.html">Operating Hours</a></li>
       <li><a href="/html/admin_staff.html">Manage Staff</a></li>
     </ul>
-    <button class="nav-cta account-btn" onclick="goToAccount()">
-  Account
-</button>
+    <button class="nav-cta account-btn" onclick="goToAccount()">Account</button>
   </nav>
 
   <main>
@@ -34,7 +32,7 @@
       <p id="clinicNameHeader">Analytics and performance overview for your clinic.</p>
     </header>
 
-    <!-- SUMMARY CARDS -->
+    <!-- Summary cards -->
     <section class="cards-section" aria-label="Summary statistics">
       <h2 class="sr-only">Summary Statistics</h2>
 
@@ -64,7 +62,7 @@
 
     </section>
 
-    <!-- APPOINTMENTS PER DAY CHART -->
+    <!-- Appointments per day chart -->
     <section class="chart-section" aria-label="Appointments per day this week">
       <header class="chart-header">
         <h2>Appointments This Week</h2>
@@ -75,7 +73,7 @@
       </figure>
     </section>
 
-    <!-- STATUS BREAKDOWN CHART -->
+    <!-- Status breakdown chart -->
     <section class="chart-section" aria-label="Appointment status breakdown">
       <header class="chart-header">
         <h2>Appointment Status Breakdown</h2>
@@ -86,7 +84,7 @@
       </figure>
     </section>
 
-    <!-- RECENT APPOINTMENTS TABLE -->
+    <!-- Recent appointments table -->
     <section class="table-section" aria-label="Recent appointments">
       <header class="table-header">
         <h2>Recent Appointments</h2>

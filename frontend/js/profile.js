@@ -3,23 +3,23 @@ import { requireAuth, getCurrentUser, logOut } from "./auth.js";
 requireAuth();
 
 const user = getCurrentUser();
-
 const profileName = document.getElementById("profileName");
 const profileEmail = document.getElementById("profileEmail");
 const profilePhoto = document.getElementById("profilePhoto");
 const logoutBtn = document.getElementById("logoutBtn");
 
+//Creates uniquue localStorage key for each user's saved name
 const storageKey = `userName_${user.email}`;
 
 function getDisplayName() {
   const savedName = localStorage.getItem(storageKey);
-  // return user.name || savedName || "";
   return savedName || user.name || "";
 }
 
 function showNameDisplay(name) {
   profileName.innerHTML = "";
 
+  // Creates the name display area
   const wrapper = document.createElement("div");
   wrapper.className = "profile-name-display";
 
@@ -35,7 +35,7 @@ function showNameDisplay(name) {
   editBtn.addEventListener("click", () => {
     showNameForm(name);
   });
-
+//builds the name and button in JavaScript inserts them into the profile section
   wrapper.appendChild(nameText);
   wrapper.appendChild(editBtn);
   profileName.appendChild(wrapper);
@@ -46,6 +46,7 @@ function showNameDisplay(name) {
 }
 
 function showNameForm(currentName = "") {
+  // Replaces
   profileName.innerHTML = `
     <div class="profile-name-form">
       <input 
@@ -71,6 +72,7 @@ function showNameForm(currentName = "") {
       return;
     }
 
+    // Saves the name for the session and future visits
     sessionStorage.setItem("userName", enteredName);
     localStorage.setItem(storageKey, enteredName);
 
@@ -95,12 +97,12 @@ if (displayName) {
 if (user.photo) {
   profilePhoto.src = user.photo;
 }
-
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     await logOut();
   });
 }
+
 const backBtn = document.getElementById("backBtn");
 
 if (backBtn) {

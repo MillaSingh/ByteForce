@@ -1,25 +1,31 @@
 import { requireRole, getCurrentUser } from '/js/auth.js';
-
 requireRole(['staff']);
 
+// Stores all patients loaded from the database
 let patients = [];
 
-/* ELEMENTS*/
+/* ELEMENTS */
 
+// Gets the main table body where patient rows will be displayed
 const patientTable = document.getElementById("patientTable");
 
+// Gets the search and filter inputs
 const searchInput = document.getElementById("searchInput");
 const filterStatus = document.getElementById("filterStatus");
 
+// Gets the main action buttons
 const addPatientBtn = document.getElementById("addPatientBtn");
 const rescheduleBtn = document.getElementById("rescheduleBtn");
 
+// Gets the pop-up dialog boxes
 const patientDialog = document.getElementById("patientDialog");
 const rescheduleDialog = document.getElementById("rescheduleDialog");
 
+// Gets the submit and close buttons for the patient dialog
 const submitPatientBtn = document.getElementById("submitPatientBtn");
 const closePatientDialogBtn = document.getElementById("closePatientDialogBtn");
 
+// Gets the submit and close buttons for the reschedule dialog
 const saveRescheduleBtn = document.getElementById("saveRescheduleBtn");
 const closeRescheduleDialogBtn = document.getElementById("closeRescheduleDialogBtn");
 
@@ -37,12 +43,13 @@ accountBtn.addEventListener("click", () => {
   window.location.href = "/html/account.html";
 });
 
-/* LOAD DASHBOARD TITLE*/
+/* LOAD DASHBOARD TITLE */
 
 const loadDashboardClinicName = async () => {
 
   try {
 
+// Gets the current staff user and their linked clinic ID
     const currentUser = getCurrentUser();
     const clinicId = currentUser?.clinicId;
 
@@ -51,6 +58,7 @@ const loadDashboardClinicName = async () => {
       return;
     }
 
+//
     const response = await fetch(
       `/api/queue/clinics?clinic_id=${clinicId}`
     );
@@ -65,7 +73,7 @@ const loadDashboardClinicName = async () => {
 
     const dashboardTitle =
       document.getElementById("dashboardTitle");
-
+//
     if (clinicName) {
 
       dashboardTitle.textContent =
@@ -81,8 +89,8 @@ const loadDashboardClinicName = async () => {
   }
 };
 
-/* LOAD PATIENTS*/
-
+/* LOAD PATIENTS */
+//
 const loadPatients = async () => {
 
   try {
@@ -99,6 +107,7 @@ const loadPatients = async () => {
       return;
     }
 
+ //
     const response = await fetch(
       `/api/queue?clinic_id=${clinicId}`
     );
@@ -120,7 +129,7 @@ const loadPatients = async () => {
   }
 };
 
-/* FORMAT STATUS*/
+/* FORMAT STATUS */
 
 const formatStatus = (status) => {
 
@@ -133,7 +142,7 @@ const formatStatus = (status) => {
   return map[status] || "";
 };
 
-/*RENDER PATIENTS*/
+/* RENDER PATIENTS */
 
 const renderPatients = () => {
 
@@ -210,7 +219,6 @@ const renderPatients = () => {
 
     const statusSelect =
       row.querySelector(".statusSelect");
-
     statusSelect.addEventListener(
       "change",
       async (e) => {
@@ -236,7 +244,7 @@ const renderPatients = () => {
   });
 };
 
-/* UPDATE STATUS*/
+/* UPDATE STATUS */
 
 const updateStatus = async (id, value) => {
 
@@ -275,7 +283,7 @@ const updateStatus = async (id, value) => {
   }
 };
 
-/*DELETE PATIENT*/
+/* DELETE PATIENT */
 
 const deletePatient = async (id) => {
 
@@ -317,7 +325,7 @@ const deletePatient = async (id) => {
   }
 };
 
-/*DIALOG CONTROLS*/
+/* DIALOG CONTROLS */
 
 const closeDialog = () => {
   patientDialog.close();
@@ -327,7 +335,7 @@ const closeRescheduleDialog = () => {
   rescheduleDialog.close();
 };
 
-/* ADD PATIENT*/
+/* ADD PATIENT */
 
 const submitPatient = async () => {
 
@@ -346,6 +354,7 @@ const submitPatient = async () => {
   const clinic_id =
     getCurrentUser()?.clinicId;
 
+  // Makes form
   if (
     !first_name ||
     !last_name ||
@@ -394,7 +403,7 @@ const submitPatient = async () => {
   }
 };
 
-/* OPEN RESCHEDULE DIALOG*/
+/* OPEN RESCHEDULE DIALOG */
 
 const openRescheduleDialog = () => {
 
@@ -462,7 +471,7 @@ const openRescheduleDialog = () => {
   rescheduleDialog.showModal();
 };
 
-/*SUBMIT RESCHEDULE*/
+/* SUBMIT RESCHEDULE */
 
 const submitReschedule = async () => {
 
@@ -546,7 +555,7 @@ const submitReschedule = async () => {
   }
 };
 
-/*EVENT LISTENERS*/
+/* EVENT LISTENERS */
 
 searchInput.addEventListener(
   "input",
@@ -590,7 +599,6 @@ closeRescheduleDialogBtn.addEventListener(
   closeRescheduleDialog
 );
 
-/* INITIAL LOAD*/
-
+/* INITIAL LOAD */
 loadDashboardClinicName();
 loadPatients();

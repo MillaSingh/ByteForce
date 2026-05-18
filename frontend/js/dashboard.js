@@ -1,5 +1,4 @@
 import { requireRole, getCurrentUser } from '/js/auth.js';
-<<<<<<< HEAD
 requireRole(['staff']);
 
 // Stores all patients loaded from the database
@@ -29,34 +28,6 @@ const closePatientDialogBtn = document.getElementById("closePatientDialogBtn");
 // Gets the submit and close buttons for the reschedule dialog
 const saveRescheduleBtn = document.getElementById("saveRescheduleBtn");
 const closeRescheduleDialogBtn = document.getElementById("closeRescheduleDialogBtn");
-=======
-
-// Only staff can access page
-requireRole(['staff']);
-
-// Store patients
-let patients = [];
-
-/* PAGE ELEMENTS */
-
-const patientTable =
-  document.getElementById("patientTable");
-
-const searchInput =
-  document.getElementById("searchInput");
-
-const filterStatus =
-  document.getElementById("filterStatus");
-
-const addPatientBtn =
-  document.getElementById("addPatientBtn");
-
-const rescheduleBtn =
-  document.getElementById("rescheduleBtn");
-
-const patientDialog =
-  document.getElementById("patientDialog");
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 
 const rescheduleDialog =
   document.getElementById("rescheduleDialog");
@@ -93,25 +64,16 @@ accountBtn.addEventListener("click", () => {
     "/html/account.html";
 });
 
-<<<<<<< HEAD
 /* LOAD DASHBOARD TITLE */
-=======
-/* LOAD CLINIC NAME */
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 
 // Show clinic name in title
 const loadDashboardClinicName = async () => {
 
   try {
 
-<<<<<<< HEAD
 // Gets the current staff user and their linked clinic ID
     const currentUser = getCurrentUser();
     const clinicId = currentUser?.clinicId;
-=======
-    const currentUser =
-      getCurrentUser();
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 
     const clinicId =
       currentUser?.clinicId;
@@ -123,11 +85,7 @@ const loadDashboardClinicName = async () => {
       return;
     }
 
-<<<<<<< HEAD
 //
-=======
-    // Get clinic data
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
     const response = await fetch(
       `/api/queue/clinics?clinic_id=${clinicId}`
     );
@@ -146,16 +104,8 @@ const loadDashboardClinicName = async () => {
       clinics[0]?.clinic_name;
 
     const dashboardTitle =
-<<<<<<< HEAD
       document.getElementById("dashboardTitle");
 //
-=======
-      document.getElementById(
-        "dashboardTitle"
-      );
-
-    // Update title
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
     if (clinicName) {
 
       dashboardTitle.textContent =
@@ -172,12 +122,7 @@ const loadDashboardClinicName = async () => {
 };
 
 /* LOAD PATIENTS */
-<<<<<<< HEAD
 //
-=======
-
-// Get all patients
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 const loadPatients = async () => {
 
   try {
@@ -198,11 +143,7 @@ const loadPatients = async () => {
       return;
     }
 
-<<<<<<< HEAD
  //
-=======
-    // Fetch patients
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
     const response = await fetch(
       `/api/queue?clinic_id=${clinicId}`
     );
@@ -244,11 +185,7 @@ const formatStatus = (status) => {
   return map[status] || "";
 };
 
-<<<<<<< HEAD
 /* RENDER PATIENTS */
-=======
-/* SHOW PATIENTS */
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 
 // Display patient table
 const renderPatients = () => {
@@ -341,11 +278,6 @@ const renderPatients = () => {
     // Status dropdown
     const statusSelect =
       row.querySelector(".statusSelect");
-<<<<<<< HEAD
-=======
-
-    // Change patient status
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
     statusSelect.addEventListener(
       "change",
       async (e) => {
@@ -474,11 +406,7 @@ const deletePatient = async (id) => {
   }
 };
 
-<<<<<<< HEAD
 /* DIALOG CONTROLS */
-=======
-/* DIALOG FUNCTIONS */
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 
 // Close add patient dialog
 const closeDialog = () => {
@@ -516,11 +444,7 @@ const submitPatient = async () => {
   const clinic_id =
     getCurrentUser()?.clinicId;
 
-<<<<<<< HEAD
   // Makes form
-=======
-  // Check fields
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
   if (
     !first_name ||
     !last_name ||
@@ -581,11 +505,7 @@ const submitPatient = async () => {
   }
 };
 
-<<<<<<< HEAD
 /* OPEN RESCHEDULE DIALOG */
-=======
-/* OPEN RESCHEDULE */
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 
 // Open reschedule popup
 const openRescheduleDialog = () => {
@@ -665,11 +585,7 @@ const openRescheduleDialog = () => {
   rescheduleDialog.showModal();
 };
 
-<<<<<<< HEAD
 /* SUBMIT RESCHEDULE */
-=======
-/* SAVE RESCHEDULE */
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 
 // Update appointment
 const submitReschedule = async () => {
@@ -826,13 +742,7 @@ closeRescheduleDialogBtn.addEventListener(
   closeRescheduleDialog
 );
 
-<<<<<<< HEAD
 /* INITIAL LOAD */
-=======
-/* PAGE LOAD */
-
-// Load clinic name
->>>>>>> 00a7e73c6c209dd552e9d10833b19989848fab90
 loadDashboardClinicName();
 
 // Load patient data

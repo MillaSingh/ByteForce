@@ -1,54 +1,57 @@
 const express = require('express');
+
 const router = express.Router();
 
-const { requireAuth } = require('./authRoutes');
+const { requireAuth } =
+  require('./authRoutes');
 
-const dashboardController = require(
-  '../controllers/dashboardController'
-);
+const dashboardController =
+  require(
+    '../controllers/dashboardController'
+  );
 
-/*APPOINTMENT ROUTES*/
+/* APPOINTMENT ROUTES */
 
-// RESCHEDULE APPOINTMENT
+// Reschedule appointment
 router.patch(
   '/appointments/:id',
   requireAuth,
   dashboardController.rescheduleAppointment
 );
 
-/*CLINIC ROUTES*/
+/* CLINIC ROUTES */
 
-// GET CLINICS
+// Get clinic details
 router.get(
   '/clinics',
   requireAuth,
   dashboardController.getClinics
 );
 
-/*QUEUE ROUTES */
+/* QUEUE ROUTES */
 
-// GET QUEUE DATA
+// Get queue data
 router.get(
   '/',
   requireAuth,
   dashboardController.getQueue
 );
 
-// ADD WALK-IN PATIENT
+// Add walk-in patient
 router.post(
   '/add-walkin',
   requireAuth,
   dashboardController.addWalkInPatient
 );
 
-// UPDATE QUEUE STATUS
+// Update queue status
 router.patch(
   '/:id',
   requireAuth,
   dashboardController.updateStatus
 );
 
-// DELETE PATIENT FROM QUEUE
+// Delete patient
 router.delete(
   '/:id',
   requireAuth,

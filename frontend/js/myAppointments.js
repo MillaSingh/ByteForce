@@ -151,7 +151,7 @@ function loadAppointmentsByData(data) {
       }
 
       const card =
-        document.createElement("div");
+        document.createElement("article");
 
       card.className =
         "appointment-card";
@@ -161,72 +161,65 @@ function loadAppointmentsByData(data) {
           ? "upcoming"
           : "past";
 
-      card.innerHTML = `
+          card.innerHTML = `
 
-        <div class="appointment-info">
-
-          <div class="appointment-title">
-            ${app.clinic_name || "Clinic"}
-          </div>
-
-          <div class="appointment-date">
-            ${dateTime.toLocaleDateString()}
-            •
-
-            ${dateTime.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
-      })}
-          </div>
-
-        </div>
-
-        <div>
-
-          ${status === "cancelled"
-
-          ? `
+          <section class="appointment-info">
+        
+            <h4 class="appointment-title">
+              ${app.clinic_name || "Clinic"}
+            </h4>
+        
+            <p class="appointment-date">
+              ${dateTime.toLocaleDateString()}
+              •
+              ${dateTime.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+              })}
+            </p>
+        
+          </section>
+        
+          <section>
+        
+            ${status === "cancelled"
+              ? `
                 <span class="status cancelled">
                   Cancelled
                 </span>
               `
-
-          : status === "completed"
-
-            ? `
+              : status === "completed"
+              ? `
                 <span class="status completed">
                   Completed
                 </span>
               `
-
-            : ""
-        }
-
-          ${isUpcoming
-          ? `
-                <button
-                  class="reschedule-btn"
+              : ""
+            }
+        
+            ${isUpcoming
+              ? `
+                <button class="reschedule-btn"
                   data-id="${app.appointment_id || app.appointmentId}"
                   data-clinic="${app.clinic_id}">
                   Reschedule
                 </button>
-          
-                <button
-                  class="cancel-btn"
+        
+                <button class="cancel-btn"
                   data-id="${app.appointment_id || app.appointmentId}">
                   Cancel
                 </button>
-          
-                <button
-                  class="checkin-btn"
+        
+                <button class="checkin-btn"
                   data-id="${app.appointment_id || app.appointmentId}">
                   Check In
                 </button>
               `
-          : ""
-        }
-        </div>
-      `;
+              : ""
+            }
+        
+          </section>
+        `;
 
       const cancelBtn =
         card.querySelector(".cancel-btn");

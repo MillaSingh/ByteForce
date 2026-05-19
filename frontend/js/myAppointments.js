@@ -150,9 +150,8 @@ function loadAppointmentsByData(data) {
         status = "completed";
       }
 
-      // CHANGED: div -> section
       const card =
-        document.createElement("section");
+        document.createElement("div");
 
       card.className =
         "appointment-card";
@@ -164,25 +163,25 @@ function loadAppointmentsByData(data) {
 
       card.innerHTML = `
 
-        <section class="appointment-info">
+        <div class="appointment-info">
 
-          <h3 class="appointment-title">
+          <div class="appointment-title">
             ${app.clinic_name || "Clinic"}
-          </h3>
+          </div>
 
-          <p class="appointment-date">
+          <div class="appointment-date">
             ${dateTime.toLocaleDateString()}
             •
 
             ${dateTime.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
-          </p>
+        hour: "2-digit",
+        minute: "2-digit"
+      })}
+          </div>
 
-        </section>
+        </div>
 
-        <section>
+        <div>
 
           ${status === "cancelled"
 
@@ -226,7 +225,7 @@ function loadAppointmentsByData(data) {
               `
           : ""
         }
-        </section>
+        </div>
       `;
 
       const cancelBtn =

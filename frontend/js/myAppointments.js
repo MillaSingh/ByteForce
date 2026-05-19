@@ -20,7 +20,7 @@ async function loadMyAppointments() {
     if (res.status === 401) {
 
       window.location.href =
-        "/html/login.html";
+        "/html/Login.html";
 
       return;
     }
@@ -457,3 +457,4 @@ function filterAppointments(type) {
       }
     });
 }
+window.filterAppointments = filterAppointments;

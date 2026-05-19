@@ -1,120 +1,460 @@
-<!DOCTYPE html>
-<html lang="en">
+// Load appointments automatically
+window.addEventListener(
+  "DOMContentLoaded",
+  loadMyAppointments
+);
 
-<head>
+// Fetch logged-in user's appointments
+async function loadMyAppointments() {
 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  try {
 
-  <title>My Appointments | MEDIQUEUE</title>
+    const res = await fetch(
+      "/api/appointments/my",
+      {
+        credentials: "include"
+      }
+    );
 
-  <link rel="stylesheet" href="/css/navigation.css" />
-  <link rel="stylesheet" href="/css/myAppointments.css" />
+    // Redirect if not logged in
+    if (res.status === 401) {
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+      window.location.href =
+        "/html/login.html";
 
-</head>
-
-<body>
-
-  <!-- NAV -->
-  <nav>
-
-    <section class="nav-brand">
-      <img src="/images/logo.jpeg" width="60" height="60" alt="Logo" />
-
-      <span class="nav-logo">
-        MEDI<span>QUEUE</span>
-      </span>
-    </section>
-
-    <ul class="nav-links">
-      <li><a href="/html/home.html">Home</a></li>
-      <li><a href="/html/clinics.html">Clinics</a></li>
-      <li><a class="active" href="/html/myAppointments.html">My Appointments</a></li>
-      <li><a href="/html/queue.html">Queue</a></li>
-    </ul>
-
-    <button class="nav-cta account-btn" onclick="goToAccount()">
-      Account
-    </button>
-
-  </nav>
-
-  <!-- HERO -->
-  <header class="hero">
-    <h1>My Appointments</h1>
-    <p>Track your medical bookings in one place</p>
-  </header>
-
-  <!-- MAIN -->
-  <main>
-
-    <section class="container-card">
-
-      <!-- DASHBOARD -->
-      <section id="dashboard">
-
-        <header class="summary-header">
-          <h2>Your Dashboard</h2>
-          <p id="summary-text">Loading appointments...</p>
-        </header>
-
-        <section class="filters">
-
-          <button onclick="filterAppointments('all')">All</button>
-          <button onclick="filterAppointments('upcoming')">Upcoming</button>
-          <button onclick="filterAppointments('past')">Past</button>
-
-        </section>
-
-        <section id="loading" class="center">
-          Loading appointments...
-        </section>
-
-        <section id="empty" class="center" style="display:none;">
-          No appointments yet
-        </section>
-
-        <!-- UPCOMING -->
-        <section class="group">
-          <h3>Upcoming</h3>
-          <section id="upcoming" class="list"></section>
-        </section>
-
-        <!-- PAST -->
-        <section class="group">
-          <h3>Past</h3>
-          <section id="past" class="list"></section>
-        </section>
-
-      </section>
-
-    </section>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer>
-    © 2026 MediQueue · All rights reserved ·
-    <a href="#" style="color: rgba(255, 255, 255, 0.6); text-decoration:none;">
-      Privacy Policy
-    </a>
-  </footer>
-
-  <script src="/js/myAppointments.js"></script>
-
-  <script>
-    function goToAccount() {
-      sessionStorage.setItem(
-        "previousPageBeforeAccount",
-        window.location.pathname + window.location.search
-      );
-
-      window.location.href = "/html/account.html";
+      return;
     }
-  </script>
 
-</body>
-</html>
+    if (!res.ok) {
+
+      throw new Error(
+        "Failed to load appointments"
+      );
+    }
+
+    const data = await res.json();
+
+    // Show dashboard
+    document.getElementById(
+      "dashboard"
+    ).style.display = "block";
+
+    // Load appointments
+    loadAppointmentsByData(data);
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(
+      "Failed to load appointments"
+    );
+  }
+}
+
+
+// Loads appointments into dashboard
+function loadAppointmentsByData(data) {
+
+  const upcoming =
+    document.getElementById("upcoming");
+
+  const past =
+    document.getElementById("past");
+
+  const loading =
+    document.getElementById("loading");
+
+  const empty =
+    document.getElementById("empty");
+
+  upcoming.innerHTML = "";
+  past.innerHTML = "";
+
+  loading.style.display = "none";
+  empty.style.display = "none";
+
+  if (!data.length) {
+
+    empty.style.display = "block";
+
+    return;
+  }
+
+  const now = new Date();
+
+  now.setSeconds(0, 0);
+
+  let upcomingCount = 0;
+
+  data.forEach(app => {
+
+    try {
+
+      const rawDate =
+        new Date(app.appointment_date);
+
+      const year =
+        rawDate.getFullYear();
+
+      const month =
+        rawDate.getMonth();
+
+      const day =
+        rawDate.getDate();
+
+      const timeParts =
+        app.appointment_time
+          .split(".")[0]
+          .split(":");
+
+      const hour =
+        parseInt(timeParts[0], 10);
+
+      const minute =
+        parseInt(timeParts[1], 10);
+
+      const dateTime =
+        new Date(
+          year,
+          month,
+          day,
+          hour,
+          minute
+        );
+
+      if (isNaN(dateTime.getTime())) {
+
+        console.error(
+          "Invalid date:",
+          app
+        );
+
+        return;
+      }
+
+      let status =
+        (app.status || "")
+          .toLowerCase();
+
+      const isUpcoming =
+        dateTime.getTime() >=
+        now.getTime() &&
+        status !== "cancelled";
+
+      if (
+        !isUpcoming &&
+        status !== "cancelled"
+      ) {
+
+        status = "completed";
+      }
+
+      // CHANGED: div -> section
+      const card =
+        document.createElement("section");
+
+      card.className =
+        "appointment-card";
+
+      card.dataset.type =
+        isUpcoming
+          ? "upcoming"
+          : "past";
+
+      card.innerHTML = `
+
+        <section class="appointment-info">
+
+          <h3 class="appointment-title">
+            ${app.clinic_name || "Clinic"}
+          </h3>
+
+          <p class="appointment-date">
+            ${dateTime.toLocaleDateString()}
+            •
+
+            ${dateTime.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
+          </p>
+
+        </section>
+
+        <section>
+
+          ${status === "cancelled"
+
+          ? `
+                <span class="status cancelled">
+                  Cancelled
+                </span>
+              `
+
+          : status === "completed"
+
+            ? `
+                <span class="status completed">
+                  Completed
+                </span>
+              `
+
+            : ""
+        }
+
+          ${isUpcoming
+          ? `
+                <button
+                  class="reschedule-btn"
+                  data-id="${app.appointment_id || app.appointmentId}"
+                  data-clinic="${app.clinic_id}">
+                  Reschedule
+                </button>
+          
+                <button
+                  class="cancel-btn"
+                  data-id="${app.appointment_id || app.appointmentId}">
+                  Cancel
+                </button>
+          
+                <button
+                  class="checkin-btn"
+                  data-id="${app.appointment_id || app.appointmentId}">
+                  Check In
+                </button>
+              `
+          : ""
+        }
+        </section>
+      `;
+
+      const cancelBtn =
+        card.querySelector(".cancel-btn");
+
+      if (cancelBtn) {
+
+        cancelBtn.addEventListener(
+          "click",
+          async () => {
+
+            const confirmCancel =
+              confirm(
+                "Cancel this appointment?"
+              );
+
+            if (!confirmCancel) return;
+
+            try {
+
+              const res =
+                await fetch(
+                  `/api/appointments/${app.appointment_id}`,
+                  {
+                    method: "DELETE",
+                    credentials: "include"
+                  }
+                );
+
+              if (!res.ok) {
+
+                throw new Error(
+                  "Cancel failed"
+                );
+              }
+
+              alert(
+                "Appointment cancelled"
+              );
+
+              loadMyAppointments();
+
+            } catch (err) {
+
+              console.error(err);
+
+              alert(
+                "Error cancelling appointment"
+              );
+            }
+          }
+        );
+      }
+
+      const rescheduleBtn =
+        card.querySelector(
+          ".reschedule-btn"
+        );
+
+      if (rescheduleBtn) {
+
+        rescheduleBtn.addEventListener(
+          "click",
+          async () => {
+
+            const newDate =
+              prompt(
+                "Enter new date (YYYY-MM-DD)"
+              );
+
+            if (!newDate) return;
+
+            const newTime =
+              prompt(
+                "Enter new time (HH:MM)"
+              );
+
+            if (!newTime) return;
+
+            try {
+
+              const res =
+                await fetch(
+                  `/api/appointments/${app.appointment_id}/reschedule`,
+                  {
+                    method: "PUT",
+
+                    headers: {
+                      "Content-Type":
+                        "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({
+                      clinic_id:
+                        app.clinic_id,
+
+                      appointment_date:
+                        newDate,
+
+                      appointment_time:
+                        newTime
+                    })
+                  }
+                );
+
+              const responseData =
+                await res.json();
+
+              if (!res.ok) {
+
+                throw new Error(
+                  responseData.error
+                );
+              }
+
+              alert(
+                "Appointment rescheduled"
+              );
+
+              loadMyAppointments();
+
+            } catch (err) {
+
+              console.error(err);
+
+              alert(err.message);
+            }
+          }
+        );
+      }
+
+      const checkInBtn = card.querySelector(".checkin-btn");
+
+      if (checkInBtn) {
+
+        checkInBtn.addEventListener("click", async () => {
+
+          const rawId =
+            checkInBtn.dataset.id;
+
+          const appointmentId =
+            Number(rawId);
+
+          if (!appointmentId || isNaN(appointmentId)) {
+
+            console.error("BAD APPOINTMENT ID:", rawId);
+
+            alert("Invalid appointment ID");
+
+            return;
+          }
+
+          try {
+
+            const userEmail = sessionStorage.getItem("userEmail");
+
+            const res = await fetch(
+              `/api/patient-queue/checkin/${appointmentId}`,
+              {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "x-user-email": userEmail
+                }
+              }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              throw new Error(data.error);
+            }
+
+            alert("Checked in successfully!");
+
+            loadMyAppointments();
+
+          } catch (err) {
+
+            console.error(err);
+            alert(err.message);
+          }
+        });
+      }
+
+      if (isUpcoming) {
+
+        upcoming.appendChild(card);
+
+        upcomingCount++;
+
+      } else {
+
+        past.appendChild(card);
+      }
+
+    } catch (err) {
+
+      console.error(err);
+    }
+  });
+
+  document.getElementById(
+    "summary-text"
+  ).innerText =
+    `You have ${upcomingCount} upcoming appointment(s)`;
+}
+
+
+// Filters appointments
+function filterAppointments(type) {
+
+  document
+    .querySelectorAll(".appointment-card")
+    .forEach(card => {
+
+      if (type === "all") {
+
+        card.style.display = "flex";
+
+      } else {
+
+        card.style.display =
+          card.dataset.type === type
+            ? "flex"
+            : "none";
+      }
+    });
+}

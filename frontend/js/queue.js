@@ -9,7 +9,6 @@ async function loadQueue() {
   const queueDetails = document.getElementById("queue-details");
   const summaryText = document.getElementById("summary-text");
 
-  // Clears anything that was displayed before loading new queue data
   queueDetails.innerHTML = "";
 
   empty.style.display = "none";

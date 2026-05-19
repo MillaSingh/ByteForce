@@ -383,3 +383,9 @@
   cursor: not-allowed;
   pointer-events: none;
 }
+.time-slot:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: var(--cream);
+}

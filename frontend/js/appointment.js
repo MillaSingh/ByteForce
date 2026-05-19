@@ -97,8 +97,9 @@ async function loadAvailableSlots(date) {
 
     // Render each available slot as a clickable element
     data.slots.forEach(slot => {
-      const slotEl = document.createElement('div');
-      slotEl.className = 'time-slot';
+      const slotEl = document.createElement("button");
+      slotEl.type = "button";
+      slotEl.className = "time-slot";
       slotEl.textContent = slot.time;
 
       if (!slot.available || isPastTimeSlot(slot.time, date)) {

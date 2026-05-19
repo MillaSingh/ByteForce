@@ -1,8 +1,9 @@
 import { requireAuth, getCurrentUser } from "./auth.js";
 
-// Makes sure only logged-in users can access this page
+// Access control
 requireAuth();
 
+// Clears display before loading new queue data
 async function loadQueue() {
   const loading = document.getElementById("loading");
   const empty = document.getElementById("empty");
@@ -17,7 +18,6 @@ async function loadQueue() {
   try {
     const token = sessionStorage.getItem("firebaseToken");
 
-    // If there is no token, the user should not stay on this page
     if (!token) {
       window.location.replace("/html/Login.html");
       return;
@@ -25,7 +25,7 @@ async function loadQueue() {
 
     const user = getCurrentUser();
 
-// Sends the current user's email to the server to find their queue
+    // Sends the current user's email to the server to find their queue
     const res = await fetch("/api/patient-queue/my", {
       method: "POST",
       headers: {
@@ -39,7 +39,6 @@ async function loadQueue() {
       }),
     });
 
-// Stops the code if the server sends back an error response
     if (!res.ok) {
       const error = await res.json().catch(() => null);
       throw new Error(error?.error || "Server error");
@@ -49,74 +48,76 @@ async function loadQueue() {
 
     loading.style.display = "none";
 
-    // Shows a message if the user is not currently in any queue
     if (!queue) {
       empty.style.display = "block";
       summaryText.innerText = "You are not currently in a queue";
       return;
     }
 
-// Stores queue values in variables so they are easier to use below
     const clinicName = queue.clinic_name || "Clinic";
     const queuePosition = Number(queue.queue_position);
     const status = queue.status || "waiting";
-//operator checks if check_in_time exists
+
+    // Checks if check_in_time exists
     const checkInTime = queue.check_in_time
       ? new Date(queue.check_in_time)
       : null;
 
-      const estimatedWaitTime = formatWaitTime(queue.estimated_wait_minutes);
+    const estimatedWaitTime = formatWaitTime(queue.estimated_wait_minutes);
 
     summaryText.innerText =
       `You are number ${queuePosition} in the queue at ${clinicName}`;
 
-    // Builds the queue card that will be shown on the page
     queueDetails.innerHTML = `
-      <div class="queue-card">
+      <article class="queue-card">
 
-        <div class="queue-main">
-          <div>
-            <div class="queue-label">Clinic</div>
-            <div class="queue-title">${clinicName}</div>
-          </div>
+        <section class="queue-main">
 
-          <div class="status ${status}">
+          <section>
+            <p class="queue-label">Clinic</p>
+            <h2 class="queue-title">${clinicName}</h2>
+          </section>
+
+          <span class="status ${status}">
             ${formatStatus(status)}
-          </div>
-        </div>
+          </span>
 
-        <div class="queue-position-box">
-          <div class="position-number">${queuePosition}</div>
-          <div class="position-text">Your queue position</div>
-        </div>
+        </section>
 
-        <div class="queue-grid">
-          <div class="queue-info-box">
-            <div class="queue-label">Estimated wait time</div>
-            <div class="queue-value">${estimatedWaitTime}</div>
-          </div>
+        <section class="queue-position-box">
+          <p class="position-number">${queuePosition}</p>
+          <p class="position-text">Your queue position</p>
+        </section>
 
-          <div class="queue-info-box">
-            <div class="queue-label">Check-in time</div>
-            <div class="queue-value">
+        <section class="queue-grid">
+
+          <article class="queue-info-box">
+            <p class="queue-label">Estimated wait time</p>
+            <p class="queue-value">${estimatedWaitTime}</p>
+          </article>
+
+          <article class="queue-info-box">
+            <p class="queue-label">Check-in time</p>
+            <p class="queue-value">
               ${checkInTime ? formatTime(checkInTime) : "Not available"}
-            </div>
-          </div>
+            </p>
+          </article>
 
-          <div class="queue-info-box">
-            <div class="queue-label">Status</div>
-            <div class="queue-value">${formatStatus(status)}</div>
-          </div>
+          <article class="queue-info-box">
+            <p class="queue-label">Status</p>
+            <p class="queue-value">${formatStatus(status)}</p>
+          </article>
 
-          <div class="queue-info-box">
-            <div class="queue-label">People waiting at clinic</div>
-            <div class="queue-value">
+          <article class="queue-info-box">
+            <p class="queue-label">People waiting at clinic</p>
+            <p class="queue-value">
               ${queue.people_waiting_at_clinic || 0}
-            </div>
-          </div>
-        </div>
+            </p>
+          </article>
 
-      </div>
+        </section>
+
+      </article>
     `;
 
     queueDetails.style.display = "block";
@@ -126,15 +127,8 @@ async function loadQueue() {
     loading.innerText = "Failed to load your queue position";
     summaryText.innerText = "You are currently not in the queue";
   }
-
-  const waitMinutes = queue.estimated_wait_minutes;
-
-// read memory
-const alreadySent = sessionStorage.getItem("callSoonEmailSent") === "true";
-
 }
 
-// Changes wait time from minutes into a more readable message
 function formatWaitTime(minutes) {
   if (minutes === null || minutes === undefined) {
     return "Not available";

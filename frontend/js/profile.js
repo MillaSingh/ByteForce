@@ -20,7 +20,7 @@ function showNameDisplay(name) {
   profileName.innerHTML = "";
 
   // Creates the name display area
-  const wrapper = document.createElement("div");
+  const wrapper = document.createElement("section");
   wrapper.className = "profile-name-display";
 
   const nameText = document.createElement("span");
@@ -46,9 +46,8 @@ function showNameDisplay(name) {
 }
 
 function showNameForm(currentName = "") {
-  // Replaces
   profileName.innerHTML = `
-    <div class="profile-name-form">
+    <section class="profile-name-form">
       <input 
         type="text" 
         id="profileNameInput" 
@@ -57,31 +56,8 @@ function showNameForm(currentName = "") {
       />
       <button id="saveProfileNameBtn" type="button">Save</button>
       <button id="cancelProfileNameBtn" type="button">Cancel</button>
-    </div>
+    </section>
   `;
-
-  const nameInput = document.getElementById("profileNameInput");
-  const saveNameBtn = document.getElementById("saveProfileNameBtn");
-  const cancelNameBtn = document.getElementById("cancelProfileNameBtn");
-
-  saveNameBtn.addEventListener("click", () => {
-    const enteredName = nameInput.value.trim();
-
-    if (!enteredName) {
-      alert("Please enter your name.");
-      return;
-    }
-
-    // Saves the name for the session and future visits
-    sessionStorage.setItem("userName", enteredName);
-    localStorage.setItem(storageKey, enteredName);
-
-    showNameDisplay(enteredName);
-  });
-
-  cancelNameBtn.addEventListener("click", () => {
-    showNameDisplay(getDisplayName());
-  });
 }
 
 profileEmail.textContent = user.email || "Email not available";

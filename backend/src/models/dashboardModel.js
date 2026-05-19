@@ -1,4 +1,25 @@
 const pool = require('../db');
+const renumberQueuePositions = async (dbClient, clinicId) => {
+  await dbClient.query(
+    `
+    WITH ranked_queue AS (
+      SELECT
+        queue_id,
+        ROW_NUMBER() OVER (
+          ORDER BY queue_position ASC, queue_id ASC
+        ) AS new_position
+      FROM queue_entry
+      WHERE clinic_id = $1
+      AND LOWER(status) != 'complete'
+    )
+    UPDATE queue_entry q
+    SET queue_position = ranked_queue.new_position
+    FROM ranked_queue
+    WHERE q.queue_id = ranked_queue.queue_id
+    `,
+    [clinicId]
+  );
+};
 
 /* GET QUEUE PATIENTS */
 
@@ -50,6 +71,7 @@ const getQueuePatients = async (clinicId) => {
     ) a ON true
 
     WHERE q.clinic_id = $1
+    AND LOWER(q.status) != 'complete'
 
     ORDER BY q.queue_position ASC;
   `, [clinicId]);
@@ -64,39 +86,63 @@ const updateQueueStatus = async (
   id,
   status
 ) => {
+  const client = await pool.connect();
 
-  let query = `
-    UPDATE queue_entry
-    SET status = $1
-  `;
+  try {
+    await client.query("BEGIN");
 
-  // Save consultation time
-  if (status === "in_consultation") {
+    let query = `
+      UPDATE queue_entry
+      SET status = $1
+    `;
+
+    if (status === "in_consultation") {
+      query += `
+        , called_time = CURRENT_TIMESTAMP
+      `;
+    }
+
+    if (status === "complete") {
+      query += `
+        , complete_time = CURRENT_TIMESTAMP
+      `;
+    }
 
     query += `
-      , called_time = CURRENT_TIMESTAMP
+      WHERE queue_id = $2
+      RETURNING *
     `;
+
+    const result = await client.query(
+      query,
+      [status, id]
+    );
+
+    const updated = result.rows[0];
+
+    if (!updated) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    if (status === "complete") {
+      await renumberQueuePositions(
+        client,
+        updated.clinic_id
+      );
+    }
+
+    await client.query("COMMIT");
+
+    return updated;
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+
+  } finally {
+    client.release();
   }
-
-  // Save completion time
-  if (status === "complete") {
-
-    query += `
-      , complete_time = CURRENT_TIMESTAMP
-    `;
-  }
-
-  query += `
-    WHERE queue_id = $2
-    RETURNING *
-  `;
-
-  const result = await pool.query(
-    query,
-    [status, id]
-  );
-
-  return result.rows[0];
 };
 
 /* ADD WALK-IN PATIENT */
@@ -315,19 +361,43 @@ const addWalkInPatient = async (
 
 // Remove patient from queue
 const deleteQueuePatient = async (id) => {
+  const client = await pool.connect();
 
-  const result = await pool.query(
-    `
-    DELETE FROM queue_entry
+  try {
+    await client.query("BEGIN");
 
-    WHERE queue_id = $1
+    const result = await client.query(
+      `
+      DELETE FROM queue_entry
+      WHERE queue_id = $1
+      RETURNING *
+      `,
+      [id]
+    );
 
-    RETURNING *
-    `,
-    [id]
-  );
+    const deleted = result.rows[0];
 
-  return result.rows[0];
+    if (!deleted) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    await renumberQueuePositions(
+      client,
+      deleted.clinic_id
+    );
+
+    await client.query("COMMIT");
+
+    return deleted;
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+
+  } finally {
+    client.release();
+  }
 };
 
 /* GET CLINICS */

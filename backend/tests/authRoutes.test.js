@@ -22,7 +22,7 @@ beforeEach(() => {
 describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
 
   // -----------------------------
-  // /me (ALL BRANCHES)
+  // /me
   // -----------------------------
   describe('GET /me', () => {
 
@@ -59,42 +59,74 @@ describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
   });
 
   // -----------------------------
-  // /check-role (ALL BRANCHES)
+  // /check-role
   // -----------------------------
   describe('GET /check-role', () => {
 
     test('admin redirect', async () => {
-      pool.query.mockResolvedValue({
-        rows: [{ role: 'admin' }]
-      });
+      pool.query
+        // requireAuth lookup
+        .mockResolvedValueOnce({
+          rows: [{ user_id: 1, email: 'admin@mail.com' }]
+        })
+        // check-role route lookup
+        .mockResolvedValueOnce({
+          rows: [{ role: 'admin' }]
+        });
 
       const res = await request(app)
         .get('/api/auth/check-role')
         .set('x-user-email', 'admin@mail.com');
 
+      expect(res.statusCode).toBe(200);
       expect(res.body.redirect).toBe('/html/admin_dashboard.html');
     });
 
     test('null role redirect', async () => {
-      pool.query.mockResolvedValue({
-        rows: [{ role: null }]
-      });
+      pool.query
+        // requireAuth lookup
+        .mockResolvedValueOnce({
+          rows: [{ user_id: 1, email: 'u@mail.com' }]
+        })
+        // check-role route lookup
+        .mockResolvedValueOnce({
+          rows: [{ role: null }]
+        });
 
       const res = await request(app)
         .get('/api/auth/check-role')
         .set('x-user-email', 'u@mail.com');
 
+      expect(res.statusCode).toBe(200);
       expect(res.body.redirect).toBe('/html/select_role.html');
     });
 
-    test('404 user missing', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
+    test('404 user missing inside route', async () => {
+      pool.query
+        // requireAuth passes first
+        .mockResolvedValueOnce({
+          rows: [{ user_id: 1, email: 'x@mail.com' }]
+        })
+        // actual check-role route returns no user
+        .mockResolvedValueOnce({
+          rows: []
+        });
 
       const res = await request(app)
         .get('/api/auth/check-role')
         .set('x-user-email', 'x@mail.com');
 
       expect(res.statusCode).toBe(404);
+    });
+
+    test('401 unauthorized when requireAuth cannot find user', async () => {
+      pool.query.mockResolvedValueOnce({ rows: [] });
+
+      const res = await request(app)
+        .get('/api/auth/check-role')
+        .set('x-user-email', 'missing@mail.com');
+
+      expect(res.statusCode).toBe(401);
     });
 
     test('500 DB error branch', async () => {
@@ -110,11 +142,15 @@ describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
   });
 
   // -----------------------------
-  // /set-role (IMPORTANT)
+  // /set-role
   // -----------------------------
   describe('POST /set-role', () => {
 
     test('invalid role → 400', async () => {
+      pool.query.mockResolvedValueOnce({
+        rows: [{ user_id: 1, email: 'a@mail.com' }]
+      });
+
       const res = await request(app)
         .post('/api/auth/set-role')
         .set('x-user-email', 'a@mail.com')
@@ -123,8 +159,16 @@ describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
       expect(res.statusCode).toBe(400);
     });
 
-    test('user not found → 404', async () => {
-      pool.query.mockResolvedValueOnce({ rows: [] });
+    test('user not found inside route → 404', async () => {
+      pool.query
+        // requireAuth passes first
+        .mockResolvedValueOnce({
+          rows: [{ user_id: 1, email: 'a@mail.com' }]
+        })
+        // actual set-role route returns no user
+        .mockResolvedValueOnce({
+          rows: []
+        });
 
       const res = await request(app)
         .post('/api/auth/set-role')
@@ -132,6 +176,17 @@ describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
         .send({ role: 'admin' });
 
       expect(res.statusCode).toBe(404);
+    });
+
+    test('401 unauthorized when requireAuth cannot find user', async () => {
+      pool.query.mockResolvedValueOnce({ rows: [] });
+
+      const res = await request(app)
+        .post('/api/auth/set-role')
+        .set('x-user-email', 'missing@mail.com')
+        .send({ role: 'admin' });
+
+      expect(res.statusCode).toBe(401);
     });
 
     test('DB failure → 500 branch', async () => {
@@ -148,11 +203,11 @@ describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
   });
 
   // -----------------------------
-  // /session (FULL BRANCH)
+  // /session
   // -----------------------------
   describe('POST /session', () => {
 
-    test('missing token → 400', async () => {
+    test('missing idToken → 400', async () => {
       const res = await request(app)
         .post('/api/auth/session')
         .send({});
@@ -160,10 +215,19 @@ describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
       expect(res.statusCode).toBe(400);
     });
 
+    test('valid idToken → 200', async () => {
+      const res = await request(app)
+        .post('/api/auth/session')
+        .send({ idToken: 'test-token' });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.status).toBe('ok');
+    });
+
   });
 
   // -----------------------------
-  // /sync-password (FULL BRANCH)
+  // /sync-password
   // -----------------------------
   describe('POST /sync-password', () => {
 
@@ -171,6 +235,17 @@ describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
       const res = await request(app)
         .post('/api/auth/sync-password')
         .send({ email: 'a@mail.com' });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    test('password too short → 400', async () => {
+      const res = await request(app)
+        .post('/api/auth/sync-password')
+        .send({
+          email: 'a@mail.com',
+          newPassword: '123'
+        });
 
       expect(res.statusCode).toBe(400);
     });
@@ -209,11 +284,24 @@ describe('🔥 AUTH ROUTES FULL COVERAGE FIX', () => {
   describe('POST /verify-admin-code', () => {
 
     test('missing code → 400', async () => {
+      pool.query.mockResolvedValueOnce({
+        rows: [{ user_id: 1, email: 'a@mail.com' }]
+      });
+
       const res = await request(app)
         .post('/api/auth/verify-admin-code')
+        .set('x-user-email', 'a@mail.com')
         .send({});
 
       expect(res.statusCode).toBe(400);
+    });
+
+    test('401 unauthorized when missing x-user-email', async () => {
+      const res = await request(app)
+        .post('/api/auth/verify-admin-code')
+        .send({ code: '123456' });
+
+      expect(res.statusCode).toBe(401);
     });
 
   });

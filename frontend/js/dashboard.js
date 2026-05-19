@@ -5,6 +5,7 @@ requireRole(['staff']);
 let patients = [];
 
 /* ELEMENTS */
+/* ELEMENTS */
 
 // Gets the main table body where patient rows will be displayed
 const patientTable = document.getElementById("patientTable");
@@ -16,6 +17,7 @@ const filterStatus = document.getElementById("filterStatus");
 // Gets the main action buttons
 const addPatientBtn = document.getElementById("addPatientBtn");
 const rescheduleBtn = document.getElementById("rescheduleBtn");
+const accountBtn = document.getElementById("accountBtn");
 
 // Gets the pop-up dialog boxes
 const patientDialog = document.getElementById("patientDialog");
@@ -29,28 +31,11 @@ const closePatientDialogBtn = document.getElementById("closePatientDialogBtn");
 const saveRescheduleBtn = document.getElementById("saveRescheduleBtn");
 const closeRescheduleDialogBtn = document.getElementById("closeRescheduleDialogBtn");
 
-const rescheduleDialog =
-  document.getElementById("rescheduleDialog");
-
-const submitPatientBtn =
-  document.getElementById("submitPatientBtn");
-
-const closePatientDialogBtn =
-  document.getElementById("closePatientDialogBtn");
-
-const saveRescheduleBtn =
-  document.getElementById("saveRescheduleBtn");
-
-const closeRescheduleDialogBtn =
-  document.getElementById("closeRescheduleDialogBtn");
-
-const accountBtn =
-  document.getElementById("accountBtn");
-
 /* ACCOUNT BUTTON */
 
 // Go to account page
-accountBtn.addEventListener("click", () => {
+if (accountBtn) {
+  accountBtn.addEventListener("click", () => {
 
   // Save current page
   sessionStorage.setItem(
@@ -63,6 +48,7 @@ accountBtn.addEventListener("click", () => {
   window.location.href =
     "/html/account.html";
 });
+}
 
 /* LOAD DASHBOARD TITLE */
 
@@ -74,9 +60,6 @@ const loadDashboardClinicName = async () => {
 // Gets the current staff user and their linked clinic ID
     const currentUser = getCurrentUser();
     const clinicId = currentUser?.clinicId;
-
-    const clinicId =
-      currentUser?.clinicId;
 
     // Stop if no clinic
     if (!clinicId) {

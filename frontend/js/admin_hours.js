@@ -1,8 +1,9 @@
-import { requireRole } from '/js/auth.js';
+import { requireRole, getCurrentUser } from '/js/auth.js';
 requireRole(['admin']);
 
 // Replace with clinic ID from logged-in admin's profile
-const CLINIC_ID = 4;
+const { clinicId } = getCurrentUser();
+const CLINIC_ID = clinicId;
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 

@@ -1,460 +1,247 @@
-// Load appointments automatically
-window.addEventListener(
-  "DOMContentLoaded",
-  loadMyAppointments
-);
+<!DOCTYPE html>
+<html lang="en">
 
-// Fetch logged-in user's appointments
-async function loadMyAppointments() {
+<head>
 
-  try {
+  <!-- Character encoding -->
+  <meta charset="UTF-8" />
 
-    const res = await fetch(
-      "/api/appointments/my",
-      {
-        credentials: "include"
-      }
-    );
+  <!-- Makes website responsive -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
-    // Redirect if not logged in
-    if (res.status === 401) {
+  <!-- Page title -->
+  <title>
+    My Appointments | MEDIQUEUE
+  </title>
 
-      window.location.href =
-        "/html/login.html";
+  <!-- Navigation CSS -->
+  <link
+    rel="stylesheet"
+    href="/css/navigation.css"
+  />
 
-      return;
-    }
+  <!-- Appointments page CSS -->
+  <link
+    rel="stylesheet"
+    href="/css/myAppointments.css"
+  />
 
-    if (!res.ok) {
+  <!-- Google font connection -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  />
 
-      throw new Error(
-        "Failed to load appointments"
-      );
-    }
+  <!-- Import Google fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
 
-    const data = await res.json();
+</head>
 
-    // Show dashboard
-    document.getElementById(
-      "dashboard"
-    ).style.display = "block";
+<body>
 
-    // Load appointments
-    loadAppointmentsByData(data);
+  <!-- Navigation bar -->
+  <nav>
 
-  } catch (err) {
+    <!-- Logo section -->
+    <section class="nav-brand">
 
-    console.error(err);
+      <!-- Logo image -->
+      <img
+        src="/images/logo.jpeg"
+        width="60"
+        height="60"
+        alt="Logo"
+      />
 
-    alert(
-      "Failed to load appointments"
-    );
-  }
-}
+      <!-- Website name -->
+      <span class="nav-logo">
+        MEDI<span>QUEUE</span>
+      </span>
 
+    </section>
 
-// Loads appointments into dashboard
-function loadAppointmentsByData(data) {
+    <!-- Navigation links -->
+    <ul class="nav-links">
 
-  const upcoming =
-    document.getElementById("upcoming");
+      <li>
+        <a href="/html/home.html">
+          Home
+        </a>
+      </li>
 
-  const past =
-    document.getElementById("past");
+      <li>
+        <a href="/html/clinics.html">
+          Clinics
+        </a>
+      </li>
 
-  const loading =
-    document.getElementById("loading");
+      <!-- Current page -->
+      <li>
+        <a
+          class="active"
+          href="/html/myAppointments.html"
+        >
+          My Appointments
+        </a>
+      </li>
 
-  const empty =
-    document.getElementById("empty");
+      <li>
+        <a href="/html/queue.html">
+          Queue
+        </a>
+      </li>
 
-  upcoming.innerHTML = "";
-  past.innerHTML = "";
+    </ul>
 
-  loading.style.display = "none";
-  empty.style.display = "none";
+    <!-- Account button -->
+    <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
 
-  if (!data.length) {
+  </nav>
 
-    empty.style.display = "block";
+  <!-- Hero section -->
+  <div class="hero">
 
-    return;
-  }
+    <h1>My Appointments</h1>
 
-  const now = new Date();
+    <p>
+      Track your medical bookings in one place
+    </p>
 
-  now.setSeconds(0, 0);
+  </div>
 
-  let upcomingCount = 0;
+  <!-- Main page content -->
+  <main>
 
-  data.forEach(app => {
+    <!-- Main white card -->
+    <div class="container-card">
 
-    try {
+      
 
-      const rawDate =
-        new Date(app.appointment_date);
+      <!-- Dashboard section -->
+      <div id="dashboard">
 
-      const year =
-        rawDate.getFullYear();
+        <!-- Dashboard heading -->
+        <div class="summary-header">
 
-      const month =
-        rawDate.getMonth();
+          <h2>Your Dashboard</h2>
 
-      const day =
-        rawDate.getDate();
-
-      const timeParts =
-        app.appointment_time
-          .split(".")[0]
-          .split(":");
-
-      const hour =
-        parseInt(timeParts[0], 10);
-
-      const minute =
-        parseInt(timeParts[1], 10);
-
-      const dateTime =
-        new Date(
-          year,
-          month,
-          day,
-          hour,
-          minute
-        );
-
-      if (isNaN(dateTime.getTime())) {
-
-        console.error(
-          "Invalid date:",
-          app
-        );
-
-        return;
-      }
-
-      let status =
-        (app.status || "")
-          .toLowerCase();
-
-      const isUpcoming =
-        dateTime.getTime() >=
-        now.getTime() &&
-        status !== "cancelled";
-
-      if (
-        !isUpcoming &&
-        status !== "cancelled"
-      ) {
-
-        status = "completed";
-      }
-
-      // CHANGED: div -> section
-      const card =
-        document.createElement("section");
-
-      card.className =
-        "appointment-card";
-
-      card.dataset.type =
-        isUpcoming
-          ? "upcoming"
-          : "past";
-
-      card.innerHTML = `
-
-        <section class="appointment-info">
-
-          <h3 class="appointment-title">
-            ${app.clinic_name || "Clinic"}
-          </h3>
-
-          <p class="appointment-date">
-            ${dateTime.toLocaleDateString()}
-            •
-
-            ${dateTime.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
+          <!-- Appointment summary -->
+          <p id="summary-text">
+            Loading appointments...
           </p>
 
-        </section>
-
-        <section>
-
-          ${status === "cancelled"
-
-          ? `
-                <span class="status cancelled">
-                  Cancelled
-                </span>
-              `
-
-          : status === "completed"
-
-            ? `
-                <span class="status completed">
-                  Completed
-                </span>
-              `
-
-            : ""
-        }
-
-          ${isUpcoming
-          ? `
-                <button
-                  class="reschedule-btn"
-                  data-id="${app.appointment_id || app.appointmentId}"
-                  data-clinic="${app.clinic_id}">
-                  Reschedule
-                </button>
-          
-                <button
-                  class="cancel-btn"
-                  data-id="${app.appointment_id || app.appointmentId}">
-                  Cancel
-                </button>
-          
-                <button
-                  class="checkin-btn"
-                  data-id="${app.appointment_id || app.appointmentId}">
-                  Check In
-                </button>
-              `
-          : ""
-        }
-        </section>
-      `;
-
-      const cancelBtn =
-        card.querySelector(".cancel-btn");
-
-      if (cancelBtn) {
-
-        cancelBtn.addEventListener(
-          "click",
-          async () => {
-
-            const confirmCancel =
-              confirm(
-                "Cancel this appointment?"
-              );
-
-            if (!confirmCancel) return;
-
-            try {
-
-              const res =
-                await fetch(
-                  `/api/appointments/${app.appointment_id}`,
-                  {
-                    method: "DELETE",
-                    credentials: "include"
-                  }
-                );
-
-              if (!res.ok) {
-
-                throw new Error(
-                  "Cancel failed"
-                );
-              }
-
-              alert(
-                "Appointment cancelled"
-              );
+        </div>
+
+        <!-- Filter buttons -->
+        <div class="filters">
+
+          <button
+            onclick="filterAppointments('all')"
+          >
+            All
+          </button>
+
+          <button
+            onclick="filterAppointments('upcoming')"
+          >
+            Upcoming
+          </button>
+
+          <button
+            onclick="filterAppointments('past')"
+          >
+            Past
+          </button>
+
+        </div>
+
+        <!-- Loading message -->
+        <div
+          id="loading"
+          class="center"
+        >
+          Loading appointments...
+        </div>
+
+        <!-- Empty message -->
+        <div
+          id="empty"
+          class="center"
+          style="display:none;"
+        >
+          No appointments yet
+        </div>
+
+        <!-- Upcoming appointments -->
+        <div class="group">
+
+          <h3>Upcoming</h3>
+
+          <div
+            id="upcoming"
+            class="list"
+          ></div>
+
+        </div>
+
+        <!-- Past appointments -->
+        <div class="group">
+
+          <h3>Past</h3>
+
+          <div
+            id="past"
+            class="list"
+          ></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+
+    © 2026 MediQueue ·
+    All rights reserved ·
+
+    
+    <a
+      href="#"
+      style="
+        color: rgba(255, 255, 255, 0.6);;
+        text-decoration:none;
+      "
+    >
+      Privacy Policy
+    </a>
+
+  </footer>
+
+  <!-- Link JavaScript file -->
+  <script src="/js/myAppointments.js"></script>
+    <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
 
-              loadMyAppointments();
+</body>
 
-            } catch (err) {
-
-              console.error(err);
-
-              alert(
-                "Error cancelling appointment"
-              );
-            }
-          }
-        );
-      }
-
-      const rescheduleBtn =
-        card.querySelector(
-          ".reschedule-btn"
-        );
-
-      if (rescheduleBtn) {
-
-        rescheduleBtn.addEventListener(
-          "click",
-          async () => {
-
-            const newDate =
-              prompt(
-                "Enter new date (YYYY-MM-DD)"
-              );
-
-            if (!newDate) return;
-
-            const newTime =
-              prompt(
-                "Enter new time (HH:MM)"
-              );
-
-            if (!newTime) return;
-
-            try {
-
-              const res =
-                await fetch(
-                  `/api/appointments/${app.appointment_id}/reschedule`,
-                  {
-                    method: "PUT",
-
-                    headers: {
-                      "Content-Type":
-                        "application/json"
-                    },
-
-                    credentials: "include",
-
-                    body: JSON.stringify({
-                      clinic_id:
-                        app.clinic_id,
-
-                      appointment_date:
-                        newDate,
-
-                      appointment_time:
-                        newTime
-                    })
-                  }
-                );
-
-              const responseData =
-                await res.json();
-
-              if (!res.ok) {
-
-                throw new Error(
-                  responseData.error
-                );
-              }
-
-              alert(
-                "Appointment rescheduled"
-              );
-
-              loadMyAppointments();
-
-            } catch (err) {
-
-              console.error(err);
-
-              alert(err.message);
-            }
-          }
-        );
-      }
-
-      const checkInBtn = card.querySelector(".checkin-btn");
-
-      if (checkInBtn) {
-
-        checkInBtn.addEventListener("click", async () => {
-
-          const rawId =
-            checkInBtn.dataset.id;
-
-          const appointmentId =
-            Number(rawId);
-
-          if (!appointmentId || isNaN(appointmentId)) {
-
-            console.error("BAD APPOINTMENT ID:", rawId);
-
-            alert("Invalid appointment ID");
-
-            return;
-          }
-
-          try {
-
-            const userEmail = sessionStorage.getItem("userEmail");
-
-            const res = await fetch(
-              `/api/patient-queue/checkin/${appointmentId}`,
-              {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                  "x-user-email": userEmail
-                }
-              }
-            );
-
-            const data = await res.json();
-
-            if (!res.ok) {
-              throw new Error(data.error);
-            }
-
-            alert("Checked in successfully!");
-
-            loadMyAppointments();
-
-          } catch (err) {
-
-            console.error(err);
-            alert(err.message);
-          }
-        });
-      }
-
-      if (isUpcoming) {
-
-        upcoming.appendChild(card);
-
-        upcomingCount++;
-
-      } else {
-
-        past.appendChild(card);
-      }
-
-    } catch (err) {
-
-      console.error(err);
-    }
-  });
-
-  document.getElementById(
-    "summary-text"
-  ).innerText =
-    `You have ${upcomingCount} upcoming appointment(s)`;
-}
-
-
-// Filters appointments
-function filterAppointments(type) {
-
-  document
-    .querySelectorAll(".appointment-card")
-    .forEach(card => {
-
-      if (type === "all") {
-
-        card.style.display = "flex";
-
-      } else {
-
-        card.style.display =
-          card.dataset.type === type
-            ? "flex"
-            : "none";
-      }
-    });
-}
+</html>

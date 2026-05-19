@@ -3,245 +3,118 @@
 
 <head>
 
-  <!-- Character encoding -->
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Makes website responsive -->
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <title>My Appointments | MEDIQUEUE</title>
 
-  <!-- Page title -->
-  <title>
-    My Appointments | MEDIQUEUE
-  </title>
+  <link rel="stylesheet" href="/css/navigation.css" />
+  <link rel="stylesheet" href="/css/myAppointments.css" />
 
-  <!-- Navigation CSS -->
-  <link
-    rel="stylesheet"
-    href="/css/navigation.css"
-  />
-
-  <!-- Appointments page CSS -->
-  <link
-    rel="stylesheet"
-    href="/css/myAppointments.css"
-  />
-
-  <!-- Google font connection -->
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  />
-
-  <!-- Import Google fonts -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap"
-    rel="stylesheet"
-  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
 </head>
 
 <body>
 
-  <!-- Navigation bar -->
+  <!-- NAV -->
   <nav>
 
-    <!-- Logo section -->
     <section class="nav-brand">
+      <img src="/images/logo.jpeg" width="60" height="60" alt="Logo" />
 
-      <!-- Logo image -->
-      <img
-        src="/images/logo.jpeg"
-        width="60"
-        height="60"
-        alt="Logo"
-      />
-
-      <!-- Website name -->
       <span class="nav-logo">
         MEDI<span>QUEUE</span>
       </span>
-
     </section>
 
-    <!-- Navigation links -->
     <ul class="nav-links">
-
-      <li>
-        <a href="/html/home.html">
-          Home
-        </a>
-      </li>
-
-      <li>
-        <a href="/html/clinics.html">
-          Clinics
-        </a>
-      </li>
-
-      <!-- Current page -->
-      <li>
-        <a
-          class="active"
-          href="/html/myAppointments.html"
-        >
-          My Appointments
-        </a>
-      </li>
-
-      <li>
-        <a href="/html/queue.html">
-          Queue
-        </a>
-      </li>
-
+      <li><a href="/html/home.html">Home</a></li>
+      <li><a href="/html/clinics.html">Clinics</a></li>
+      <li><a class="active" href="/html/myAppointments.html">My Appointments</a></li>
+      <li><a href="/html/queue.html">Queue</a></li>
     </ul>
 
-    <!-- Account button -->
     <button class="nav-cta account-btn" onclick="goToAccount()">
-  Account
-</button>
+      Account
+    </button>
 
   </nav>
 
-  <!-- Hero section -->
-  <div class="hero">
-
+  <!-- HERO -->
+  <header class="hero">
     <h1>My Appointments</h1>
+    <p>Track your medical bookings in one place</p>
+  </header>
 
-    <p>
-      Track your medical bookings in one place
-    </p>
-
-  </div>
-
-  <!-- Main page content -->
+  <!-- MAIN -->
   <main>
 
-    <!-- Main white card -->
-    <div class="container-card">
+    <section class="container-card">
 
-      
+      <!-- DASHBOARD -->
+      <section id="dashboard">
 
-      <!-- Dashboard section -->
-      <div id="dashboard">
-
-        <!-- Dashboard heading -->
-        <div class="summary-header">
-
+        <header class="summary-header">
           <h2>Your Dashboard</h2>
+          <p id="summary-text">Loading appointments...</p>
+        </header>
 
-          <!-- Appointment summary -->
-          <p id="summary-text">
-            Loading appointments...
-          </p>
+        <section class="filters">
 
-        </div>
+          <button onclick="filterAppointments('all')">All</button>
+          <button onclick="filterAppointments('upcoming')">Upcoming</button>
+          <button onclick="filterAppointments('past')">Past</button>
 
-        <!-- Filter buttons -->
-        <div class="filters">
+        </section>
 
-          <button
-            onclick="filterAppointments('all')"
-          >
-            All
-          </button>
-
-          <button
-            onclick="filterAppointments('upcoming')"
-          >
-            Upcoming
-          </button>
-
-          <button
-            onclick="filterAppointments('past')"
-          >
-            Past
-          </button>
-
-        </div>
-
-        <!-- Loading message -->
-        <div
-          id="loading"
-          class="center"
-        >
+        <section id="loading" class="center">
           Loading appointments...
-        </div>
+        </section>
 
-        <!-- Empty message -->
-        <div
-          id="empty"
-          class="center"
-          style="display:none;"
-        >
+        <section id="empty" class="center" style="display:none;">
           No appointments yet
-        </div>
+        </section>
 
-        <!-- Upcoming appointments -->
-        <div class="group">
-
+        <!-- UPCOMING -->
+        <section class="group">
           <h3>Upcoming</h3>
+          <section id="upcoming" class="list"></section>
+        </section>
 
-          <div
-            id="upcoming"
-            class="list"
-          ></div>
-
-        </div>
-
-        <!-- Past appointments -->
-        <div class="group">
-
+        <!-- PAST -->
+        <section class="group">
           <h3>Past</h3>
+          <section id="past" class="list"></section>
+        </section>
 
-          <div
-            id="past"
-            class="list"
-          ></div>
+      </section>
 
-        </div>
-
-      </div>
-
-    </div>
+    </section>
 
   </main>
 
-  <!-- Footer -->
+  <!-- FOOTER -->
   <footer>
-
-    © 2026 MediQueue ·
-    All rights reserved ·
-
-    
-    <a
-      href="#"
-      style="
-        color: rgba(255, 255, 255, 0.6);;
-        text-decoration:none;
-      "
-    >
+    © 2026 MediQueue · All rights reserved ·
+    <a href="#" style="color: rgba(255, 255, 255, 0.6); text-decoration:none;">
       Privacy Policy
     </a>
-
   </footer>
 
-  <!-- Link JavaScript file -->
   <script src="/js/myAppointments.js"></script>
-    <script>
-  function goToAccount() {
-    sessionStorage.setItem(
-      "previousPageBeforeAccount",
-      window.location.pathname + window.location.search
-    );
 
-    window.location.href = "/html/account.html";
-  }
-</script>
+  <script>
+    function goToAccount() {
+      sessionStorage.setItem(
+        "previousPageBeforeAccount",
+        window.location.pathname + window.location.search
+      );
+
+      window.location.href = "/html/account.html";
+    }
+  </script>
 
 </body>
-
 </html>

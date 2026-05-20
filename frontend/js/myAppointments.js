@@ -4,6 +4,8 @@ window.addEventListener(
   loadMyAppointments
 );
 
+emailjs.init("It5nWm42g6-DChkm5");
+
 // Fetch logged-in user's appointments
 async function loadMyAppointments() {
 
@@ -346,6 +348,21 @@ function loadAppointmentsByData(data) {
               alert(
                 "Appointment rescheduled"
               );
+
+              emailjs.send("service_tisniwj", "template_r16nbsw", {
+                email: sessionStorage.getItem("userEmail"),
+                patient_name: sessionStorage.getItem("patientName") || "Patient",
+                clinic_name: app.clinic_name,
+                appointment_date: newDate,
+                appointment_time: newTime,
+                reason: app.reason || "Appointment rescheduled"
+              })
+              .then(() => {
+                console.log("Email sent successfully");
+              })
+              .catch(err => {
+                console.error("Email failed:", err);
+              });
 
               loadMyAppointments();
 

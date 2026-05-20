@@ -192,9 +192,15 @@ function populateSummary() {
 
 // ---------------- BOOKING ----------------
 function confirmBooking() {
-
   if (!booking.time || !booking.reason || !booking.clinic_id) {
     alert("Please complete all required fields");
+    return;
+  }
+
+  // Check user is logged in
+  if (!userEmail) {
+    alert("You must be logged in to book an appointment. Please log in and try again.");
+    window.location.href = '/html/Login.html';
     return;
   }
 
@@ -216,25 +222,23 @@ function confirmBooking() {
   })
     .then(res => res.json())
     .then(data => {
+      // Check if backend returned an error
+      if (data.error) {
+        alert(`Booking failed: ${data.error}`);
+        return;
+      }
 
-      // SHOW SUCCESS SCREEN
+      // Only show success if booking actually succeeded
+      if (!data.success) {
+        alert('Something went wrong saving your booking. Please try again.');
+        return;
+      }
+
+      // Show success screen
       document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
       document.getElementById('section-success').classList.add('active');
 
-      const existing = JSON.parse(localStorage.getItem("appointments") || "[]");
-
-    existing.push({
-      clinic: booking.clinic,
-      date: booking.date,
-      time: booking.time,
-      reason: booking.reason,
-      email: booking.email || userEmail,
-      name: `${booking.fname} ${booking.lname}`,
-      reminderSent: false
-    });
-
-    localStorage.setItem("appointments", JSON.stringify(existing));
-
+      // Send confirmation email
       return emailjs.send(
         "service_tisniwj",
         "template_pchia0c",
@@ -248,12 +252,12 @@ function confirmBooking() {
         }
       );
     })
-    .then(() => {
-      console.log("Email sent successfully");
+    .then((emailResult) => {
+      if (emailResult) console.log("Email sent successfully");
     })
     .catch(err => {
       console.error("Booking or email failed:", err);
-      alert("Something went wrong.");
+      alert("Something went wrong. Please try again.");
     });
 }
 

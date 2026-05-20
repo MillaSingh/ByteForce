@@ -12,28 +12,31 @@
         rel="stylesheet">
 </head>
 
-<body>
+<body class="public">
     <nav>
-        <div class="nav-brand">
+        <section class="nav-brand">
             <img src="/images/logo.jpeg" width="60" height="60">
-            <div class="nav-logo">MEDI<span>QUEUE</span></div>
-        </div>
+            <span class="nav-logo">MEDI<span>QUEUE</span></span>
+        </section>
 
         <ul class="nav-links">
             <li><a href="/html/home.html">Home</a></li>
             <li><a href="#" class="active">Clinics</a></li>
             <li><a href="/html/myAppointments.html">My Appointments</a></li>
+            <li><a href="/html/queue.html">Queue</a></li>
         </ul>
-        <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">Account</button>
+        <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
     </nav>
 
     <main id="ClinicMain">
         <section class="clinic-hero" id="clinicHero" aria-label="Clinic image">
             <img src="" alt="Clinic image" id="clinicImage" class="clinic-hero__img" />
-            <div class="clinic-hero__overlay">
+            <section class="clinic-hero__overlay">
                 <h1 id="clinicName">Loading...</h1>
                 <span class="badge" id="clinicBadge"></span>
-            </div>
+            </section>
         </section>
 
 
@@ -78,9 +81,19 @@
 
         <footer>
             © 2026 MediQueue · All rights reserved · <a href="#"
-                style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
+                style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy Policy</a>
         </footer>
 
         <script src="/js/clinic_details.js"></script>
+          <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
     </main>
 </body>

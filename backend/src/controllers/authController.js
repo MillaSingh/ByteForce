@@ -1,15 +1,6 @@
 // backend/src/controllers/authController.js
 const admin = require("firebase-admin");
-const { Pool } = require("pg");
-
-const pool = new Pool({
-  host: "clinic-app-db.postgres.database.azure.com",
-  port: 5432,
-  database: "postgres",
-  user: "bdw",
-  password: process.env.DB_PASSWORD,
-  ssl: { rejectUnauthorized: false },
-});
+const pool = require('../db');
 
 const deleteAccount = async (req, res) => {
   const authHeader = req.headers.authorization;

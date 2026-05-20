@@ -2,17 +2,17 @@ import { requireRole, getCurrentUser } from '/js/auth.js';
 
 requireRole(['admin']);
 
-// ── Configuration ──────────────────────────────────────────────────────────
+// Configuration
 const { clinicId } = getCurrentUser();
 const CLINIC_ID = clinicId;
 
-// ── DOM Elements ───────────────────────────────────────────────────────────
-const staffList    = document.getElementById('staffList');
-const staffForm    = document.getElementById('staffForm');
-const submitBtn    = document.getElementById('submitBtn');
-const formStatus   = document.getElementById('formStatus');
+// DOM Elements
+const staffList = document.getElementById('staffList');
+const staffForm = document.getElementById('staffForm');
+const submitBtn = document.getElementById('submitBtn');
+const formStatus = document.getElementById('formStatus');
 
-// ── Show status messages ───────────────────────────────────────────────────
+// Show status messages
 function showStatus(message, type) {
   formStatus.textContent = message;
   formStatus.className = `form-status ${type}`;
@@ -20,7 +20,7 @@ function showStatus(message, type) {
   setTimeout(() => { formStatus.hidden = true; }, 5000);
 }
 
-// ── Render staff list ──────────────────────────────────────────────────────
+// Render staff list
 function renderStaff(staff) {
   staffList.innerHTML = '';
 
@@ -51,7 +51,7 @@ function renderStaff(staff) {
   });
 }
 
-// ── Load staff from backend ────────────────────────────────────────────────
+// Load staff from backend
 async function loadStaff() {
   if (!CLINIC_ID) {
     staffList.innerHTML = '<li class="staff-loading">No clinic assigned. Please contact your administrator.</li>';
@@ -69,7 +69,7 @@ async function loadStaff() {
   }
 }
 
-// ── Unassign staff member ──────────────────────────────────────────────────
+// Unassign staff member
 async function unassignStaff(staffProfileId) {
   if (!confirm('Are you sure you want to unassign this staff member from the clinic?')) return;
 
@@ -86,15 +86,15 @@ async function unassignStaff(staffProfileId) {
   }
 }
 
-// ── Create staff account ───────────────────────────────────────────────────
+// Create staff account
 staffForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const firstName  = document.getElementById('firstName').value.trim();
-  const lastName   = document.getElementById('lastName').value.trim();
-  const email      = document.getElementById('email').value.trim();
-  const password   = document.getElementById('password').value;
-  const jobTitle   = document.getElementById('jobTitle').value;
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const jobTitle = document.getElementById('jobTitle').value;
   const specialties = document.getElementById('specialties').value.trim();
 
   // Validation
@@ -151,5 +151,5 @@ staffForm.addEventListener('submit', async (e) => {
   }
 });
 
-// ── Initialise ─────────────────────────────────────────────────────────────
+// Initialise
 loadStaff();

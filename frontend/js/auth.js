@@ -179,40 +179,30 @@ export const authStateListener = (callback) =>
 // Redirects to login if no Firebase token in sessionStorage.
 export function requireAuth() {
   if (!sessionStorage.getItem("firebaseToken")) {
-    sessionStorage.setItem(
-      "intendedPage",
-      window.location.pathname + window.location.search,
-    );
+    sessionStorage.setItem("intendedPage", window.location.pathname + window.location.search);
     window.location.replace("/html/Login.html");
+  } else {
+    document.body.style.visibility = 'visible';
   }
 }
 
-// ─── requireRole ──────────────────────────────────────────────────────────────
-// Redirects to login, role selection, or the user's own dashboard
-// if they try to access a page their role doesn't allow.
 export function requireRole(allowedRoles) {
   if (!sessionStorage.getItem("firebaseToken")) {
-    sessionStorage.setItem(
-      "intendedPage",
-      window.location.pathname + window.location.search,
-    );
+    sessionStorage.setItem("intendedPage", window.location.pathname + window.location.search);
     window.location.replace("/html/Login.html");
     return;
   }
-
   const role = sessionStorage.getItem("userRole");
-
-  if (!role) {
-    window.location.replace("/html/select_role.html");
-    return;
-  }
-
   if (!allowedRoles.includes(role)) {
-    const dashboards = {
-      staff: "/html/dashboard.html",
-      admin: "/html/admin_dashboard.html",
-    };
-    window.location.replace(dashboards[role] || "/html/home.html");
+    if (role === "staff") {
+      window.location.replace("/html/dashboard.html");
+    } else if (role === "admin") {
+      window.location.replace("/html/admin_dashboard.html");
+    } else {
+      window.location.replace("/html/home.html");
+    }
+  } else {
+    document.body.style.visibility = 'visible';
   }
 }
 

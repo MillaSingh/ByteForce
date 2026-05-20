@@ -5,7 +5,7 @@
 }
     /* NAV */
 nav {
-    background: var(--white);
+    background: #f8f5f0;
     border-bottom: 1px solid var(--border);
     padding: 0 2rem;
     height: 64px;
@@ -31,7 +31,6 @@ nav {
     color: var(--accent);
     font-weight: 600;
     letter-spacing: -0.3px;
-    font-weight: bold;
 }
 
 .nav-logo span {

@@ -4,21 +4,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Queue | MEDIQUEUE</title>
+
   <link rel="stylesheet" href="/css/queue.css">
   <link rel="stylesheet" href="/css/navigation.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap"
+    rel="stylesheet"
+  >
 </head>
 
 <body>
 
   <!-- NAV -->
   <nav>
-  <section class="nav-brand">
-    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
-    <span class="nav-logo">MEDI<span>QUEUE</span></span>
-  </section>
+    <section class="nav-brand">
+      <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
+      <span class="nav-logo">MEDI<span>QUEUE</span></span>
+    </section>
 
     <ul class="nav-links">
       <li><a href="/html/home.html">Home</a></li>
@@ -27,43 +32,61 @@
       <li><a class="active" href="/html/queue.html">Queue</a></li>
     </ul>
 
-    <button class="nav-cta" onclick="window.location.href='/html/account.html'">
+    <button class="nav-cta account-btn" onclick="goToAccount()">
       Account
     </button>
   </nav>
 
   <!-- HERO -->
-  <div class="hero">
+  <header class="hero">
     <h1>Queue</h1>
     <p>Track your current clinic queue position</p>
-  </div>
+  </header>
 
   <!-- MAIN -->
   <main>
-    <div class="container-card">
+    <section class="container-card">
 
-      <div class="summary-header">
+      <section class="summary-header">
         <h2>Your Position</h2>
         <p id="summary-text">Loading your position...</p>
-      </div>
+      </section>
 
-      <div id="loading" class="center">Loading your position...</div>
+      <section id="loading" class="center">
+        Loading your position...
+      </section>
 
-      <div id="empty" class="center" style="display:none;">
+      <section id="empty" class="center" style="display:none;">
         You are not in the queue
-      </div>
+      </section>
 
-      <div id="queue-details" class="queue-details" style="display:none;"></div>
+      <article id="queue-details" class="queue-details" style="display:none;"></article>
 
-    </div>
+    </section>
   </main>
+
+  <footer>
+    © 2026 MediQueue · All rights reserved ·
+    <a
+      href="#"
+      style="color: rgba(255, 255, 255, 0.6); text-decoration:none;"
+    >
+      Privacy Policy
+    </a>
+  </footer>
 
   <script type="module" src="/js/queue.js"></script>
 
+  <script>
+    function goToAccount() {
+      sessionStorage.setItem(
+        "previousPageBeforeAccount",
+        window.location.pathname + window.location.search
+      );
 
-<footer>
-  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
-</footer>
+      window.location.href = "/html/account.html";
+    }
+  </script>
 
 </body>
 

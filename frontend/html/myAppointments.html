@@ -100,17 +100,14 @@
     </ul>
 
     <!-- Account button -->
-    <button
-      class="nav-cta"
-      onclick="window.location.href='/html/account.html'"
-    >
-      Account
-    </button>
+    <button class="nav-cta account-btn" onclick="goToAccount()">
+  Account
+</button>
 
   </nav>
 
   <!-- Hero section -->
-  <div class="hero">
+  <section class="hero">
 
     <h1>My Appointments</h1>
 
@@ -118,21 +115,21 @@
       Track your medical bookings in one place
     </p>
 
-  </div>
+  </section>
 
   <!-- Main page content -->
   <main>
 
     <!-- Main white card -->
-    <div class="container-card">
+    <section class="container-card">
 
       
 
       <!-- Dashboard section -->
-      <div id="dashboard">
+      <section id="dashboard">
 
         <!-- Dashboard heading -->
-        <div class="summary-header">
+        <section class="summary-header">
 
           <h2>Your Dashboard</h2>
 
@@ -141,10 +138,10 @@
             Loading appointments...
           </p>
 
-        </div>
+        </section>
 
         <!-- Filter buttons -->
-        <div class="filters">
+        <section class="filters">
 
           <button
             onclick="filterAppointments('all')"
@@ -164,52 +161,52 @@
             Past
           </button>
 
-        </div>
+        </section>
 
         <!-- Loading message -->
-        <div
+        <section
           id="loading"
           class="center"
         >
           Loading appointments...
-        </div>
+      </section>
 
         <!-- Empty message -->
-        <div
+        <section
           id="empty"
           class="center"
           style="display:none;"
         >
           No appointments yet
-        </div>
+    </section>
 
         <!-- Upcoming appointments -->
-        <div class="group">
+        <section class="group">
 
           <h3>Upcoming</h3>
 
-          <div
+          <section
             id="upcoming"
             class="list"
-          ></div>
+          ></section>
 
-        </div>
+        </section>
 
         <!-- Past appointments -->
-        <div class="group">
+        <section class="group">
 
           <h3>Past</h3>
 
-          <div
+          <section
             id="past"
             class="list"
-          ></div>
+          ></section>
 
-        </div>
+        </section>
 
-      </div>
+      </section>
 
-    </div>
+    </section>
 
   </main>
 
@@ -223,7 +220,7 @@
     <a
       href="#"
       style="
-        color:var(--accent);
+        color: rgba(255, 255, 255, 0.6);;
         text-decoration:none;
       "
     >
@@ -233,7 +230,18 @@
   </footer>
 
   <!-- Link JavaScript file -->
-  <script src="/js/myAppointments.js"></script>
+    <script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
+<script src="/js/myAppointments.js"></script>
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 
 </body>
 

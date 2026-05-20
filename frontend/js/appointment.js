@@ -97,8 +97,9 @@ async function loadAvailableSlots(date) {
 
     // Render each available slot as a clickable element
     data.slots.forEach(slot => {
-      const slotEl = document.createElement('div');
-      slotEl.className = 'time-slot';
+      const slotEl = document.createElement("button");
+      slotEl.type = "button";
+      slotEl.className = "time-slot";
       slotEl.textContent = slot.time;
 
       if (!slot.available || isPastTimeSlot(slot.time, date)) {
@@ -220,6 +221,20 @@ function confirmBooking() {
       document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
       document.getElementById('section-success').classList.add('active');
 
+      const existing = JSON.parse(localStorage.getItem("appointments") || "[]");
+
+    existing.push({
+      clinic: booking.clinic,
+      date: booking.date,
+      time: booking.time,
+      reason: booking.reason,
+      email: booking.email || userEmail,
+      name: `${booking.fname} ${booking.lname}`,
+      reminderSent: false
+    });
+
+    localStorage.setItem("appointments", JSON.stringify(existing));
+
       return emailjs.send(
         "service_tisniwj",
         "template_pchia0c",
@@ -245,3 +260,4 @@ function confirmBooking() {
 function resetForm() {
   location.reload();
 }
+

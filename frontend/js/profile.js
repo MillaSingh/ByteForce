@@ -3,24 +3,24 @@ import { requireAuth, getCurrentUser, logOut } from "./auth.js";
 requireAuth();
 
 const user = getCurrentUser();
-
 const profileName = document.getElementById("profileName");
 const profileEmail = document.getElementById("profileEmail");
 const profilePhoto = document.getElementById("profilePhoto");
 const logoutBtn = document.getElementById("logoutBtn");
 
+//Creates uniquue localStorage key for each user's saved name
 const storageKey = `userName_${user.email}`;
 
 function getDisplayName() {
   const savedName = localStorage.getItem(storageKey);
-  // return user.name || savedName || "";
   return savedName || user.name || "";
 }
 
 function showNameDisplay(name) {
   profileName.innerHTML = "";
 
-  const wrapper = document.createElement("div");
+  // Creates the name display area
+  const wrapper = document.createElement("section");
   wrapper.className = "profile-name-display";
 
   const nameText = document.createElement("span");
@@ -35,7 +35,7 @@ function showNameDisplay(name) {
   editBtn.addEventListener("click", () => {
     showNameForm(name);
   });
-
+//builds the name and button in JavaScript inserts them into the profile section
   wrapper.appendChild(nameText);
   wrapper.appendChild(editBtn);
   profileName.appendChild(wrapper);
@@ -47,7 +47,7 @@ function showNameDisplay(name) {
 
 function showNameForm(currentName = "") {
   profileName.innerHTML = `
-    <div class="profile-name-form">
+    <section class="profile-name-form">
       <input 
         type="text" 
         id="profileNameInput" 
@@ -56,30 +56,8 @@ function showNameForm(currentName = "") {
       />
       <button id="saveProfileNameBtn" type="button">Save</button>
       <button id="cancelProfileNameBtn" type="button">Cancel</button>
-    </div>
+    </section>
   `;
-
-  const nameInput = document.getElementById("profileNameInput");
-  const saveNameBtn = document.getElementById("saveProfileNameBtn");
-  const cancelNameBtn = document.getElementById("cancelProfileNameBtn");
-
-  saveNameBtn.addEventListener("click", () => {
-    const enteredName = nameInput.value.trim();
-
-    if (!enteredName) {
-      alert("Please enter your name.");
-      return;
-    }
-
-    sessionStorage.setItem("userName", enteredName);
-    localStorage.setItem(storageKey, enteredName);
-
-    showNameDisplay(enteredName);
-  });
-
-  cancelNameBtn.addEventListener("click", () => {
-    showNameDisplay(getDisplayName());
-  });
 }
 
 profileEmail.textContent = user.email || "Email not available";
@@ -95,9 +73,16 @@ if (displayName) {
 if (user.photo) {
   profilePhoto.src = user.photo;
 }
-
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     await logOut();
+  });
+}
+
+const backBtn = document.getElementById("backBtn");
+
+if (backBtn) {
+  backBtn.addEventListener("click", () => {
+    window.location.href = "/html/account.html";
   });
 }

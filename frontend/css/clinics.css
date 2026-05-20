@@ -5,9 +5,11 @@
         --green-light: #52b788;
         --green-pale: #d8f3dc;
         --accent: #204e86;
-        --text-dark: #111f14;
+        --text-dark: #11131f;
         --text-mid: #3d5245;
         --text-light: #6b8c74;
+        --accent-light: #52a0b7;
+        --accent-med: #1085b7;
         --bg: #f7faf8;
         --white: #ffffff;
         --muted: #6b7280;
@@ -51,7 +53,7 @@
     body {
         font-family: var(--font-body);
         background-color: var(--bg);
-        color: var(--text-dark);
+        color: var(--accent);
         font-size: 1rem;
         line-height: 1.6;
         min-height: 100vh;
@@ -71,7 +73,7 @@
 
     /* ── Header / Nav ── */
     header {
-        background-color: var(--green-dark);
+        background-color: var(--accent);
         position: sticky;
         top: 0;
         z-index: 100;
@@ -86,7 +88,7 @@
     }
 
     .logo span {
-        color: var(--green-light);
+        color: var(--accent-light);
     }
 
     /* ── Hero ── */
@@ -184,7 +186,7 @@
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        color: var(--text-light);
+        color: var(--accent-med);
         margin-bottom: 0.25rem;
     }
 
@@ -194,7 +196,7 @@
         border-radius: var(--radius-sm);
         font-family: var(--font-body);
         font-size: 0.9rem;
-        color: var(--text-dark);
+        color: var(--accent);
         background-color: var(--bg);
         cursor: pointer;
         appearance: none;
@@ -207,7 +209,7 @@
 
     .filters select:focus {
         outline: none;
-        border-color: var(--green-light);
+        border-color: var(--accent-light);
     }
 
     #clearFilters {
@@ -217,15 +219,15 @@
         border-radius: var(--radius-sm);
         font-family: var(--font-body);
         font-size: 0.88rem;
-        color: var(--text-mid);
+        color: var(--accent-med);
         cursor: pointer;
         transition: border-color 0.2s, color 0.2s;
         white-space: nowrap;
     }
 
     #clearFilters:hover {
-        border-color: var(--green-mid);
-        color: var(--green-dark);
+        border-color: var(--accent-med);
+        color: var(--accent);
     }
 
     /* ── Results Section ── */
@@ -240,7 +242,7 @@
     .results h2 {
         font-family: var(--font-display);
         font-size: 1.5rem;
-        color: var(--green-dark);
+        color: var(--accent);
         margin-bottom: 1.5rem;
     }
 
@@ -248,7 +250,7 @@
         font-family: var(--font-body);
         font-size: 1rem;
         font-weight: 400;
-        color: var(--text-light);
+        color: var(--accent-light);
         margin-left: 0.5rem;
     }
 
@@ -286,7 +288,7 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 0.75rem;
-        border-bottom: 1px solid var(--green-pale);
+        border-bottom: 1px solid var(--accent-light);
     }
 
     .clinic-card__header h3 {
@@ -310,8 +312,8 @@
     }
 
     .badge--clinic {
-        background-color: var(--green-pale);
-        color: var(--green-mid);
+        background-color: var(--accent-light);
+        color: var(--accent-med);
     }
 
     .badge--chc {
@@ -338,19 +340,19 @@
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--text-light);
+        color: var(--accent-light);
         padding-top: 1px;
     }
 
     .clinic-card__details dd {
         font-size: 0.9rem;
-        color: var(--text-mid);
+        color: var(--accent-med);
     }
 
     /* ── Card Footer ── */
     .clinic-card__footer {
         padding: 1rem 1.25rem;
-        border-top: 1px solid var(--green-pale);
+        border-top: 1px solid var(--accent-light);
     }
 
     .btn-primary {
@@ -358,7 +360,7 @@
         width: 100%;
         text-align: center;
         padding: 0.65rem 1rem;
-        background-color: var(--green-mid);
+        background-color: var(--accent-med);
         color: var(--white);
         border-radius: var(--radius-sm);
         font-weight: 600;
@@ -367,20 +369,20 @@
     }
 
     .btn-primary:hover {
-        background-color: var(--green-dark);
+        background-color: #3c8a9c;
     }
 
     /* ── No Results ── */
     .no-results {
         text-align: center;
-        color: var(--text-light);
+        color: var(--accent-light);
         font-size: 1rem;
         padding: 3rem 0;
     }
 
     /* ── Footer ── */
     footer {
-        background-color: var(--green-dark);
+        background-color: var(--accent);
         color: rgba(255, 255, 255, 0.6);
         text-align: center;
         padding: 1.5rem 2rem;

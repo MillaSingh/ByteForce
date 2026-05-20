@@ -4,6 +4,8 @@ window.addEventListener(
   loadMyAppointments
 );
 
+emailjs.init("It5nWm42g6-DChkm5");
+
 // Fetch logged-in user's appointments
 async function loadMyAppointments() {
 
@@ -20,7 +22,7 @@ async function loadMyAppointments() {
     if (res.status === 401) {
 
       window.location.href =
-        "/html/login.html";
+        "/html/Login.html";
 
       return;
     }
@@ -151,7 +153,7 @@ function loadAppointmentsByData(data) {
       }
 
       const card =
-        document.createElement("div");
+        document.createElement("section");
 
       card.className =
         "appointment-card";
@@ -163,49 +165,47 @@ function loadAppointmentsByData(data) {
 
       card.innerHTML = `
 
-        <div class="appointment-info">
+        <section class="appointment-info">
 
-          <div class="appointment-title">
+          <section class="appointment-title">
             ${app.clinic_name || "Clinic"}
-          </div>
+          </section>
 
-          <div class="appointment-date">
+          <section class="appointment-date">
             ${dateTime.toLocaleDateString()}
             •
 
             ${dateTime.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit"
-            })}
-          </div>
+        hour: "2-digit",
+        minute: "2-digit"
+      })}
+          </section>
 
-        </div>
+        </section>
 
-        <div>
+        <section>
 
-          ${
-            status === "cancelled"
+          ${status === "cancelled"
 
-              ? `
+          ? `
                 <span class="status cancelled">
                   Cancelled
                 </span>
               `
 
-              : status === "completed"
+          : status === "completed"
 
-              ? `
+            ? `
                 <span class="status completed">
                   Completed
                 </span>
               `
 
-              : ""
-          }
+            : ""
+        }
 
-          ${
-            isUpcoming
-              ? `
+          ${isUpcoming
+          ? `
                 <button
                   class="reschedule-btn"
                   data-id="${app.appointment_id || app.appointmentId}"
@@ -225,9 +225,9 @@ function loadAppointmentsByData(data) {
                   Check In
                 </button>
               `
-              : ""
-          }
-        </div>
+          : ""
+        }
+        </section>
       `;
 
       const cancelBtn =
@@ -349,6 +349,21 @@ function loadAppointmentsByData(data) {
                 "Appointment rescheduled"
               );
 
+              emailjs.send("service_tisniwj", "template_r16nbsw", {
+                email: sessionStorage.getItem("userEmail"),
+                patient_name: sessionStorage.getItem("patientName") || "Patient",
+                clinic_name: app.clinic_name,
+                appointment_date: newDate,
+                appointment_time: newTime,
+                reason: app.reason || "Appointment rescheduled"
+              })
+              .then(() => {
+                console.log("Email sent successfully");
+              })
+              .catch(err => {
+                console.error("Email failed:", err);
+              });
+
               loadMyAppointments();
 
             } catch (err) {
@@ -364,46 +379,51 @@ function loadAppointmentsByData(data) {
       const checkInBtn = card.querySelector(".checkin-btn");
 
       if (checkInBtn) {
-      
+
         checkInBtn.addEventListener("click", async () => {
-      
+
           const rawId =
             checkInBtn.dataset.id;
-      
+
           const appointmentId =
             Number(rawId);
-      
+
           if (!appointmentId || isNaN(appointmentId)) {
-      
+
             console.error("BAD APPOINTMENT ID:", rawId);
-      
+
             alert("Invalid appointment ID");
-      
+
             return;
           }
-      
+
           try {
-      
+
+            const userEmail = sessionStorage.getItem("userEmail");
+
             const res = await fetch(
-              `/api/queue/checkin/${appointmentId}`,
+              `/api/patient-queue/checkin/${appointmentId}`,
               {
                 method: "POST",
-                credentials: "include"
+                credentials: "include",
+                headers: {
+                  "x-user-email": userEmail
+                }
               }
             );
-      
+
             const data = await res.json();
-      
+
             if (!res.ok) {
               throw new Error(data.error);
             }
-      
+
             alert("Checked in successfully!");
-      
+
             loadMyAppointments();
-      
+
           } catch (err) {
-      
+
             console.error(err);
             alert(err.message);
           }
@@ -454,3 +474,4 @@ function filterAppointments(type) {
       }
     });
 }
+window.filterAppointments = filterAppointments;

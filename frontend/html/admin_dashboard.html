@@ -1,43 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Manage Staff | MEDIQUEUE Admin</title>
-  <link rel="stylesheet" href="/css/admin_staff.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | MEDIQUEUE</title>
+  <link rel="stylesheet" href="/css/admin_dashboard.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
   <nav>
-    <div class="nav-brand">
+    <section class="nav-brand">
       <img src="/images/logo.jpeg" alt="MEDIQUEUE" width="45" height="45">
-      <div class="nav-logo">MEDI<span>QUEUE</span></div>
-    </div>
+      <span class="nav-logo">MEDI<span>QUEUE</span></span>
+    </section>
     <ul class="nav-links">
-      <li><a href="/html/admin_dashboard.html">Dashboard</a></li>
+      <li><a class="active" href="/html/admin_dashboard.html">Dashboard</a></li>
       <li><a href="/html/admin_clinic.html">Manage Clinic</a></li>
       <li><a href="/html/admin_hours.html">Operating Hours</a></li>
-      <li><a class="active" href="/html/admin_staff.html">Manage Staff</a></li>
+      <li><a href="/html/admin_staff.html">Manage Staff</a></li>
     </ul>
-    <button class="nav-cta" onclick="window.location.href='/html/account.html'">Account</button>
+    <button class="nav-cta account-btn" onclick="goToAccount()">Account</button>
   </nav>
 
   <main>
 
     <header class="page-header">
-      <h1>Page still under construction</h1>
+      <h1>Clinic Dashboard</h1>
+      <p id="clinicNameHeader">Analytics and performance overview for your clinic.</p>
     </header>
+
+    <!-- Summary cards -->
+    <section class="cards-section" aria-label="Summary statistics">
+      <h2 class="sr-only">Summary Statistics</h2>
+
+      <article class="stat-card">
+        <h3>Appointments Today</h3>
+        <p class="stat-value" id="appointmentsToday">—</p>
+        <p class="stat-sub">Scheduled for today</p>
+      </article>
+
+      <article class="stat-card">
+        <h3>Total Appointments</h3>
+        <p class="stat-value" id="totalAppointments">—</p>
+        <p class="stat-sub">All time</p>
+      </article>
+
+      <article class="stat-card">
+        <h3>No-show Rate</h3>
+        <p class="stat-value" id="noShowRate">—</p>
+        <p class="stat-sub">Confirmed but date passed</p>
+      </article>
+
+      <article class="stat-card">
+        <h3>Avg Wait Time</h3>
+        <p class="stat-value" id="avgWaitTime">—</p>
+        <p class="stat-sub" id="waitTimeSub">From check-in to consultation</p>
+      </article>
+
+    </section>
+
+    <!-- Appointments per day chart -->
+    <section class="chart-section" aria-label="Appointments per day this week">
+      <header class="chart-header">
+        <h2>Appointments This Week</h2>
+        <p>Number of appointments booked per day for the past 7 days</p>
+      </header>
+      <figure class="chart-container">
+        <canvas id="appointmentsChart" aria-label="Appointments per day chart" role="img"></canvas>
+      </figure>
+    </section>
+
+    <!-- Status breakdown chart -->
+    <section class="chart-section" aria-label="Appointment status breakdown">
+      <header class="chart-header">
+        <h2>Appointment Status Breakdown</h2>
+        <p>Distribution of appointment statuses across all bookings</p>
+      </header>
+      <figure class="chart-container chart-container--small">
+        <canvas id="statusChart" aria-label="Appointment status breakdown chart" role="img"></canvas>
+      </figure>
+    </section>
+
+    <!-- No-show rate by day of week -->
+    <section class="chart-section" aria-label="No-show rate by day of week">
+      <header class="chart-header">
+        <h2>No-show Rate by Day of Week</h2>
+        <p>Percentage of confirmed appointments that were not completed per day</p>
+      </header>
+      <figure class="chart-container">
+        <canvas id="noShowByDayChart" aria-label="No-show rate by day chart" role="img"></canvas>
+      </figure>
+    </section>
+
+    <!-- Avg wait time by day of week -->
+    <section class="chart-section" aria-label="Average wait time by day of week">
+      <header class="chart-header">
+        <h2>Average Wait Time by Day of Week</h2>
+        <p>Average time from check-in to consultation per day (open days only)</p>
+      </header>
+      <figure class="chart-container">
+        <canvas id="waitByDayChart" aria-label="Average wait time by day chart" role="img"></canvas>
+      </figure>
+    </section>
+
+    <!-- Recent appointments table -->
+    <section class="table-section" aria-label="Recent appointments">
+      <header class="table-header">
+        <h2>Recent Appointments</h2>
+        <button class="btn-export" id="exportBtn">Export CSV</button>
+      </header>
+      <table class="appointments-table">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Time</th>
+            <th scope="col">Patient</th>
+            <th scope="col">Reason</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody id="appointmentsTableBody">
+          <tr>
+            <td colspan="5" class="table-loading">Loading appointments...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
   </main>
 
   <footer>
-        © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy
-            Policy</a>
-    </footer>
+    © 2026 MediQueue · All rights reserved · <a href="#"
+      style="color: rgba(255, 255, 255, 0.6);;text-decoration:none;">Privacy
+      Policy</a>
+  </footer>
 
-  <script type="module" src="/js/admin_staff.js"></script>
+  <script type="module" src="/js/admin_dashboard.js"></script>
+  <script>
+    function goToAccount() {
+      sessionStorage.setItem(
+        "previousPageBeforeAccount",
+        window.location.pathname + window.location.search
+      );
+
+      window.location.href = "/html/account.html";
+    }
+  </script>
 
 </body>
+
 </html>

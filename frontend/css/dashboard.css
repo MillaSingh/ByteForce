@@ -24,6 +24,7 @@ body {
   font-family: 'DM Sans', sans-serif; /* Main font */
   background: var(--cream);          /* Background color */
   color: var(--ink);                 /* Text color */
+  visibility: hidden;
 }
 
 
@@ -124,7 +125,7 @@ footer {
   margin-top: auto;
   text-align: center;
   padding: 1.5rem 2rem;
-  background: #1a3c2e;
+  background: var(--accent);
   font-size: 0.85rem;
   color:  rgba(255, 255, 255, 0.6);;
 }
@@ -200,4 +201,26 @@ dialog h3 {
 .dialog-buttons button:hover {
   background: var(--accent-light);
   transform: translateY(-2px);
+}
+
+/* RESCHEDULE BUTTON */
+#rescheduleBtn {
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-light)
+  );
+
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+#rescheduleBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(32, 78, 134, 0.35);
 }

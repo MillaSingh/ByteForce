@@ -5,12 +5,17 @@
   justify-content: center;
   flex: 1;
   padding: 2rem;
-  background: linear-gradient(to bottom, var(--accent-light), var(--cream));
+  background: linear-gradient(to bottom, var(--accent-light), var(--accent));
 }
+
 .nav-brand {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+body {
+  visibility: hidden;
 }
 
 .account-container h1 {
@@ -21,8 +26,9 @@
   text-align: center;
   width: 100%;
 }
+
 .account-subtitle {
-  color: var(--muted);
+  color: var(--cream);
   margin-bottom: 2rem;
   font-size: 0.95rem;
 }
@@ -35,10 +41,10 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  border-radius: 16px;
   width: 250px;
   transition: transform 0.2s ease;
 }
+
 .account-box:hover {
   transform: translateY(-4px);
 }
@@ -58,9 +64,7 @@
   background: #3c9ba9;
   transform: scale(1.03);
 }
-.delete {
-  background: #d9534f;
-}
+
 .logout {
   background: #d9534f;
 }
@@ -68,115 +72,19 @@
 .logout:hover {
   background: #b0221d;
 }
-.delete:hover {
-  background: #b0221d;
-}
 
-/* Dark overlay behind popup */
-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-/* Popup box */
-#deletePopup {
+.back-btn {
+  padding: 0.7rem;
   border: none;
-  border-radius: 12px;
-  padding: 2rem;
-  width: 320px;
-  max-width: 90%;
-  background-color: var(--cream);
-  text-align: center;
-  font-family: 'Playfair Display', serif;
-  opacity: 0;
-  transform: translate(-50%, -60%);
-  transition: all 0.2s ease;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-#deletePopup[open] {
-  opacity: 1;
-  transform: translate(-50%, -50%);
-}
-
-/* Warning text */
-#deletePopup p {
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
-  color: #3c9ba9;
-}
-
-/* Buttons container */
-#deletePopup button {
-  margin: 0.3rem;
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-/* Confirm delete button */
-#confirmDelete {
-  background-color: #d9534f;
-  color: white;
-}
-/* Cancel button */
-#cancelDelete {
-  background-color: #c7c7c7;
-  color: white;
-}
-#finalDelete {
-  background-color: #d9534f;
-  color: white;
-}
-#backBtn {
-  background-color: #c7c7c7;
-  color: white;
-}
-
-#finalDelete:hover {
-  background-color: #b0221d;
-}
-
-#backBtn:hover {
-  background-color: #3c9ba9;
-}
-
-/* Hover effects */
-#confirmDelete:hover {
-  background-color: #b0221d;
-}
-
-#cancelDelete:hover {
-  background-color: #3c9ba9;
-}
-
-/* Password input styling */
-#passwordInput {
-  width: 100%;
-  padding: 12px 14px;
-  margin-top: 10px;
-  margin-bottom: 15px;
-
-  border: 1px solid #ccc;
   border-radius: 10px;
-
-  font-size: 14px;
-  font-family: inherit;
-
-  outline: none;
+  background: var(--accent);
+  color: var(--white);
+  font-weight: 500;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-/* Focus effect */
-#passwordInput:focus {
-  border-color: #5c0000;
-  box-shadow: 0 0 0 2px rgba(92, 0, 0, 0.15);
-}
-
-/* Placeholder styling */
-#passwordInput::placeholder {
-  color: #999;
+.back-btn:hover {
+  background: #1085b7;
+  transform: scale(1.03);
 }

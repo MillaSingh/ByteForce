@@ -1,109 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Clinic Dashboard | MEDIQUEUE</title>
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/dashboard.css">
-  <link rel="stylesheet" href="/css/navigation.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/navigation.css" />
 </head>
 
 <body>
 
-<!-- Navigation bar -->
-<nav>
-  <section class="nav-brand">
-    <img src="/images/logo.jpeg" width="60" height="60" alt="Logo">
-    <span class="nav-logo">MEDI<span>QUEUE</span></span>
-  </section>
+  <!-- NAVIGATION -->
+  <nav>
 
-  <ul class="nav-links">
-    <li><a href="#" class="active">Dashboard</a></li>
-  </ul>
-  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">
-    Account
-  </button>
-</nav>
+    <section class="nav-brand">
+      <img
+        src="/images/logo.jpeg"
+        width="60"
+        height="60"
+        alt="Logo"
+      />
 
-<!-- Header -->
-<header class="hero">
-  <span class="hero-badge">Clinic Staff</span>
-  <h1>Patient Queue Dashboard</h1>
-  <p>Manage patient flow and update consultation status in real-time</p>
-</header>
-
-<main>
-  <section class="card">
-
-    <h2 class="section-title">Active Patient Queue</h2>
-    <p class="section-sub">Search and manage patients</p>
-
-    
-
-    <!-- Controls -->
-    <section class="controls">
-      <input type="text" id="searchInput" placeholder="Search patient...">
-      
-      <select id="filterStatus">
-        <option value="All">All Status</option>
-        <option value="Waiting">Waiting</option>
-        <option value="In Consultation">In Consultation</option>
-        <option value="Complete">Complete</option>
-      </select>
-      <!-- ADD PATIENT BUTTON -->
-      <button id="addPatientBtn">Add Patient</button>
+      <span class="nav-logo">
+        MEDI<span>QUEUE</span>
+      </span>
     </section>
 
-    <!-- Table -->
-    <table>
-      <thead>
-        <tr>
-          <th>Position</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone Number</th>
-          <th>Status</th>
-          <th>Clinic</th>
-          
-          
-        </tr>
-      </thead>
-      <tbody id="patientTable"></tbody>
-    </table>
+    <ul class="nav-links">
+      <li>
+        <a href="#" class="active">
+          Dashboard
+        </a>
+      </li>
+    </ul>
 
-  </section>
-</main>
-    <!-- Add Walk in patient  -->
+    <button
+      class="nav-cta account-btn"
+      id="accountBtn"
+      type="button"
+    >
+      Account
+    </button>
+
+  </nav>
+
+  <!-- HEADER -->
+  <header class="hero">
+
+    <span class="hero-badge">
+      Clinic Staff
+    </span>
+
+    <h1 id="dashboardTitle">
+      Patient Queue Dashboard
+    </h1>
+
+    <p>
+      Manage patient flow and update consultation status in real-time
+    </p>
+
+  </header>
+
+  <!-- MAIN -->
+  <main>
+
+    <section class="card">
+
+      <h2 class="section-title">
+        Active Patient Queue
+      </h2>
+
+      <p class="section-sub">
+        Search and manage patients
+      </p>
+
+      <!-- CONTROLS -->
+      <section class="controls">
+
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search patient..."
+        />
+
+        <select id="filterStatus">
+
+          <option value="All">
+            All Status
+          </option>
+
+          <option value="Waiting">
+            Waiting
+          </option>
+
+          <option value="In Consultation">
+            In Consultation
+          </option>
+
+          <option value="Complete">
+            Complete
+          </option>
+
+        </select>
+
+        <button
+          id="addPatientBtn"
+          type="button"
+        >
+          Add Patient
+        </button>
+
+        <button
+          id="rescheduleBtn"
+          type="button"
+        >
+          Reschedule Appointment
+        </button>
+
+      </section>
+
+      <!-- TABLE -->
+      <table>
+
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody id="patientTable"></tbody>
+
+      </table>
+
+    </section>
+
+  </main>
+
+  <!-- ADD PATIENT DIALOG -->
   <dialog id="patientDialog">
-  <h3>Add Walk-in Patient</h3>
 
-  <input type="text" id="firstName" placeholder="Jo" required>
-  <input type="text" id="lastName" placeholder="Doe" required>
-  <input type="email" id="email" placeholder="jodoe@gmail.com" required>
+    <h3>Add Walk-in Patient</h3>
 
-  <select id="clinicSelect" required>
-    <option value="">Select clinic</option>
-  </select>
+    <input
+      type="text"
+      id="firstName"
+      placeholder="Jo"
+      required
+    />
 
-  <input type="tel" id="phoneNumber" placeholder="0712345678" />
+    <input
+      type="text"
+      id="lastName"
+      placeholder="Doe"
+      required
+    />
 
+    <input
+      type="email"
+      id="email"
+      placeholder="jodoe@gmail.com"
+      required
+    />
 
-  <section class="dialog-buttons">
-    <button onclick="submitPatient()">Add</button>
-    <button onclick="closeDialog()">Cancel</button>
-  </section>
+    <input
+      type="tel"
+      id="phoneNumber"
+      placeholder="0712345678"
+      required
+    />
+
+    <section class="dialog-buttons">
+
+      <button
+        id="submitPatientBtn"
+        type="button"
+      >
+        Add
+      </button>
+
+      <button
+        id="closePatientDialogBtn"
+        type="button"
+      >
+        Cancel
+      </button>
+
+    </section>
+
   </dialog>
 
-<!-- Footer -->
-<footer>
-  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
-</footer>
+  <!-- RESCHEDULE DIALOG -->
+  <dialog id="rescheduleDialog">
 
-<!-- LINK TO YOUR JS FILE -->
-<script type="module" src="/js/dashboard.js"></script>
+    <h3>Reschedule Appointment</h3>
+
+    <label for="appointmentSelect">
+      Select Patient
+    </label>
+
+    <select id="appointmentSelect">
+
+      <option value="">
+        Select Patient
+      </option>
+
+    </select>
+
+    <br /><br />
+
+    <label for="selectedPatientName">
+      Patient Name
+    </label>
+
+    <input
+      type="text"
+      id="selectedPatientName"
+      readonly
+    />
+
+    <br /><br />
+
+    <label for="currentAppointmentDate">
+      Current Appointment Date
+    </label>
+
+    <input
+      type="text"
+      id="currentAppointmentDate"
+      readonly
+    />
+
+    <br /><br />
+
+    <label for="newAppointmentDate">
+      New Appointment Date
+    </label>
+
+    <input
+      type="date"
+      id="newAppointmentDate"
+    />
+
+    <br /><br />
+
+    <label for="newAppointmentTime">
+      New Appointment Time
+    </label>
+
+    <input
+      type="time"
+      id="newAppointmentTime"
+    />
+
+    <br /><br />
+
+    <section class="dialog-buttons">
+
+      <button
+        id="saveRescheduleBtn"
+        type="button"
+      >
+        Save
+      </button>
+
+      <button
+        id="closeRescheduleDialogBtn"
+        type="button"
+      >
+        Cancel
+      </button>
+
+    </section>
+
+  </dialog>
+
+  <!-- FOOTER -->
+  <footer>
+    © 2026 MediQueue · All rights reserved ·
+
+    <a
+      href="#"
+      style="color: rgba(255, 255, 255, 0.6); text-decoration: none;"
+    >
+      Privacy Policy
+    </a>
+  </footer>
+
+  <!-- JS -->
+  <script type="module" src="/js/dashboard.js"></script>
 
 </body>
 </html>

@@ -1,20 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { Pool } = require("pg");
+const pool = require('../db');
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
 const { deleteAccount } = require("../controllers/authController");
 router.delete("/delete-account", deleteAccount);
-
-const pool = new Pool({
-  host: "clinic-app-db.postgres.database.azure.com",
-  port: 5432,
-  database: "postgres",
-  user: "bdw",
-  password: process.env.DB_PASSWORD,
-  ssl: { rejectUnauthorized: false },
-});
 
 const activeSessions = new Map();
 

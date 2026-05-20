@@ -18,109 +18,128 @@
 
   <ul class="nav-links">
     <li><a href="/html/home.html">Home</a></li>
-    <li><a href= "/html/clinics.html">Clinics</a></li>
+    <li><a href="/html/clinics.html">Clinics</a></li>
     <li><a href="/html/myAppointments.html">My Appointments</a></li>
-    <li><a href= "/html/queue.html">Queue</a></li>
+    <li><a href="/html/queue.html">Queue</a></li>
   </ul>
-  <button class="nav-cta account-btn" onclick="window.location.href='/html/account.html'">Account</button>
+
+  <button class="nav-cta account-btn" onclick="goToAccount()">
+    Account
+  </button>
 </nav>
 
 <!-- HERO -->
-<div class="hero">
-  <div class="hero-badge">Online Booking</div>
+<header class="hero">
+  <span class="hero-badge">Online Booking</span>
   <h1>Book Your Appointment</h1>
   <p>Pick a time that suits you based on your chosen clinic</p>
-</div>
+</header>
 
 <!-- MAIN -->
 <main>
-  <div class="card">
+  <section class="card">
 
     <!-- STEPS -->
-    <div class="steps">
-      <div class="step active" id="step-tab-1"><span class="step-num">1</span>Reason</div>
-      <div class="step" id="step-tab-2"><span class="step-num">2</span>Date & Time</div>
-      <div class="step" id="step-tab-3"><span class="step-num">3</span>Your Details</div>
-      <div class="step" id="step-tab-4"><span class="step-num">4</span>Confirm</div>
-    </div>
+    <nav class="steps" aria-label="Appointment booking steps">
+      <section class="step active" id="step-tab-1">
+        <span class="step-num">1</span>Reason
+      </section>
+
+      <section class="step" id="step-tab-2">
+        <span class="step-num">2</span>Date &amp; Time
+      </section>
+
+      <section class="step" id="step-tab-3">
+        <span class="step-num">3</span>Your Details
+      </section>
+
+      <section class="step" id="step-tab-4">
+        <span class="step-num">4</span>Confirm
+      </section>
+    </nav>
 
     <!-- STEP 1: Reason -->
+    <section class="form-section active" id="section-1">
+      <h2 class="section-title">Reason for Visit</h2>
+      <p class="section-sub">Select the reason for your appointment</p>
 
-      <!-- STEP 1: Reason -->
-    <div class="form-section active" id="section-1">
-      <div class="section-title">Reason for Visit</div>
-      <div class="section-sub">Select the reason for your appointment</div>
+      <p class="label-group">Reason for Visit</p>
 
-      <div class="label-group">Reason for Visit</div>
-      <div class="reason-grid">
-        <div class="reason-tag" onclick="selectReason(this)">General Check-up</div>
-        <div class="reason-tag" onclick="selectReason(this)">Flu / Cold Symptoms</div>
-        <div class="reason-tag" onclick="selectReason(this)">Follow-up Appointment</div>
-        <div class="reason-tag" onclick="selectReason(this)">Chronic Condition</div>
-        <div class="reason-tag" onclick="selectReason(this)">Blood Pressure</div>
-        <div class="reason-tag" onclick="selectReason(this)">Prescription Renewal</div>
-        <div class="reason-tag" onclick="selectReason(this)">Mental Health</div>
-        <div class="reason-tag" onclick="selectReason(this)">Other</div>
-      </div>
+      <section class="reason-grid">
+        <button class="reason-tag" type="button" onclick="selectReason(this)">General Check-up</button>
+        <button class="reason-tag" type="button" onclick="selectReason(this)">Flu / Cold Symptoms</button>
+        <button class="reason-tag" type="button" onclick="selectReason(this)">Follow-up Appointment</button>
+        <button class="reason-tag" type="button" onclick="selectReason(this)">Chronic Condition</button>
+        <button class="reason-tag" type="button" onclick="selectReason(this)">Blood Pressure</button>
+        <button class="reason-tag" type="button" onclick="selectReason(this)">Prescription Renewal</button>
+        <button class="reason-tag" type="button" onclick="selectReason(this)">Mental Health</button>
+        <button class="reason-tag" type="button" onclick="selectReason(this)">Other</button>
+      </section>
 
-      <div class="btn-row">
+      <section class="btn-row">
         <button class="btn-next" onclick="goToStep(2)">Continue →</button>
-      </div>
-    </div>
+      </section>
+    </section>
 
     <!-- STEP 2: Date & Time -->
-    <div class="form-section" id="section-2">
-      <div class="section-title">Pick a Date & Time</div>
-      <div class="section-sub">Available slots for your selected clinic</div>
+    <section class="form-section" id="section-2">
+      <h2 class="section-title">Pick a Date &amp; Time</h2>
+      <p class="section-sub">Available slots for your selected clinic</p>
 
-      <div class="date-time-grid">
-        <div>
-          <div class="label-group">Date</div>
-          <div class="field">
+      <section class="date-time-grid">
+        <section>
+          <p class="label-group">Date</p>
+          <section class="field">
             <input type="date" id="appt-date" min="" onchange="updateDate(this.value)"/>
-          </div>
-        </div>
-        <div>
-          <div class="label-group">Available Times</div>
-          <div class="time-slots" id="time-slots">
-            <p id="slots-message">Please select a date to see available times.</p>
-          </div>
-        </div>
-      </div>
+          </section>
+        </section>
 
-      <div class="btn-row">
+        <section>
+          <p class="label-group">Available Times</p>
+          <section class="time-slots" id="time-slots">
+            <p id="slots-message">Please select a date to see available times.</p>
+          </section>
+        </section>
+      </section>
+
+      <section class="btn-row">
         <button class="btn-back" onclick="goToStep(1)">← Back</button>
         <button class="btn-next" onclick="goToStep(3)">Continue →</button>
-      </div>
-    </div>
+      </section>
+    </section>
 
     <!-- STEP 3: Patient Details -->
-    <div class="form-section" id="section-3">
-      <div class="section-title">Your Details</div>
-      <div class="section-sub">We need a few details to confirm your booking</div>
+    <section class="form-section" id="section-3">
+      <h2 class="section-title">Your Details</h2>
+      <p class="section-sub">We need a few details to confirm your booking</p>
 
-      <div class="field-grid">
-        <div class="field">
+      <section class="field-grid">
+        <section class="field">
           <label>First Name *</label>
           <input type="text" id="fname" placeholder="e.g. Thabo" oninput="updateBooking()"/>
-        </div>
-        <div class="field">
+        </section>
+
+        <section class="field">
           <label>Last Name *</label>
           <input type="text" id="lname" placeholder="e.g. Dlamini" oninput="updateBooking()"/>
-        </div>
-        <div class="field">
+        </section>
+
+        <section class="field">
           <label>Email Address *</label>
           <input type="email" id="email" placeholder="you@email.com" oninput="updateBooking()"/>
-        </div>
-        <div class="field">
+        </section>
+
+        <section class="field">
           <label>Phone Number *</label>
           <input type="tel" id="phone" placeholder="e.g. 071 234 5678" oninput="updateBooking()"/>
-        </div>
-        <div class="field">
+        </section>
+
+        <section class="field">
           <label>ID / Passport Number</label>
           <input type="text" id="id-number" placeholder="Optional"/>
-        </div>
-        <div class="field">
+        </section>
+
+        <section class="field">
           <label>Medical Aid / Insurance</label>
           <select id="medical-aid">
             <option value="">Self-pay / None</option>
@@ -131,79 +150,102 @@
             <option>Bestmed</option>
             <option>Other</option>
           </select>
-        </div>
-      </div>
-      <div class="field">
+        </section>
+      </section>
+
+      <section class="field">
         <label>Additional Notes</label>
         <textarea id="notes" placeholder="Any symptoms, allergies, or extra information for the clinic..."></textarea>
-      </div>
+      </section>
 
-      <div class="btn-row">
+      <section class="btn-row">
         <button class="btn-back" onclick="goToStep(2)">← Back</button>
         <button class="btn-next" onclick="goToStep(4)">Review Booking →</button>
-      </div>
-    </div>
+      </section>
+    </section>
 
     <!-- STEP 4: Confirm -->
-    <div class="form-section" id="section-4">
-      <div class="section-title">Review & Confirm</div>
-      <div class="section-sub">Please check your details before confirming</div>
+    <section class="form-section" id="section-4">
+      <h2 class="section-title">Review &amp; Confirm</h2>
+      <p class="section-sub">Please check your details before confirming</p>
 
-      <div class="summary-box">
-        <div class="summary-row">
+      <section class="summary-box">
+        <section class="summary-row">
           <span class="summary-label">Clinic</span>
           <span class="summary-value" id="sum-clinic">—</span>
-        </div>
-        <div class="summary-row">
+        </section>
+
+        <section class="summary-row">
           <span class="summary-label">Reason</span>
           <span class="summary-value" id="sum-reason">—</span>
-        </div>
-        <div class="summary-row">
+        </section>
+
+        <section class="summary-row">
           <span class="summary-label">Date</span>
           <span class="summary-value" id="sum-date">—</span>
-        </div>
-        <div class="summary-row">
+        </section>
+
+        <section class="summary-row">
           <span class="summary-label">Time</span>
           <span class="summary-value" id="sum-time">—</span>
-        </div>
-        <div class="summary-row">
+        </section>
+
+        <section class="summary-row">
           <span class="summary-label">Patient</span>
           <span class="summary-value" id="sum-patient">—</span>
-        </div>
-        <div class="summary-row">
+        </section>
+
+        <section class="summary-row">
           <span class="summary-label">Contact</span>
           <span class="summary-value" id="sum-contact">—</span>
-        </div>
-      </div>
+        </section>
+      </section>
 
-      <div class="btn-row">
+      <section class="btn-row">
         <button class="btn-back" onclick="goToStep(3)">← Back</button>
         <button class="btn-next" onclick="confirmBooking()">✓ Confirm Booking</button>
-      </div>
-    </div>
+      </section>
+    </section>
 
     <!-- SUCCESS -->
-    <div class="form-section" id="section-success">
-      <div class="success-screen">
-        <div class="success-icon">
+    <section class="form-section" id="section-success">
+      <section class="success-screen">
+        <figure class="success-icon">
           <img src="/images/success.png" width="60" height="60" alt="Success">
-        </div>
+        </figure>
+
         <h2>Appointment booked, status is pending</h2>
         <p>Your booking has been received. Check back to view confirmation details.</p>
         <br/>
-        <button class="btn-next" onclick="resetForm()" style="margin: 0 auto;">Book Another Appointment</button>
-      </div>
-    </div>
+        <button class="btn-next" onclick="resetForm()" style="margin: 0 auto;">
+          Book Another Appointment
+        </button>
+      </section>
+    </section>
 
-  </div>
+  </section>
 </main>
 
 <footer>
-  © 2026 MediQueue · All rights reserved · <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>
+  © 2026 MediQueue · All rights reserved ·
+  <a href="#" style="color: rgba(255, 255, 255, 0.6); text-decoration:none;">
+    Privacy Policy
+  </a>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
 <script src="/js/appointment.js"></script>
+
+<script>
+  function goToAccount() {
+    sessionStorage.setItem(
+      "previousPageBeforeAccount",
+      window.location.pathname + window.location.search
+    );
+
+    window.location.href = "/html/account.html";
+  }
+</script>
+
 </body>
 </html>

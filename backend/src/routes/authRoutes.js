@@ -1,3 +1,5 @@
+// backend auth
+
 const express = require("express");
 const router = express.Router();
 const pool = require('../db');
@@ -202,11 +204,12 @@ function requireAuth(req, res, next) {
 }
 
 // ─── POST /api/auth/set-role ─────────────────────────────────────────────────
+// ─── POST /api/auth/set-role ─────────────────────────────────────────────────
 router.post("/set-role", requireAuth, async (req, res) => {
   const email = req.userEmail || req.headers["x-user-email"];
   if (!email) return res.status(400).json({ error: "Email required" });
 
-  const { role, staffProfile } = req.body;
+  const { role, staffProfile, adminClinicId } = req.body;
   const VALID_ROLES = ["patient", "staff", "admin"];
 
   if (!VALID_ROLES.includes(role)) {
@@ -238,14 +241,15 @@ router.post("/set-role", requireAuth, async (req, res) => {
     try {
       await client.query("BEGIN");
 
+      // 1. Update the user's role
       await client.query(`UPDATE "user" SET role = $1 WHERE user_id = $2`, [
         role,
         user_id,
       ]);
 
+      // 2a. Staff — insert full staff_profile
       if (role === "staff" && staffProfile) {
-        const { clinic_id, job_title, qualifications, specialties, bio } =
-          staffProfile;
+        const { clinic_id, job_title, qualifications, specialties, bio } = staffProfile;
 
         if (!clinic_id || !job_title) {
           throw new Error("clinic_id and job_title are required for staff.");
@@ -272,6 +276,18 @@ router.post("/set-role", requireAuth, async (req, res) => {
         );
       }
 
+      // 2b. Admin — insert staff_profile with clinic_id only (no job_title requirement)
+      if (role === "admin" && adminClinicId) {
+        await client.query(
+          `INSERT INTO staff_profile
+             (user_id, clinic_id, job_title)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (user_id) DO UPDATE
+             SET clinic_id = EXCLUDED.clinic_id`,
+          [user_id, adminClinicId, "Administrator"],
+        );
+      }
+
       await client.query("COMMIT");
       return res.json({ message: "Role saved.", role });
     } catch (txErr) {
@@ -282,9 +298,7 @@ router.post("/set-role", requireAuth, async (req, res) => {
     }
   } catch (err) {
     console.error("set-role error:", err);
-    return res
-      .status(500)
-      .json({ error: err.message || "Failed to save role." });
+    return res.status(500).json({ error: err.message || "Failed to save role." });
   }
 });
 

@@ -1,3 +1,5 @@
+// frontend auth
+
 import { auth, googleProvider } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,

@@ -337,15 +337,7 @@ backend/migrations/
 
 # 🔥 Firebase Hosting
 
-The application is deployed using Firebase Hosting.
-
-## Deployment
-
-```bash
-firebase deploy
-```
-
----
+The application is deployed using Render.
 
 # 🌍 Live Demo
 

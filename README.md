@@ -335,7 +335,7 @@ backend/migrations/
 
 ---
 
-# 🔥 Firebase Hosting
+# 🔥 Render Hosting
 
 The application is deployed using Render.
 
